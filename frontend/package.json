@@ -1,0 +1,49 @@
+{
+  "name": "comms-itumo-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@tanstack/react-query": "^5.75.7",
+    "@types/date-fns": "^2.5.3",
+    "@visx/responsive": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/text": "^3.12.0",
+    "@visx/wordcloud": "^3.12.0",
+    "antd": "^5.25.1",
+    "axios": "^1.6.2",
+    "date-fns": "^4.1.0",
+    "firebase": "^10.14.1",
+    "lucide-react": "^0.503.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.30.0",
+    "react-tagcloud": "^2.3.3",
+    "recharts": "^2.15.3",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^3.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.38",
+    "@types/react-dom": "^18.2.17",
+    "@types/react-tagcloud": "^2.3.2",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.53.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "postcss": "^8.4.31",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  }
+}

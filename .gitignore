@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase
+**/serviceAccountKey.json
+**/client_secrets.json
+**/firebase-credentials.json
+**/youtube_credentials.json
+token.pickle
+
+# Logs
+logs/
+*.log 
+
+# Test files
+test_*.py
+check_*.py
+**/test_*.csv
+
+# Large files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Build outputs
+frontend/dist/
+backend/models/
+backend/exports/
+
+# AI Model files (too large for GitHub)
+backend/models/**/*.safetensors
+backend/models/**/*.bin
+backend/models/**/*.json
+backend/models/**/*.txt
+backend/models/**/*.vocab
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db 
