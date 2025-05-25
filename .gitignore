@@ -23,6 +23,7 @@ var/
 # Virtual Environment
 venv/
 ENV/
+.venv/
 
 # IDE
 .idea/
@@ -42,13 +43,35 @@ yarn-error.log
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
 
-# Firebase
+# Firebase & Google Credentials
 **/serviceAccountKey.json
 **/client_secrets.json
+**/client_secret.json
 **/firebase-credentials.json
+**/firebase_config.py
 **/youtube_credentials.json
+**/youtube_config.py
+firebase-adminsdk-*.json
+google-services.json
+GoogleService-Info.plist
+
+# API Keys & Tokens
 token.pickle
+*.key
+*.pem
+*.p12
+*.pfx
+api_keys.json
+secrets.json
+
+# Config files with sensitive data
+config/
+**/config/*.json
+**/config/*.py
+**/config/*.js
+**/config/*.ts
 
 # Logs
 logs/
@@ -77,6 +100,16 @@ backend/models/**/*.json
 backend/models/**/*.txt
 backend/models/**/*.vocab
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -84,4 +117,15 @@ backend/models/**/*.vocab
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db 
+Thumbs.db
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Linux
+*~ 
