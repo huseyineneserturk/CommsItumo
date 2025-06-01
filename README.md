@@ -782,7 +782,7 @@ SOFTWARE.
 [![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:huseyinenes.erturk@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green?style=for-the-badge&logo=vercel)](https://huseyineneserturk.dev)
 
-**Full-Stack Developer | AI Enthusiast | Open Source Contributor**
+**Full-Stack Developer and Data Analyst Candidate**
 
 </div>
 
