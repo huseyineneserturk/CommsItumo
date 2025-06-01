@@ -657,7 +657,7 @@ SOFTWARE.
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/huseyineneserturk)
 [![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:huseyinenes.erturk@gmail.com)
 
-**Full-Stack Developer | AI Enthusiast | Open Source Contributor**
+**Full-Stack Developer and Data Analyst Candidate**
 
 </div>
 
@@ -708,6 +708,6 @@ Bu projenin geliştirilmesinde katkıda bulunan herkese teşekkür ederiz:
 
 ---
 
-*Son güncelleme: Aralık 2024*
+*Son güncelleme: Mayıs 2025*
 
 </div> 
