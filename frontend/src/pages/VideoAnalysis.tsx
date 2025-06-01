@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, message, Spin, Typography, Row, Col, Statistic, Button, Input, Form, Alert, Tag, Tabs } from 'antd';
+import { Card, message, Spin, Typography, Row, Col, Statistic, Button, Input, Form, Alert, Tag, Tabs, List, Progress, Space } from 'antd';
 import { analysisService } from '../services/analysisService';
-import { AnalysisResult } from '../types/analysis';
+import { AnalysisResult, AnalysisSummary } from '../types/analysis';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { YoutubeOutlined, PlayCircleOutlined, BarChartOutlined, FileTextOutlined, LinkOutlined, ReloadOutlined, EyeOutlined, LikeOutlined, MessageOutlined, CalendarOutlined } from '@ant-design/icons';
+import { YoutubeOutlined, PlayCircleOutlined, BarChartOutlined, FileTextOutlined, LinkOutlined, ReloadOutlined, EyeOutlined, LikeOutlined, MessageOutlined, CalendarOutlined, HistoryOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined } from '@ant-design/icons';
 import { Wordcloud } from '@visx/wordcloud';
 import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
 import { getAuth } from 'firebase/auth';
 import { useAI } from '../contexts/AIContext';
+import { useCache } from '../contexts/CacheContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -28,10 +29,18 @@ const VideoAnalysis: React.FC = () => {
   const [videoInfo, setVideoInfo] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('input');
+  const [isFromCache, setIsFromCache] = useState(false);
+  
+  // Geçmiş analizler için state'ler
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisSummary[]>([]);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisResult | null>(null);
 
   const auth = getAuth();
   const user = auth.currentUser;
   const { setComments: setAIComments } = useAI();
+  
+  // Cache sistemini kullan
+  const { getVideoAnalysis, setVideoAnalysis } = useCache();
 
   const extractVideoId = (url: string): string | null => {
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -42,6 +51,55 @@ const VideoAnalysis: React.FC = () => {
   const validateYouTubeUrl = (url: string): boolean => {
     return extractVideoId(url) !== null;
   };
+
+  const fetchAnalysisHistory = async () => {
+    if (!user) return;
+    
+    try {
+      const history = await analysisService.getUserAnalysesFromAPI(user.uid);
+      setAnalysisHistory(history);
+    } catch (error) {
+      console.error('Analiz geçmişi alınamadı:', error);
+      message.error('Analiz geçmişi yüklenirken bir hata oluştu.');
+    }
+  };
+
+  const handleAnalysisSelect = async (analysisId: string) => {
+    try {
+      setLoading(true);
+      
+      // Önce cache'e bak
+      const cachedAnalysis = getVideoAnalysis(analysisId);
+      if (cachedAnalysis) {
+        console.log(`📦 Cache'den video analizi yüklendi:`, analysisId);
+        setSelectedAnalysis(cachedAnalysis);
+        setActiveTab('detail');
+        setLoading(false);
+        return;
+      }
+      
+      console.log(`🌐 API'den video analizi çekiliyor:`, analysisId);
+      const analysisDetail = await analysisService.getAnalysisByIdFromAPI(analysisId);
+      if (analysisDetail) {
+        setSelectedAnalysis(analysisDetail);
+        setActiveTab('detail');
+        
+        // Cache'e kaydet
+        setVideoAnalysis(analysisId, analysisDetail);
+      }
+    } catch (error) {
+      console.error('Analiz detayı alınamadı:', error);
+      message.error('Analiz detayı yüklenirken bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchAnalysisHistory();
+    }
+  }, [user]);
 
   const handleAnalyze = async (values: { videoUrl: string }) => {
     if (!user) {
@@ -58,6 +116,40 @@ const VideoAnalysis: React.FC = () => {
     try {
       setAnalyzing(true);
       setError(null);
+      setIsFromCache(false);
+      
+      // Önce cache'e bak
+      const cachedResult = getVideoAnalysis(videoId);
+      if (cachedResult) {
+        console.log(`📦 Cache'den video analizi yüklendi:`, videoId);
+        setAnalysisResult(cachedResult);
+        setVideoInfo(cachedResult.video_info);
+        setActiveTab('results');
+        setIsFromCache(true);
+        
+        // AI Context'e yorumları gönder
+        if (cachedResult.comments) {
+          const aiComments = cachedResult.comments.map((comment: any) => ({
+            id: comment.id || Math.random().toString(),
+            text: comment.text,
+            author: comment.author,
+            date: comment.date,
+            language: comment.sentiment?.language || 'tr',
+            video_title: cachedResult.video_info?.title || 'Video',
+            sentiment: {
+              polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
+              subjectivity: 0.5,
+              confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
+            }
+          }));
+          setAIComments(aiComments);
+        }
+        
+        message.success('Video analizi önbellekten yüklendi!');
+        return;
+      }
+      
+      console.log(`🌐 API'den fresh video analizi yapılıyor:`, videoId);
       
       // Video analizi yap
       const result = await analysisService.analyzeVideo(videoId, 100);
@@ -65,6 +157,9 @@ const VideoAnalysis: React.FC = () => {
       setAnalysisResult(result);
       setVideoInfo(result.video_info);
       setActiveTab('results');
+      
+      // Cache'e kaydet
+      setVideoAnalysis(videoId, result);
       
       // AI Context'e yorumları gönder
       if (result.comments) {
@@ -76,15 +171,18 @@ const VideoAnalysis: React.FC = () => {
           language: comment.sentiment?.language || 'tr',
           video_title: result.video_info?.title || 'Video',
           sentiment: {
-            polarity: comment.sentiment?.score || 0,
+            polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
             subjectivity: 0.5,
-            confidence: Math.abs(comment.sentiment?.score || 0)
+            confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
           }
         }));
         setAIComments(aiComments);
       }
       
       message.success(`Video analizi tamamlandı! ${result.total_comments} yorum analiz edildi.`);
+      
+      // Analiz geçmişini yenile
+      await fetchAnalysisHistory();
       
     } catch (error) {
       console.error('Video analizi hatası:', error);
@@ -100,7 +198,9 @@ const VideoAnalysis: React.FC = () => {
     setAnalysisResult(null);
     setVideoInfo(null);
     setError(null);
+    setSelectedAnalysis(null);
     setActiveTab('input');
+    setIsFromCache(false);
     form.resetFields();
   };
 
@@ -112,7 +212,7 @@ const VideoAnalysis: React.FC = () => {
         <Card title="Kelime Bulutu" className="shadow-lg border-0 hover:shadow-xl transition-shadow">
           <div className="text-center py-12">
             <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
-            <Title level={4} className="text-gray-500 mb-2">Kelime Bulutu Hazır Değil</Title>
+            <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
             <Text className="text-gray-400">Kelime bulutu için yeterli veri yok</Text>
           </div>
         </Card>
@@ -196,6 +296,83 @@ const VideoAnalysis: React.FC = () => {
     );
   };
 
+  // Geçmiş analizler bileşeni
+  const AnalysisHistory = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <Title level={3} className="mb-2">Video Analiz Geçmişi</Title>
+        <Text type="secondary" className="text-lg">Analiz edilmiş videolarınızın geçmişi</Text>
+      </div>
+      
+      {analysisHistory.length === 0 ? (
+        <Card className="text-center py-16 shadow-lg border-0">
+          <div className="mb-4">
+            <YoutubeOutlined className="text-6xl text-gray-300" />
+          </div>
+          <Title level={4} className="text-gray-500 mb-2">Henüz video analizi bulunmuyor</Title>
+          <Text className="text-gray-400">
+            Henüz hiç video analizi yapmadınız.
+            <br />
+            Analiz yapmak için "Video URL Girişi" tab'ından başlayın.
+          </Text>
+        </Card>
+      ) : (
+        <List
+          grid={{ gutter: 16, column: 1 }}
+          dataSource={analysisHistory}
+          renderItem={(item) => (
+            <List.Item>
+              <Card
+                hoverable
+                onClick={() => handleAnalysisSelect(item.id)}
+                className="cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 border-0 hover:transform hover:-translate-y-1"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <Title level={5} className="mb-3">
+                      {item.videoTitle || 'Bilinmeyen Video'}
+                    </Title>
+                    <div className="space-y-2">
+                      <div className="flex items-center text-gray-500">
+                        <CalendarOutlined className="mr-2" />
+                        <Text type="secondary">
+                          {new Date(item.createdAt).toLocaleDateString('tr-TR')}
+                        </Text>
+                      </div>
+                      <div className="flex items-center text-gray-500">
+                        <MessageOutlined className="mr-2" />
+                        <Text type="secondary">
+                          Toplam Yorum: {item.totalComments}
+                        </Text>
+                      </div>
+                      <Tag color={
+                        item.dominantSentiment === 'positive' ? 'green' :
+                        item.dominantSentiment === 'negative' ? 'red' : 'blue'
+                      } className="mt-2">
+                        {item.dominantSentiment === 'positive' ? 'Pozitif' :
+                         item.dominantSentiment === 'negative' ? 'Negatif' : 'Nötr'}
+                      </Tag>
+                    </div>
+                  </div>
+                  <div className="text-right ml-4">
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <div className={`text-2xl font-bold ${
+                        item.averagePolarity > 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {item.averagePolarity.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-500">Ortalama Polarite</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </List.Item>
+          )}
+        />
+      )}
+    </div>
+  );
+
   const AnalysisResults = () => {
     if (!analysisResult) return null;
 
@@ -219,6 +396,17 @@ const VideoAnalysis: React.FC = () => {
         {/* Video Bilgileri */}
         {videoInfo && (
           <Card className="shadow-lg border-0 hover:shadow-xl transition-shadow">
+            <div className="flex justify-between items-start mb-4">
+              <Title level={4} className="mb-3 text-gray-900">
+                {videoInfo.title || 'Video Başlığı'}
+              </Title>
+              {isFromCache && (
+                <Tag color="blue" className="text-xs">
+                  📦 Önbellekten
+                </Tag>
+              )}
+            </div>
+            
             <div className="flex flex-col lg:flex-row items-start space-y-4 lg:space-y-0 lg:space-x-6">
               {/* Video Thumbnail */}
               <div className="flex-shrink-0">
@@ -239,10 +427,6 @@ const VideoAnalysis: React.FC = () => {
               
               {/* Video Detayları */}
               <div className="flex-1 min-w-0">
-                <Title level={4} className="mb-3 text-gray-900">
-                  {videoInfo.title || 'Video Başlığı'}
-                </Title>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="flex items-center p-3 bg-blue-50 rounded-lg">
                     <EyeOutlined className="text-blue-600 mr-2" />
@@ -306,100 +490,412 @@ const VideoAnalysis: React.FC = () => {
           </Card>
         )}
 
-        {/* Analiz İstatistikleri */}
-        <Row gutter={[16, 16]}>
+        {/* Modern İstatistikler */}
+        <Row gutter={[16, 16]} className="mb-8">
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-              <div className="mb-2">
-                <MessageOutlined className="text-3xl text-blue-500" />
+            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                  <MessageOutlined className="text-2xl text-white" />
+                </div>
               </div>
               <Statistic
-                title="Toplam Yorum"
+                title={
+                  <span>
+                    <span className="text-blue-700 font-semibold">Toplam Yorum</span>
+                    {isFromCache && <div className="text-xs text-blue-500 mt-1">📦 Önbellekten</div>}
+                  </span>
+                }
                 value={analysisResult.total_comments || 0}
-                valueStyle={{ color: '#1890ff', fontSize: '2rem', fontWeight: 'bold' }}
+                valueStyle={{ color: '#1890ff', fontSize: '2.5rem', fontWeight: 'bold' }}
               />
+              <div className="mt-3">
+                <Progress 
+                  percent={100} 
+                  size="small" 
+                  strokeColor="#1890ff"
+                  showInfo={false}
+                />
+                <Text type="secondary" className="text-xs mt-1 block">
+                  {isFromCache ? '📦 Önbellekten' : '🌐 Canlı veri'}
+                </Text>
+              </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-              <div className="mb-2">
-                <BarChartOutlined className="text-3xl text-green-500" />
+            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-green-50 to-green-100">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                  <RiseOutlined className="text-2xl text-white" />
+                </div>
               </div>
               <Statistic
-                title="Ortalama Duygu"
+                title={<span className="text-green-700 font-semibold">Ortalama Duygu</span>}
                 value={analysisResult.sentiment_stats?.average_polarity || 0}
-                precision={2}
+                precision={3}
                 valueStyle={{ 
                   color: (analysisResult.sentiment_stats?.average_polarity || 0) > 0 ? '#52c41a' : '#ff4d4f',
-                  fontSize: '2rem', 
+                  fontSize: '2.5rem', 
                   fontWeight: 'bold' 
                 }}
               />
+              <div className="mt-3">
+                <Progress 
+                  percent={Math.abs((analysisResult.sentiment_stats?.average_polarity || 0) * 100)} 
+                  size="small" 
+                  strokeColor={(analysisResult.sentiment_stats?.average_polarity || 0) > 0 ? '#52c41a' : '#ff4d4f'}
+                  showInfo={false}
+                />
+                <Text type="secondary" className="text-xs mt-1 block">
+                  {(analysisResult.sentiment_stats?.average_polarity || 0) > 0 ? '📈 Pozitif trend' : '📉 Negatif trend'}
+                </Text>
+              </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-              <div className="mb-2">
-                <LikeOutlined className="text-3xl text-green-500" />
+            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                  <BarChartOutlined className="text-2xl text-white" />
+                </div>
               </div>
               <Statistic
-                title="Pozitif Yorumlar"
-                value={analysisResult.sentiment_stats?.categories?.positive || 0}
-                valueStyle={{ color: '#52c41a', fontSize: '2rem', fontWeight: 'bold' }}
+                title={<span className="text-purple-700 font-semibold">Pozitiflik Oranı</span>}
+                value={analysisResult.sentiment_stats?.categories?.positive ? 
+                  ((analysisResult.sentiment_stats.categories.positive / analysisResult.total_comments) * 100) : 0
+                }
+                precision={1}
+                suffix="%"
+                valueStyle={{ color: '#722ed1', fontSize: '2.5rem', fontWeight: 'bold' }}
               />
+              <div className="mt-3">
+                <Progress 
+                  percent={analysisResult.sentiment_stats?.categories?.positive ? 
+                    (analysisResult.sentiment_stats.categories.positive / analysisResult.total_comments) * 100 : 0
+                  } 
+                  size="small" 
+                  strokeColor="#722ed1"
+                  showInfo={false}
+                />
+                <Text type="secondary" className="text-xs mt-1 block">
+                  {analysisResult.sentiment_stats?.categories?.positive || 0} pozitif yorum
+                </Text>
+              </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-              <div className="mb-2">
-                <FileTextOutlined className="text-3xl text-purple-500" />
+            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-orange-50 to-orange-100">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                  <FileTextOutlined className="text-2xl text-white" />
+                </div>
               </div>
               <Statistic
-                title="Tema Sayısı"
+                title={<span className="text-orange-700 font-semibold">Aktif Temalar</span>}
                 value={themeData.length}
-                valueStyle={{ color: '#722ed1', fontSize: '2rem', fontWeight: 'bold' }}
+                valueStyle={{ color: '#fa8c16', fontSize: '2.5rem', fontWeight: 'bold' }}
               />
+              <div className="mt-3">
+                <Progress 
+                  percent={(themeData.length / 10) * 100} 
+                  size="small" 
+                  strokeColor="#fa8c16"
+                  showInfo={false}
+                />
+                <Text type="secondary" className="text-xs mt-1 block">
+                  Tespit edilen konu başlıkları
+                </Text>
+              </div>
             </Card>
           </Col>
         </Row>
 
-        {/* Grafikler */}
-        <Row gutter={[24, 24]}>
+        {/* Detaylı İstatistik Panelleri */}
+        <Row gutter={[24, 24]} className="mb-8">
           <Col xs={24} lg={12}>
-            <Card title="Duygu Dağılımı" className="shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <ResponsiveContainer width="100%" height={300}>
+            <Card 
+              title={
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
+                    <BarChartOutlined className="text-white" />
+                  </div>
+                  <span className="text-lg font-semibold">Duygu Analizi Özeti</span>
+                </div>
+              }
+              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                  <div className="flex items-center">
+                    <SmileOutlined className="text-2xl text-green-600 mr-3" />
+                    <div>
+                      <Text strong className="text-green-800">Pozitif Yorumlar</Text>
+                      <div className="text-xs text-green-600">
+                        {analysisResult.sentiment_stats?.categories?.positive || 0} yorum
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">
+                      {analysisResult.sentiment_stats?.categories?.positive ? 
+                        ((analysisResult.sentiment_stats.categories.positive / analysisResult.total_comments) * 100).toFixed(1) : 0
+                      }%
+                    </div>
+                    <Progress 
+                      percent={analysisResult.sentiment_stats?.categories?.positive ? 
+                        (analysisResult.sentiment_stats.categories.positive / analysisResult.total_comments) * 100 : 0
+                      }
+                      size="small"
+                      strokeColor="#52c41a"
+                      showInfo={false}
+                      className="w-20"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                  <div className="flex items-center">
+                    <MehOutlined className="text-2xl text-blue-600 mr-3" />
+                    <div>
+                      <Text strong className="text-blue-800">Nötr Yorumlar</Text>
+                      <div className="text-xs text-blue-600">
+                        {analysisResult.sentiment_stats?.categories?.neutral || 0} yorum
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {analysisResult.sentiment_stats?.categories?.neutral ? 
+                        ((analysisResult.sentiment_stats.categories.neutral / analysisResult.total_comments) * 100).toFixed(1) : 0
+                      }%
+                    </div>
+                    <Progress 
+                      percent={analysisResult.sentiment_stats?.categories?.neutral ? 
+                        (analysisResult.sentiment_stats.categories.neutral / analysisResult.total_comments) * 100 : 0
+                      }
+                      size="small"
+                      strokeColor="#1890ff"
+                      showInfo={false}
+                      className="w-20"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
+                  <div className="flex items-center">
+                    <FrownOutlined className="text-2xl text-red-600 mr-3" />
+                    <div>
+                      <Text strong className="text-red-800">Negatif Yorumlar</Text>
+                      <div className="text-xs text-red-600">
+                        {analysisResult.sentiment_stats?.categories?.negative || 0} yorum
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-red-600">
+                      {analysisResult.sentiment_stats?.categories?.negative ? 
+                        ((analysisResult.sentiment_stats.categories.negative / analysisResult.total_comments) * 100).toFixed(1) : 0
+                      }%
+                    </div>
+                    <Progress 
+                      percent={analysisResult.sentiment_stats?.categories?.negative ? 
+                        (analysisResult.sentiment_stats.categories.negative / analysisResult.total_comments) * 100 : 0
+                      }
+                      size="small"
+                      strokeColor="#ff4d4f"
+                      showInfo={false}
+                      className="w-20"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card 
+              title={
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg mr-3 flex items-center justify-center">
+                    <FileTextOutlined className="text-white" />
+                  </div>
+                  <span className="text-lg font-semibold">Tema Dağılımı</span>
+                </div>
+              }
+              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="space-y-6">
+                <div>
+                  <Text strong className="text-gray-700 mb-3 block">En Popüler Temalar</Text>
+                  <Space wrap>
+                    {themeData.slice(0, 6).map(theme => (
+                      <Tag 
+                        key={theme.name} 
+                        color="blue"
+                        className="mb-2 px-3 py-1 text-sm"
+                      >
+                        {theme.name}: {theme.value}
+                      </Tag>
+                    ))}
+                  </Space>
+                </div>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Modern Grafikler */}
+        <Row gutter={[24, 24]} className="mb-8">
+          <Col xs={24} lg={8}>
+            <Card 
+              title={
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg mr-3 flex items-center justify-center">
+                    <SmileOutlined className="text-white" />
+                  </div>
+                  <span className="text-lg font-semibold">Duygu Dağılımı</span>
+                </div>
+              }
+              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              extra={
+                <Tag color="blue" className="font-medium">
+                  {analysisResult.total_comments} Toplam
+                </Tag>
+              }
+            >
+              <ResponsiveContainer width="100%" height={350}>
                 <PieChart>
                   <Pie
                     data={sentimentData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
+                    label={({ name, percent, value }) => `${name}\n${value} yorum\n${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    innerRadius={40}
                     fill="#8884d8"
                     dataKey="value"
+                    stroke="#fff"
+                    strokeWidth={3}
                   >
                     {sentimentData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]}
+                        style={{
+                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
+                          cursor: 'pointer'
+                        }}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+                    }}
+                  />
+                  <Legend 
+                    wrapperStyle={{
+                      paddingTop: '20px',
+                      fontSize: '14px',
+                      fontWeight: 'bold'
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
-            <Card title="Tema Dağılımı" className="shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={themeData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill="#8884d8" />
+          <Col xs={24} lg={8}>
+            <Card 
+              title={
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+                    <FileTextOutlined className="text-white" />
+                  </div>
+                  <span className="text-lg font-semibold">Tema Analizi</span>
+                </div>
+              }
+              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              extra={
+                <Tag color="purple" className="font-medium">
+                  Top {Math.min(themeData.length, 8)}
+                </Tag>
+              }
+            >
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={themeData.slice(0, 8)} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    tick={{ fontSize: 12, fill: '#666' }}
+                  />
+                  <YAxis tick={{ fontSize: 12, fill: '#666' }} />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+                    }}
+                    labelStyle={{ fontWeight: 'bold', color: '#333' }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="url(#barGradient)"
+                    radius={[8, 8, 0, 0]}
+                    cursor="pointer"
+                  />
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8884d8" />
+                      <stop offset="100%" stopColor="#82ca9d" />
+                    </linearGradient>
+                  </defs>
                 </BarChart>
               </ResponsiveContainer>
+            </Card>
+          </Col>
+          <Col xs={24} lg={8}>
+            <Card 
+              title={
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-600 rounded-lg mr-3 flex items-center justify-center">
+                    <BarChartOutlined className="text-white" />
+                  </div>
+                  <span className="text-lg font-semibold">Video Performansı</span>
+                </div>
+              }
+              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-blue-50 rounded-xl">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {((analysisResult.sentiment_stats?.categories?.positive || 0) / (analysisResult.total_comments || 1) * 100).toFixed(1)}%
+                  </div>
+                  <div className="text-sm text-blue-500">Pozitif Tepki Oranı</div>
+                </div>
+                
+                <div className="text-center p-4 bg-green-50 rounded-xl">
+                  <div className="text-2xl font-bold text-green-600">
+                    {analysisResult.sentiment_stats?.average_polarity ? 
+                      (analysisResult.sentiment_stats.average_polarity > 0 ? 'İyi' : 'Kötü') : 'Orta'
+                    }
+                  </div>
+                  <div className="text-sm text-green-500">Genel Duygu Durumu</div>
+                </div>
+
+                <div className="text-center p-4 bg-purple-50 rounded-xl">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {themeData.length}
+                  </div>
+                  <div className="text-sm text-purple-500">Farklı Tema</div>
+                </div>
+              </div>
             </Card>
           </Col>
         </Row>
@@ -619,6 +1115,83 @@ const VideoAnalysis: React.FC = () => {
               </Card>
             )}
           </TabPane>
+
+          <TabPane tab={
+            <span className="flex items-center">
+              <HistoryOutlined className="mr-2" />
+              Geçmiş Analizler
+            </span>
+          } key="history">
+            <AnalysisHistory />
+          </TabPane>
+
+          {selectedAnalysis && (
+            <TabPane tab={
+              <span className="flex items-center">
+                <FileTextOutlined className="mr-2" />
+                Analiz Detayı
+              </span>
+            } key="detail">
+              <Card className="shadow-lg border-0">
+                <Title level={4} className="mb-4">{selectedAnalysis.videoTitle}</Title>
+                <Text type="secondary" className="text-lg">
+                  Analiz Tarihi: {new Date(selectedAnalysis.createdAt).toLocaleDateString('tr-TR')}
+                </Text>
+                
+                {/* Seçili analiz için istatistikler */}
+                <Row gutter={[16, 16]} className="mt-6">
+                  <Col xs={24} sm={12} lg={6}>
+                    <div className="text-center p-6 bg-blue-50 rounded-xl">
+                      <div className="text-3xl font-bold text-blue-600 mb-2">
+                        {selectedAnalysis.sentimentStats.total}
+                      </div>
+                      <div className="text-sm text-blue-500">Toplam Yorum</div>
+                    </div>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <div className="text-center p-6 bg-green-50 rounded-xl">
+                      <div className={`text-3xl font-bold mb-2 ${
+                        selectedAnalysis.sentimentStats.averagePolarity > 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {selectedAnalysis.sentimentStats.averagePolarity.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-500">Ortalama Polarite</div>
+                    </div>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <div className="text-center p-6 bg-purple-50 rounded-xl">
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        {
+                          selectedAnalysis.sentimentStats.categories.positive >= 
+                          selectedAnalysis.sentimentStats.categories.negative &&
+                          selectedAnalysis.sentimentStats.categories.positive >= 
+                          selectedAnalysis.sentimentStats.categories.neutral ? 'Pozitif' :
+                          selectedAnalysis.sentimentStats.categories.negative >= 
+                          selectedAnalysis.sentimentStats.categories.neutral ? 'Negatif' : 'Nötr'
+                        }
+                      </div>
+                      <div className="text-sm text-purple-500">Dominant Duygu</div>
+                    </div>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <div className="text-center p-6 bg-orange-50 rounded-xl">
+                      <div className="text-3xl font-bold text-orange-600 mb-2">
+                        {Math.round((selectedAnalysis.sentimentStats.categories.positive / selectedAnalysis.sentimentStats.total) * 100)}%
+                      </div>
+                      <div className="text-sm text-orange-500">Pozitif Oran</div>
+                    </div>
+                  </Col>
+                </Row>
+
+                {/* Seçili analiz için kelime bulutu */}
+                {selectedAnalysis.wordCloud && selectedAnalysis.wordCloud.length > 0 && (
+                  <div className="mt-8">
+                    <WordCloudChart words={selectedAnalysis.wordCloud} />
+                  </div>
+                )}
+              </Card>
+            </TabPane>
+          )}
         </Tabs>
       </div>
     </div>

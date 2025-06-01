@@ -3,7 +3,6 @@ import { Modal, Input, Button, message, Spin, Avatar } from 'antd';
 import { SendOutlined, UserOutlined, RobotOutlined, CloseOutlined } from '@ant-design/icons';
 import { getAuth } from 'firebase/auth';
 import axios, { AxiosResponse } from 'axios';
-import { useAI } from '../contexts/AIContext';
 
 const { TextArea } = Input;
 
@@ -14,28 +13,13 @@ interface Message {
   timestamp: Date;
 }
 
-interface Comment {
-  id: string;
-  text: string;
-  author: string;
-  date: string;
-  language: string;
-  video_title: string;
-  sentiment: {
-    polarity: number;
-    subjectivity: number;
-    confidence: number;
-  };
-}
-
 interface ChatResponse {
-  analysis: string;
+  response: string;
   timestamp: string;
   error?: string;
 }
 
 export const AIChatPopup: React.FC = () => {
-  const { comments } = useAI();
   const [isVisible, setIsVisible] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -66,17 +50,8 @@ export const AIChatPopup: React.FC = () => {
       
       const token = await user.getIdToken();
       
-      const response: AxiosResponse<ChatResponse> = await axios.post('http://127.0.0.1:8000/api/gemini/analyze', {
-        comments: comments.map((comment: Comment) => ({
-          id: comment.id,
-          text: comment.text,
-          author: comment.author,
-          date: comment.date,
-          language: comment.language,
-          video_title: comment.video_title,
-          sentiment: comment.sentiment
-        })),
-        question: input
+      const response: AxiosResponse<ChatResponse> = await axios.post('http://127.0.0.1:8000/api/gemini/chat', {
+        message: input
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -90,7 +65,7 @@ export const AIChatPopup: React.FC = () => {
 
       const aiMessage: Message = {
         id: Date.now().toString(),
-        text: response.data.analysis,
+        text: response.data.response,
         sender: 'ai',
         timestamp: new Date()
       };
@@ -116,7 +91,7 @@ export const AIChatPopup: React.FC = () => {
     if (messages.length === 0) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        text: 'Merhaba! CommsItumo AI asistanınızım. Size nasıl yardımcı olabilirim? Yorumlar hakkında sorularınızı sorabilir, analiz sonuçlarını yorumlamamı isteyebilirsiniz.',
+        text: 'Merhaba! 👋 CommsItumo AI asistanınızım. Size nasıl yardımcı olabilirim? YouTube içerik üretimi, kanal büyütme stratejileri veya herhangi bir konuda sorularınızı sorabilirsiniz! 😊',
         sender: 'ai',
         timestamp: new Date()
       };
@@ -285,10 +260,7 @@ export const AIChatPopup: React.FC = () => {
 
           {/* Info Text */}
           <div className="mt-2 text-xs text-gray-500 text-center">
-            {comments.length > 0 
-              ? `${comments.length} yorum verisi ile analiz yapılabilir`
-              : 'Genel sorular sorabilirsiniz'
-            }
+            YouTube içerik üretimi, kanal büyütme ve genel sorularınız için buradayım! 🚀
           </div>
         </div>
       </Modal>

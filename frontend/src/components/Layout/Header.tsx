@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
+// import CacheStatus from '../CacheStatus';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,15 +25,11 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-4 group">
           <div className="relative">
-            <div className="w-14 h-14 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 flex items-center justify-center transform group-hover:scale-105">
+            <div className="w-14 h-14 bg-white rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 flex items-center justify-center transform group-hover:scale-105 border-2 border-gray-200">
               <img 
                 src="/Resources/Logo.png" 
                 alt="CommsItumo Logo" 
-                className="w-10 h-10 object-contain filter brightness-0 invert"
-                style={{
-                  filter: 'brightness(0) invert(1)',
-                  transition: 'all 0.3s ease'
-                }}
+                className="w-10 h-10 object-contain"
               />
             </div>
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
@@ -64,8 +61,15 @@ export function Header() {
           ))}
         </nav>
 
-        {/* User Profile */}
+        {/* User Profile and Cache Status */}
         <div className="flex items-center space-x-4">
+          {/* Cache Status - geçici olarak devre dışı */}
+          {/* {user && (
+            <div className="hidden md:block">
+              <CacheStatus />
+            </div>
+          )} */}
+
           {user ? (
             <>
               <Link
@@ -124,6 +128,14 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Cache Status - geçici olarak devre dışı */}
+              {/* {user && (
+                <div className="py-2 px-3">
+                  <CacheStatus />
+                </div>
+              )} */}
+              
               <hr className="my-2" />
               {user && (
                 <>

@@ -4,6 +4,7 @@ import { sentimentService } from '../services/sentimentService';
 import { CommentOutlined, YoutubeOutlined, ReloadOutlined, LikeOutlined, DislikeOutlined, MehOutlined, SearchOutlined, FilterOutlined, CalendarOutlined } from '@ant-design/icons';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { useAI } from '../contexts/AIContext';
+import { useCache } from '../contexts/CacheContext';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -18,7 +19,8 @@ interface Comment {
   video_title: string;
   sentiment: {
     category: 'positive' | 'neutral' | 'negative';
-    score: number;
+    polarity?: number;
+    score?: number;
     language: 'tr' | 'en';
   };
   theme: {
@@ -49,14 +51,48 @@ export const MyComments: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
   const [languageFilter, setLanguageFilter] = useState<string>('all');
+  const [isFromCache, setIsFromCache] = useState(false);
   
   const { setComments: setAIComments } = useAI();
+  
+  // Cache sistemini kullan
+  const { comments: cachedComments, setComments: setCachedComments } = useCache();
 
-  const fetchComments = async () => {
+  const fetchComments = async (forceRefresh: boolean = false) => {
     try {
       setLoading(true);
       setError(null);
+      setIsFromCache(false);
       
+      // Cache kontrolü - sadece force refresh değilse
+      if (!forceRefresh && cachedComments) {
+        console.log('📦 Cache\'den yorumlar yüklendi');
+        setComments(cachedComments.comments);
+        setFilteredComments(cachedComments.comments);
+        setStats(cachedComments.sentiment_stats);
+        setIsFromCache(true);
+        
+        // AI Context'e yorumları gönder
+        const aiComments = cachedComments.comments.map((comment: Comment) => ({
+          id: comment.id,
+          text: comment.text,
+          author: comment.author,
+          date: comment.date,
+          language: comment.sentiment.language,
+          video_title: comment.video_title,
+          sentiment: {
+            polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
+            subjectivity: 0.5,
+            confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
+          }
+        }));
+        setAIComments(aiComments);
+        
+        setLoading(false);
+        return;
+      }
+      
+      console.log('🌐 API\'den fresh yorumlar çekiliyor...');
       const analysis = await sentimentService.getCommentsAnalysis();
       if (!analysis.comments || analysis.comments.length === 0) {
         setError('Henüz hiç yorum bulunamadı.');
@@ -68,6 +104,9 @@ export const MyComments: React.FC = () => {
       setFilteredComments(analysis.comments);
       setStats(analysis.sentiment_stats);
       
+      // Cache'e kaydet
+      setCachedComments(analysis);
+      
       // AI Context'e yorumları gönder
       const aiComments = analysis.comments.map(comment => ({
         id: comment.id,
@@ -77,9 +116,9 @@ export const MyComments: React.FC = () => {
         language: comment.sentiment.language,
         video_title: comment.video_title,
         sentiment: {
-          polarity: comment.sentiment.score,
+          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
           subjectivity: 0.5,
-          confidence: Math.abs(comment.sentiment.score)
+          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
         }
       }));
       setAIComments(aiComments);
@@ -174,7 +213,9 @@ export const MyComments: React.FC = () => {
         <div className="text-center">
           <Spin size="large" />
           <div className="mt-4">
-            <Text className="text-lg text-gray-600">Yorumlarınız yükleniyor...</Text>
+            <Text className="text-lg text-gray-600">
+              {isFromCache ? 'Önbellek verileri yükleniyor...' : 'Yorumlarınız yükleniyor...'}
+            </Text>
           </div>
         </div>
       </div>
@@ -194,7 +235,7 @@ export const MyComments: React.FC = () => {
               type="primary" 
               size="large"
               icon={<ReloadOutlined />} 
-              onClick={fetchComments}
+              onClick={() => fetchComments(true)}
               className="bg-red-600 border-red-600 hover:bg-red-700"
             >
               Yeniden Dene
@@ -216,20 +257,36 @@ export const MyComments: React.FC = () => {
                 <Title level={2} className="mb-2 text-gray-900">
                   <CommentOutlined className="mr-3 text-red-600" />
                   Yorumlarım
+                  {isFromCache && (
+                    <Tag color="blue" className="ml-3 text-xs">
+                      📦 Önbellekten
+                    </Tag>
+                  )}
                 </Title>
                 <Text className="text-gray-600 text-lg">
                   YouTube yorumlarınızın detaylı sentiment analizi
                 </Text>
               </div>
-              <Button 
-                type="primary" 
-                size="large"
-                icon={<ReloadOutlined />} 
-                onClick={fetchComments}
-                className="bg-red-600 border-red-600 hover:bg-red-700"
-              >
-                Yenile
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  type="default" 
+                  size="large"
+                  icon={<ReloadOutlined />} 
+                  onClick={() => fetchComments(false)}
+                  className="rounded-xl"
+                >
+                  Önbellekten Yükle
+                </Button>
+                <Button 
+                  type="primary" 
+                  size="large"
+                  icon={<ReloadOutlined />} 
+                  onClick={() => fetchComments(true)}
+                  className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
+                >
+                  Yenile
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -245,7 +302,12 @@ export const MyComments: React.FC = () => {
                       <CommentOutlined className="text-3xl text-blue-500" />
                     </div>
                     <Statistic
-                      title="Toplam Yorum"
+                      title={
+                        <span>
+                          Toplam Yorum
+                          {isFromCache && <div className="text-xs text-blue-500 mt-1">📦 Önbellekten</div>}
+                        </span>
+                      }
                       value={stats.total}
                       valueStyle={{ color: '#1890ff', fontSize: '2rem', fontWeight: 'bold' }}
                     />

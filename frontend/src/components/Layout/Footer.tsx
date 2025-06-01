@@ -11,14 +11,11 @@ export function Footer() {
           <div className="space-y-6 lg:col-span-2">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 rounded-2xl shadow-lg flex items-center justify-center">
+                <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center border-2 border-gray-200">
                   <img 
                     src="/Resources/Logo.png" 
                     alt="CommsItumo Logo" 
                     className="w-10 h-10 object-contain"
-                    style={{
-                      filter: 'brightness(0) invert(1)',
-                    }}
                   />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-sm"></div>

@@ -15,7 +15,8 @@ export interface Comment {
     video_title: string;
     sentiment: {
         category: 'positive' | 'neutral' | 'negative';
-        score: number;
+        polarity: number;
+        score?: number;
         subcategory?: string;
         confidence?: number;
         language: 'tr' | 'en';

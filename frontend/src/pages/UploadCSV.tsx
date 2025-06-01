@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert } from 'antd';
-import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert, Tag, Progress, Space, Divider } from 'antd';
+import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, MessageOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import { Wordcloud } from '@visx/wordcloud';
 import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
 import { useAI } from '../contexts/AIContext';
+import { useCache } from '../contexts/CacheContext';
 
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
@@ -58,15 +59,51 @@ export function UploadCSV() {
   const [file, setFile] = useState<File | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isFromCache, setIsFromCache] = useState(false);
   const navigate = useNavigate();
   const { setComments: setAIComments } = useAI();
+  
+  // Cache sistemini kullan
+  const { getCsvAnalysis, setCsvAnalysis } = useCache();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
 
+    // Dosya hash'i oluştur (cache key olarak kullanacağız)
+    const fileKey = `${file.name}_${file.size}_${file.lastModified}`;
+    
+    // Önce cache'e bak
+    const cachedResult = getCsvAnalysis(fileKey);
+    if (cachedResult) {
+      console.log('📦 Cache\'den CSV analizi yüklendi:', fileKey);
+      setAnalysisResult(cachedResult.data);
+      setCurrentStep(3);
+      setIsFromCache(true);
+      
+      // AI Context'e yorumları gönder
+      const aiComments = cachedResult.data.comments.map((comment: any) => ({
+        id: Math.random().toString(),
+        text: comment.text,
+        author: comment.author,
+        date: comment.date,
+        language: comment.sentiment.language,
+        video_title: comment.video_title,
+        sentiment: {
+          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
+          subjectivity: 0.5,
+          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
+        }
+      }));
+      setAIComments(aiComments);
+      
+      message.success('CSV analizi önbellekten yüklendi');
+      return;
+    }
+
     setLoading(true);
     setCurrentStep(1);
+    setIsFromCache(false);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -81,6 +118,7 @@ export function UploadCSV() {
       const token = await user.getIdToken();
       
       setCurrentStep(2);
+      console.log('🌐 API\'den fresh CSV analizi yapılıyor...');
       const response = await axios.post('http://localhost:8000/api/csv/upload', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -91,6 +129,9 @@ export function UploadCSV() {
       setAnalysisResult(response.data.data);
       setCurrentStep(3);
       
+      // Cache'e kaydet
+      setCsvAnalysis(fileKey, { data: response.data.data, fileInfo: { name: file.name, size: file.size } });
+      
       // AI Context'e yorumları gönder
       const aiComments = response.data.data.comments.map((comment: any) => ({
         id: Math.random().toString(),
@@ -100,9 +141,9 @@ export function UploadCSV() {
         language: comment.sentiment.language,
         video_title: comment.video_title,
         sentiment: {
-          polarity: comment.sentiment.score,
+          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
           subjectivity: 0.5,
-          confidence: Math.abs(comment.sentiment.score)
+          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
         }
       }));
       setAIComments(aiComments);
@@ -122,6 +163,7 @@ export function UploadCSV() {
     accept: '.csv',
     beforeUpload: (file: File) => {
       setFile(file);
+      setIsFromCache(false);
       return false;
     },
     showUploadList: false,
@@ -131,6 +173,7 @@ export function UploadCSV() {
     setFile(null);
     setAnalysisResult(null);
     setCurrentStep(0);
+    setIsFromCache(false);
   };
 
   const renderSentimentChart = () => {
@@ -372,9 +415,17 @@ export function UploadCSV() {
             {/* Results Header */}
             <div className="flex justify-between items-center mb-8">
               <div>
-                <Title level={3} className="mb-2">Analiz Sonuçları</Title>
+                <Title level={3} className="mb-2">
+                  Analiz Sonuçları
+                  {isFromCache && (
+                    <Tag color="blue" className="ml-3 text-xs">
+                      📦 Önbellekten
+                    </Tag>
+                  )}
+                </Title>
                 <Text className="text-gray-600">
                   {analysisResult.sentiment_stats.total} yorum başarıyla analiz edildi
+                  {isFromCache && ' (Önbellekten yüklendi)'}
                 </Text>
               </div>
               <Button
@@ -390,56 +441,281 @@ export function UploadCSV() {
             {/* Statistics */}
             <Row gutter={[16, 16]} className="mb-8">
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-                  <div className="mb-2">
-                    <FileTextOutlined className="text-3xl text-blue-500" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                      <FileTextOutlined className="text-2xl text-white" />
+                    </div>
                   </div>
                   <Statistic
-                    title="Toplam Yorum"
+                    title={
+                      <span>
+                        <span className="text-blue-700 font-semibold">Toplam Yorum</span>
+                        {isFromCache && <div className="text-xs text-blue-500 mt-1">📦 Önbellekten</div>}
+                      </span>
+                    }
                     value={analysisResult.sentiment_stats.total}
-                    valueStyle={{ color: '#1890ff', fontSize: '2rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#1890ff', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
+                  <div className="mt-3">
+                    <Progress 
+                      percent={100} 
+                      size="small" 
+                      strokeColor="#1890ff"
+                      showInfo={false}
+                    />
+                    <Text type="secondary" className="text-xs mt-1 block">
+                      {isFromCache ? '📦 Önbellekten' : '🌐 Canlı veri'}
+                    </Text>
+                  </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-                  <div className="mb-2">
-                    <CheckCircleOutlined className="text-3xl text-green-500" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-green-50 to-green-100">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                      <SmileOutlined className="text-2xl text-white" />
+                    </div>
                   </div>
                   <Statistic
-                    title="Pozitif Yorumlar"
+                    title={<span className="text-green-700 font-semibold">Pozitif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.positive}
-                    valueStyle={{ color: '#52c41a', fontSize: '2rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#52c41a', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
+                  <div className="mt-3">
+                    <Progress 
+                      percent={(analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100}
+                      size="small" 
+                      strokeColor="#52c41a"
+                      showInfo={false}
+                    />
+                    <Text type="secondary" className="text-xs mt-1 block">
+                      {((analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100).toFixed(1)}% pozitif
+                    </Text>
+                  </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-                  <div className="mb-2">
-                    <CalendarOutlined className="text-3xl text-red-500" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-red-50 to-red-100">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                      <FrownOutlined className="text-2xl text-white" />
+                    </div>
                   </div>
                   <Statistic
-                    title="Negatif Yorumlar"
+                    title={<span className="text-red-700 font-semibold">Negatif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.negative}
-                    valueStyle={{ color: '#ff4d4f', fontSize: '2rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#ff4d4f', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
+                  <div className="mt-3">
+                    <Progress 
+                      percent={(analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100}
+                      size="small" 
+                      strokeColor="#ff4d4f"
+                      showInfo={false}
+                    />
+                    <Text type="secondary" className="text-xs mt-1 block">
+                      {((analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100).toFixed(1)}% negatif
+                    </Text>
+                  </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0">
-                  <div className="mb-2">
-                    <BarChartOutlined className="text-3xl text-purple-500" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                      <BarChartOutlined className="text-2xl text-white" />
+                    </div>
                   </div>
                   <Statistic
-                    title="Ortalama Polarite"
+                    title={<span className="text-purple-700 font-semibold">Ortalama Polarite</span>}
                     value={analysisResult.sentiment_stats.average_polarity}
-                    precision={2}
+                    precision={3}
                     valueStyle={{ 
                       color: analysisResult.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f',
-                      fontSize: '2rem', 
+                      fontSize: '2.5rem', 
                       fontWeight: 'bold' 
                     }}
                   />
+                  <div className="mt-3">
+                    <Progress 
+                      percent={Math.abs(analysisResult.sentiment_stats.average_polarity * 100)}
+                      size="small" 
+                      strokeColor={analysisResult.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f'}
+                      showInfo={false}
+                    />
+                    <Text type="secondary" className="text-xs mt-1 block">
+                      {analysisResult.sentiment_stats.average_polarity > 0 ? '📈 Pozitif trend' : '📉 Negatif trend'}
+                    </Text>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+
+            {/* Detaylı İstatistik Panelleri */}
+            <Row gutter={[24, 24]} className="mb-8">
+              <Col xs={24} lg={12}>
+                <Card 
+                  title={
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg mr-3 flex items-center justify-center">
+                        <FileTextOutlined className="text-white" />
+                      </div>
+                      <span className="text-lg font-semibold">Dil ve Tema Dağılımı</span>
+                    </div>
+                  }
+                  className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+                >
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Text strong className="text-gray-700">Dil Dağılımı</Text>
+                        <Text type="secondary">{analysisResult.sentiment_stats.total} toplam</Text>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                            <Text>Türkçe</Text>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Text strong>{analysisResult.sentiment_stats.language_distribution.tr}</Text>
+                            <Text type="secondary">
+                              ({((analysisResult.sentiment_stats.language_distribution.tr / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%)
+                            </Text>
+                          </div>
+                        </div>
+                        <Progress 
+                          percent={(analysisResult.sentiment_stats.language_distribution.tr / analysisResult.sentiment_stats.total) * 100}
+                          strokeColor="#1890ff"
+                          showInfo={false}
+                        />
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                            <Text>İngilizce</Text>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Text strong>{analysisResult.sentiment_stats.language_distribution.en}</Text>
+                            <Text type="secondary">
+                              ({((analysisResult.sentiment_stats.language_distribution.en / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%)
+                            </Text>
+                          </div>
+                        </div>
+                        <Progress 
+                          percent={(analysisResult.sentiment_stats.language_distribution.en / analysisResult.sentiment_stats.total) * 100}
+                          strokeColor="#722ed1"
+                          showInfo={false}
+                        />
+                      </div>
+                    </div>
+
+                    <Divider />
+
+                    <div>
+                      <Text strong className="text-gray-700 mb-3 block">En Popüler Temalar</Text>
+                      <Space wrap>
+                        {analysisResult.theme_analysis.slice(0, 6).map(theme => (
+                          <Tag 
+                            key={theme.theme} 
+                            color="blue"
+                            className="mb-2 px-3 py-1 text-sm"
+                          >
+                            {theme.theme.charAt(0).toUpperCase() + theme.theme.slice(1)}: {theme.count}
+                          </Tag>
+                        ))}
+                      </Space>
+                    </div>
+                  </div>
+                </Card>
+              </Col>
+
+              <Col xs={24} lg={12}>
+                <Card 
+                  title={
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
+                        <BarChartOutlined className="text-white" />
+                      </div>
+                      <span className="text-lg font-semibold">Duygu Analizi Özeti</span>
+                    </div>
+                  }
+                  className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                      <div className="flex items-center">
+                        <SmileOutlined className="text-2xl text-green-600 mr-3" />
+                        <div>
+                          <Text strong className="text-green-800">Pozitif Yorumlar</Text>
+                          <div className="text-xs text-green-600">
+                            {analysisResult.sentiment_stats.categories.positive} yorum
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-green-600">
+                          {((analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
+                        </div>
+                        <Progress 
+                          percent={(analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100}
+                          size="small"
+                          strokeColor="#52c41a"
+                          showInfo={false}
+                          className="w-20"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                      <div className="flex items-center">
+                        <MehOutlined className="text-2xl text-blue-600 mr-3" />
+                        <div>
+                          <Text strong className="text-blue-800">Nötr Yorumlar</Text>
+                          <div className="text-xs text-blue-600">
+                            {analysisResult.sentiment_stats.categories.neutral} yorum
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {((analysisResult.sentiment_stats.categories.neutral / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
+                        </div>
+                        <Progress 
+                          percent={(analysisResult.sentiment_stats.categories.neutral / analysisResult.sentiment_stats.total) * 100}
+                          size="small"
+                          strokeColor="#1890ff"
+                          showInfo={false}
+                          className="w-20"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
+                      <div className="flex items-center">
+                        <FrownOutlined className="text-2xl text-red-600 mr-3" />
+                        <div>
+                          <Text strong className="text-red-800">Negatif Yorumlar</Text>
+                          <div className="text-xs text-red-600">
+                            {analysisResult.sentiment_stats.categories.negative} yorum
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-red-600">
+                          {((analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
+                        </div>
+                        <Progress 
+                          percent={(analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100}
+                          size="small"
+                          strokeColor="#ff4d4f"
+                          showInfo={false}
+                          className="w-20"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </Card>
               </Col>
             </Row>

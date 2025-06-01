@@ -79,14 +79,11 @@ export function Dashboard() {
               <div className="mb-8">
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <div className="w-20 h-20 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300">
+                    <div className="w-20 h-20 bg-white rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300 border-2 border-gray-200">
                       <img 
                         src="/Resources/Logo.png" 
                         alt="CommsItumo Logo" 
-                        className="w-14 h-14 object-contain filter brightness-0 invert"
-                        style={{
-                          filter: 'brightness(0) invert(1)',
-                        }}
+                        className="w-14 h-14 object-contain"
                       />
                     </div>
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-3 border-white shadow-lg animate-pulse"></div>
@@ -206,14 +203,11 @@ export function Dashboard() {
           <div className="text-center mb-16">
             <div className="flex justify-center items-center mb-6">
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 rounded-2xl shadow-lg flex items-center justify-center">
+                <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center border-2 border-gray-200">
                   <img 
                     src="/Resources/Logo.png" 
                     alt="CommsItumo Brand" 
-                    className="w-10 h-10 object-contain filter brightness-0 invert"
-                    style={{
-                      filter: 'brightness(0) invert(1)',
-                    }}
+                    className="w-10 h-10 object-contain"
                   />
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-sm"></div>

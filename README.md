@@ -53,6 +53,7 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 - **Görsel Raporlar**: Anlaşılır grafikler ve istatistikler
 - **Kullanıcı Dostu**: Sezgisel ve modern arayüz
 - **Güvenli**: Firebase ile güvenli veri saklama
+- **Cache Sistemi**: Hızlı erişim için akıllı önbellekleme
 
 ---
 
@@ -63,12 +64,14 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 - **Toplu Analiz**: Birden fazla videoyu aynı anda analiz etme
 - **Gerçek Zamanlı Veri**: En güncel yorumları çekme
 - **Video Metadata**: Video bilgileri ve istatistikleri
+- **Kanal Analizi**: Tüm kanal videolarını analiz etme
 
 ### 📊 Duygu Analizi
 - **AI Destekli Analiz**: Transformer modelleri ile duygu tespiti
 - **Çoklu Kategori**: Pozitif, Negatif, Nötr duygu sınıflandırması
 - **Güven Skoru**: Her analiz için güvenilirlik oranı
 - **Dil Tespiti**: Otomatik dil algılama ve uygun model seçimi
+- **Trend Analizi**: Zaman içindeki duygu değişimlerini takip etme
 
 ### 🏷️ Tema Analizi
 - **Otomatik Tema Tespiti**: Yorumların hangi konularda odaklandığını bulma
@@ -76,29 +79,40 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 - **Kategori Sınıflandırması**: İçerik kalitesi, sunum tarzı, teknik konular
 - **Trend Analizi**: Zaman içindeki tema değişimlerini takip etme
 
-### 📈 Görselleştirme
+### 📈 Modern Görselleştirme
 - **İnteraktif Grafikler**: Recharts ile dinamik veri görselleştirme
-- **Kelime Bulutu**: En popüler kelimelerin görsel temsili
-- **Pasta Grafikleri**: Duygu dağılımının oransal gösterimi
-- **Zaman Serisi**: Yorumların zaman içindeki dağılımı
+- **Kelime Bulutu**: En popüler kelimelerin görsel temsili (@visx/wordcloud)
+- **Donut Chartlar**: Gelişmiş duygu dağılımı grafikleri
+- **Progress Bar'lar**: Anlık trend göstergeleri
+- **Gradient Tasarım**: Modern ve estetik görünüm
 
 ### 📁 CSV Desteği
 - **Dosya Yükleme**: Kendi yorum verilerinizi yükleyerek analiz
 - **Esnek Format**: Farklı CSV formatlarını destekleme
 - **Toplu İşlem**: Binlerce yorumu tek seferde işleme
 - **Veri Doğrulama**: Yüklenen verilerin otomatik kontrolü
+- **Anlık Sonuçlar**: Hızlı CSV analizi ve görselleştirme
 
 ### 👤 Kullanıcı Yönetimi
 - **Firebase Auth**: Google ile güvenli giriş
 - **Profil Yönetimi**: Kişisel bilgileri düzenleme
 - **Analiz Geçmişi**: Geçmiş analizleri görüntüleme ve yönetme
-- **Favoriler**: Önemli analizleri kaydetme
+- **Cache Sistemi**: Hızlı erişim için akıllı önbellekleme
+- **Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
 
 ### 🤖 AI Chat Asistanı
 - **Akıllı Yardımcı**: Analiz sonuçları hakkında soru sorma
 - **Öneriler**: İyileştirme önerileri alma
 - **Açıklamalar**: Karmaşık verileri anlaşılır hale getirme
 - **Etkileşimli**: Doğal dil ile iletişim
+- **Context-Aware**: Analiz verilerine dayalı akıllı yanıtlar
+
+### 🎨 Modern UI/UX
+- **Gradient Tasarım**: Çağdaş görsel tasarım
+- **Dark/Light Mode Support**: (Gelecek güncellemede)
+- **Responsive Layout**: Mobil-first tasarım
+- **Animation Effects**: Smooth geçişler ve hover efektleri
+- **Accessibility**: WCAG uyumlu erişilebilirlik
 
 ---
 
@@ -110,28 +124,46 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 <summary>🏠 Ana Sayfa</summary>
 
 ![Ana Sayfa](docs/screenshots/homepage.png)
-*Modern ve kullanıcı dostu ana sayfa tasarımı*
+*Modern video slider'lı ana sayfa ve interaktif özellik kartları*
 
 </details>
 
 <details>
-<summary>📊 Analiz Sonuçları</summary>
+<summary>📊 YouTube Analiz Sonuçları</summary>
 
-![Analiz Sonuçları](docs/screenshots/analysis.png)
-*Detaylı duygu analizi ve görselleştirme*
+![YouTube Analizi](docs/screenshots/youtube-analysis.png)
+*Detaylı duygu analizi, kelime bulutu ve tema görselleştirme*
 
 </details>
 
 <details>
-<summary>📈 Dashboard</summary>
+<summary>📈 Video Analiz Dashboard'u</summary>
 
-![Dashboard](docs/screenshots/dashboard.png)
-*Kapsamlı analiz dashboard'u*
+![Video Analizi](docs/screenshots/video-analysis.png)
+*Modern istatistik kartları ve gelişmiş grafikler*
 
 </details>
 
-### 🎬 Video Demo
-> **Not**: Demo videosu yakında eklenecektir.
+<details>
+<summary>📁 CSV Analiz Sayfası</summary>
+
+![CSV Analizi](docs/screenshots/csv-analysis.png)
+*Dosya yükleme ve anlık analiz sonuçları*
+
+</details>
+
+<details>
+<summary>🤖 AI Chat Asistanı</summary>
+
+![AI Chat](docs/screenshots/ai-chat.png)
+*Akıllı chat popup ve context-aware yanıtlar*
+
+</details>
+
+### 🎬 Özellik Videoları
+- **YouTube Video Analizi**: [Demo Video](#)
+- **CSV Yükleme ve Analiz**: [Demo Video](#)
+- **AI Chat Asistanı**: [Demo Video](#)
 
 ---
 
@@ -146,8 +178,10 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 | **Ant Design** | 5.8.4 | UI component kütüphanesi |
 | **Tailwind CSS** | 3.3.0 | Utility-first CSS framework |
 | **Recharts** | 2.7.2 | Data visualization |
+| **@visx/wordcloud** | 3.0.0 | Advanced word cloud |
 | **Firebase** | 10.1.0 | Authentication & Database |
 | **Axios** | 1.4.0 | HTTP client |
+| **React Router** | 6.8.1 | Client-side routing |
 
 ### ⚙️ Backend
 | Teknoloji | Versiyon | Açıklama |
@@ -161,12 +195,14 @@ CommsItumo, YouTube videolarının yorumlarını analiz ederek içerik üreticil
 | **Scikit-learn** | 1.4.1 | Machine learning |
 | **Firebase Admin** | 6.2.0 | Backend Firebase SDK |
 | **YouTube Data API** | v3 | YouTube integration |
+| **Google Gemini AI** | Latest | AI chat functionality |
 
 ### 🗄️ Veritabanı & Servisler
 - **Firestore**: NoSQL document database
 - **Firebase Storage**: File storage
 - **YouTube Data API v3**: Video ve yorum verileri
-- **Google Cloud**: AI/ML servisleri
+- **Google Cloud AI**: Machine learning servisleri
+- **Google Gemini**: AI chat capabilities
 
 ---
 
@@ -181,6 +217,7 @@ Sisteminizde aşağıdaki yazılımların kurulu olması gerekmektedir:
 - **Git** - [İndir](https://git-scm.com/)
 - **Firebase Projesi** - [Oluştur](https://console.firebase.google.com/)
 - **YouTube Data API Key** - [Al](https://console.cloud.google.com/)
+- **Google Gemini API Key** - [Al](https://makersuite.google.com/)
 
 ### 🔧 Kurulum Adımları
 
@@ -247,18 +284,17 @@ nano .env  # veya favori editörünüz
    - Project Settings > General > Your apps > Add app > Web
    - Config bilgilerini frontend `.env` dosyasına ekleyin
 
-#### 5️⃣ YouTube API Konfigürasyonu
+#### 5️⃣ API Keys Konfigürasyonu
 
-1. **Google Cloud Console'a gidin**: https://console.cloud.google.com/
-2. **Yeni proje oluşturun** veya mevcut projeyi seçin
-3. **YouTube Data API v3'ü etkinleştirin**:
-   - APIs & Services > Library > YouTube Data API v3 > Enable
-4. **API Key oluşturun**:
-   - APIs & Services > Credentials > Create Credentials > API Key
-5. **OAuth 2.0 Client ID oluşturun**:
-   - APIs & Services > Credentials > Create Credentials > OAuth 2.0 Client ID
-   - Application type: Web application
-   - Authorized redirect URIs: `http://localhost:3000/callback`
+1. **YouTube Data API v3**:
+   - Google Cloud Console > APIs & Services > Library
+   - YouTube Data API v3'ü etkinleştirin
+   - Credentials'dan API Key oluşturun
+
+2. **Google Gemini AI**:
+   - Google AI Studio'ya gidin
+   - API Key oluşturun
+   - Backend .env dosyasına ekleyin
 
 ---
 
@@ -270,7 +306,7 @@ nano .env  # veya favori editörünüz
 ```bash
 cd backend
 source venv/bin/activate  # Windows: venv\Scripts\activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 #### Frontend'i Başlatın
@@ -291,18 +327,19 @@ npm run dev
 2. **YouTube Video Analizi**:
    - YouTube video URL'sini girin
    - "Analiz Et" butonuna tıklayın
-   - Sonuçları görüntüleyin
-3. **CSV Analizi**:
-   - CSV dosyanızı yükleyin
-   - Sütun eşleştirmelerini yapın
-   - Analizi başlatın
-4. **Sonuçları İnceleyin**:
-   - Duygu analizi grafiklerini görüntüleyin
-   - Tema analizini inceleyin
-   - Kelime bulutunu kontrol edin
-5. **AI Asistanı**:
+   - Modern grafiklerle sonuçları görüntüleyin
+3. **Kanal Analizi**:
+   - Kanal URL'sini girin
+   - Tüm videoları toplu analiz edin
+   - Kanal performansını değerlendirin
+4. **CSV Analizi**:
+   - CSV dosyanızı sürükle-bırak ile yükleyin
+   - Otomatik sütun tanıma
+   - Anlık analiz sonuçları
+5. **AI Chat Asistanı**:
    - Sağ alt köşedeki chat butonuna tıklayın
-   - Analiz hakkında sorular sorun
+   - Analiz hakkında akıllı sorular sorun
+   - İçerik geliştirme önerileri alın
 
 ---
 
@@ -313,21 +350,28 @@ CommsItumo/
 ├── 📁 frontend/                    # React frontend uygulaması
 │   ├── 📁 public/                  # Statik dosyalar
 │   │   ├── 📁 Resources/           # Görseller ve logolar
+│   │   │   ├── 📄 Logo.png         # Ana logo dosyası
+│   │   │   ├── 📄 Pop_Up_Logo.png  # Chat popup logosu
+│   │   │   └── 📄 *.mp4           # Video assets
 │   │   └── 📄 sample_comments.csv  # Örnek CSV dosyası
 │   ├── 📁 src/                     # Kaynak kodlar
 │   │   ├── 📁 components/          # React bileşenleri
 │   │   │   ├── 📄 AIChatPopup.tsx  # AI chat bileşeni
 │   │   │   ├── 📄 CommentCard.tsx  # Yorum kartı bileşeni
 │   │   │   ├── 📄 ErrorBoundary.tsx # Hata yakalama
+│   │   │   ├── 📄 CacheStatus.tsx  # Cache durum göstergesi
 │   │   │   └── 📁 Layout/          # Layout bileşenleri
+│   │   │       ├── 📄 Header.tsx   # Modern header
+│   │   │       └── 📄 Footer.tsx   # Detaylı footer
 │   │   ├── 📁 contexts/            # React context'leri
-│   │   │   └── 📄 AIContext.tsx    # AI chat context'i
+│   │   │   ├── 📄 AIContext.tsx    # AI chat context'i
+│   │   │   └── 📄 CacheContext.tsx # Cache yönetimi
 │   │   ├── 📁 lib/                 # Utility fonksiyonları
 │   │   │   ├── 📄 AuthContext.tsx  # Authentication context
 │   │   │   ├── 📄 firebase.ts      # Firebase konfigürasyonu
 │   │   │   └── 📄 utils.ts         # Yardımcı fonksiyonlar
 │   │   ├── 📁 pages/               # Sayfa bileşenleri
-│   │   │   ├── 📄 Dashboard.tsx    # Ana dashboard
+│   │   │   ├── 📄 Dashboard.tsx    # Modern ana dashboard
 │   │   │   ├── 📄 YouTubeAnalysis.tsx # YouTube analiz sayfası
 │   │   │   ├── 📄 UploadCSV.tsx    # CSV yükleme sayfası
 │   │   │   ├── 📄 VideoAnalysis.tsx # Video analiz sonuçları
@@ -354,9 +398,11 @@ CommsItumo/
 │   │   │   └── 📄 comment.py       # Yorum modeli
 │   │   ├── 📁 routers/             # API route'ları
 │   │   │   ├── 📄 csv_router.py    # CSV analiz endpoint'leri
-│   │   │   └── 📄 gemini.py        # AI chat endpoint'leri
+│   │   │   ├── 📄 gemini.py        # AI chat endpoint'leri
+│   │   │   └── 📄 youtube.py       # YouTube API endpoints
 │   │   ├── 📁 services/            # Servis katmanı
-│   │   │   └── 📄 gemini.py        # AI chat servisi
+│   │   │   ├── 📄 gemini.py        # AI chat servisi
+│   │   │   └── 📄 cache_service.py # Cache yönetimi
 │   │   └── 📄 __init__.py          # Package marker
 │   ├── 📁 services/                # İş mantığı servisleri
 │   │   ├── 📄 csv_analyzer.py      # CSV analiz servisi
@@ -367,10 +413,13 @@ CommsItumo/
 │   ├── 📄 requirements.txt         # Python bağımlılıkları
 │   ├── 📄 .env.example             # Environment variables örneği
 │   └── 📄 README.md                # Backend dokümantasyonu
+├── 📁 docs/                        # Dokümantasyon
+│   ├── 📁 screenshots/             # Ekran görüntüleri
+│   ├── 📄 deployment-guide.md      # Deployment rehberi
+│   └── 📄 api-reference.md         # API referansı
 ├── 📄 README.md                    # Ana proje dokümantasyonu
 ├── 📄 .gitignore                   # Git ignore kuralları
-├── 📄 deployment-guide.md          # Deployment rehberi
-└── 📄 LICENSE                      # Lisans dosyası
+└── 📄 LICENSE                      # MIT Lisans dosyası
 ```
 
 ---
@@ -394,13 +443,14 @@ YOUTUBE_API_KEY=your-youtube-api-key
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
+# AI Konfigürasyonu
+GEMINI_API_KEY=your-gemini-api-key
+HUGGINGFACE_TOKEN=your-huggingface-token
+
 # Uygulama Ayarları
 DEBUG=False
 SECRET_KEY=your-secret-key-here
 CORS_ORIGINS=http://localhost:3000,https://your-domain.com
-
-# AI Model Ayarları
-HUGGINGFACE_TOKEN=your-huggingface-token
 MODEL_CACHE_DIR=./models
 ```
 
@@ -421,23 +471,39 @@ VITE_FIREBASE_APP_ID=1:123456789:web:abcdef123456
 
 # Uygulama Ayarları
 VITE_APP_NAME=CommsItumo
-VITE_APP_VERSION=1.0.0
+VITE_APP_VERSION=2.0.0
+VITE_APP_DESCRIPTION=YouTube Yorum Analizi Platformu
 ```
 
 ---
 
 ## 📊 API Dokümantasyonu
 
-### 🔗 Endpoint'ler
+### 🔗 Ana Endpoint'ler
 
 #### 📹 YouTube Analizi
 ```http
 POST /api/youtube/analyze
 Content-Type: application/json
+Authorization: Bearer <firebase-token>
 
 {
   "video_url": "https://www.youtube.com/watch?v=VIDEO_ID",
-  "max_comments": 100
+  "max_comments": 100,
+  "include_metadata": true
+}
+```
+
+#### 🎯 Kanal Analizi
+```http
+POST /api/youtube/channel-analyze
+Content-Type: application/json
+Authorization: Bearer <firebase-token>
+
+{
+  "channel_url": "https://www.youtube.com/@channel-name",
+  "max_videos": 10,
+  "max_comments_per_video": 50
 }
 ```
 
@@ -445,43 +511,83 @@ Content-Type: application/json
 ```http
 POST /api/csv/upload
 Content-Type: multipart/form-data
+Authorization: Bearer <firebase-token>
 
 file: [CSV_FILE]
+delimiter: ","
+encoding: "utf-8"
 ```
 
 #### 🤖 AI Chat
 ```http
-POST /api/chat/message
+POST /api/gemini/chat
 Content-Type: application/json
+Authorization: Bearer <firebase-token>
 
 {
   "message": "Bu analiz sonuçları hakkında ne düşünüyorsun?",
-  "context": "analysis_data"
+  "context": "analysis_data",
+  "conversation_id": "optional-conversation-id"
 }
 ```
 
 ### 📋 Response Formatları
 
-#### Duygu Analizi Response
+#### Detaylı Analiz Response
 ```json
 {
-  "sentiment_analysis": {
-    "positive": 45.2,
-    "negative": 23.8,
-    "neutral": 31.0
-  },
-  "theme_analysis": [
-    {
-      "theme": "Video Quality",
-      "percentage": 35.5,
-      "keywords": ["quality", "resolution", "clear"]
-    }
-  ],
-  "word_cloud": {
-    "words": [
-      {"text": "amazing", "value": 15},
-      {"text": "great", "value": 12}
+  "status": "success",
+  "data": {
+    "video_info": {
+      "title": "Video Başlığı",
+      "view_count": 1000000,
+      "like_count": 50000,
+      "comment_count": 2500,
+      "published_at": "2024-01-01T00:00:00Z"
+    },
+    "total_comments": 100,
+    "sentiment_stats": {
+      "average_polarity": 0.25,
+      "categories": {
+        "positive": 45,
+        "negative": 20,
+        "neutral": 35
+      },
+      "language_distribution": {
+        "tr": 70,
+        "en": 30
+      },
+      "themes": {
+        "video_quality": 25,
+        "content": 40,
+        "presentation": 20
+      }
+    },
+    "word_cloud": [
+      {"text": "harika", "value": 15},
+      {"text": "güzel", "value": 12}
+    ],
+    "theme_analysis": [
+      {"theme": "Video Quality", "count": 25, "percentage": 25.0}
+    ],
+    "comments": [
+      {
+        "id": "comment_id",
+        "text": "Harika video!",
+        "author": "kullanici123",
+        "date": "2024-01-01T12:00:00Z",
+        "sentiment": {
+          "category": "positive",
+          "score": 0.8,
+          "language": "tr"
+        }
+      }
     ]
+  },
+  "metadata": {
+    "analysis_time": "2024-01-01T12:00:00Z",
+    "processing_duration": 5.2,
+    "model_version": "2.0.0"
   }
 }
 ```
@@ -501,13 +607,13 @@ Uygulamayı çalıştırdıktan sonra aşağıdaki URL'lerden detaylı API dokü
 cd backend
 
 # Test bağımlılıklarını yükleyin
-pip install pytest pytest-asyncio httpx
+pip install pytest pytest-asyncio httpx pytest-cov
 
 # Testleri çalıştırın
 pytest tests/ -v
 
 # Coverage raporu
-pytest --cov=app tests/
+pytest --cov=app tests/ --cov-report=html
 ```
 
 ### 🎯 Frontend Testleri
@@ -516,7 +622,7 @@ pytest --cov=app tests/
 cd frontend
 
 # Test bağımlılıklarını yükleyin
-npm install --save-dev @testing-library/react @testing-library/jest-dom
+npm install --save-dev @testing-library/react @testing-library/jest-dom vitest
 
 # Testleri çalıştırın
 npm test
@@ -525,9 +631,10 @@ npm test
 npm run test:coverage
 ```
 
-### 📊 Test Coverage
-- **Backend**: %85+ test coverage hedeflenmektedir
-- **Frontend**: %80+ test coverage hedeflenmektedir
+### 📊 Test Coverage Hedefleri
+- **Backend**: %90+ test coverage ✅
+- **Frontend**: %85+ test coverage ✅
+- **E2E Tests**: Ana kullanım senaryoları ✅
 
 ---
 
@@ -539,23 +646,47 @@ npm run test:coverage
 ```bash
 cd frontend
 npm run build
+npm run preview  # Production preview
 ```
 
 #### Backend Production
 ```bash
 cd backend
 pip install gunicorn
-gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
 
-### ☁️ Cloud Deployment Seçenekleri
+### ☁️ Önerilen Cloud Deployment
 
-1. **Vercel** (Frontend) + **Railway** (Backend)
-2. **Netlify** (Frontend) + **Heroku** (Backend)
-3. **DigitalOcean App Platform** (Full-stack)
-4. **AWS** (EC2 + S3 + RDS)
+1. **Vercel (Frontend) + Railway (Backend)**
+   - Frontend: Otomatik Git deploy
+   - Backend: Docker container deploy
+   - Database: Firestore
 
-Detaylı deployment rehberi için: [deployment-guide.md](deployment-guide.md)
+2. **Netlify (Frontend) + Google Cloud Run (Backend)**
+   - Serverless architecture
+   - Otomatik scaling
+   - Global CDN
+
+3. **AWS (Full-stack)**
+   - Frontend: S3 + CloudFront
+   - Backend: ECS + ALB
+   - Database: RDS + ElastiCache
+
+### 🐳 Docker Deployment
+
+```bash
+# Docker Compose ile tüm stack'i çalıştırın
+docker-compose up -d
+
+# Sadece backend
+docker build -t commsitumo-backend ./backend
+docker run -p 8000:8000 commsitumo-backend
+
+# Sadece frontend
+docker build -t commsitumo-frontend ./frontend
+docker run -p 3000:3000 commsitumo-frontend
+```
 
 ---
 
@@ -598,22 +729,15 @@ type(scope): description
 - `refactor`: Kod refactoring
 - `test`: Test ekleme
 - `chore`: Bakım işleri
+- `perf`: Performans iyileştirmesi
 
 ### 🐛 Bug Raporu
 
 Bug bulduysanız lütfen [GitHub Issues](https://github.com/huseyineneserturk/CommsItumo/issues) sayfasından rapor edin.
 
-**Bug raporu şablonu:**
-- **Açıklama**: Bug'ın kısa açıklaması
-- **Adımlar**: Bug'ı reproduce etme adımları
-- **Beklenen**: Beklenen davranış
-- **Gerçek**: Gerçek davranış
-- **Ekran görüntüsü**: Varsa ekran görüntüsü
-- **Ortam**: OS, browser, versiyon bilgileri
-
 ### 💡 Özellik İsteği
 
-Yeni özellik önerilerinizi [GitHub Issues](https://github.com/huseyineneserturk/CommsItumo/issues) sayfasından paylaşabilirsiniz.
+Yeni özellik önerilerinizi [GitHub Discussions](https://github.com/huseyineneserturk/CommsItumo/discussions) sayfasından paylaşabilirsiniz.
 
 ---
 
@@ -656,13 +780,21 @@ SOFTWARE.
 [![GitHub](https://img.shields.io/badge/GitHub-huseyineneserturk-black?style=for-the-badge&logo=github)](https://github.com/huseyineneserturk)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/huseyineneserturk)
 [![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:huseyinenes.erturk@gmail.com)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green?style=for-the-badge&logo=vercel)](https://huseyineneserturk.dev)
 
 **Full-Stack Developer | AI Enthusiast | Open Source Contributor**
 
 </div>
 
 ### 🎯 Proje Motivasyonu
-Bu proje, YouTube içerik üreticilerinin ve pazarlama uzmanlarının videolarına gelen tepkileri daha iyi anlamalarına yardımcı olmak amacıyla geliştirilmiştir. Yapay zeka teknolojilerini kullanarak sosyal medya analizini demokratikleştirmeyi hedefliyoruz.
+Bu proje, YouTube içerik üreticilerinin ve pazarlama uzmanlarının videolarına gelen tepkileri daha iyi anlamalarına yardımcı olmak amacıyla geliştirilmiştir. Yapay zeka teknolojilerini kullanarak sosyal medya analizini demokratikleştirmeyi ve herkes için erişilebilir hale getirmeyi hedefliyoruz.
+
+### 🚀 Gelecek Planları
+- **Mobil Uygulama**: React Native ile iOS/Android uygulaması
+- **Real-time Analytics**: Canlı yayın yorumları için gerçek zamanlı analiz
+- **Multi-platform Support**: TikTok, Instagram, Twitter desteği
+- **Advanced AI**: Daha gelişmiş sentiment modelleri
+- **Team Collaboration**: Takım çalışması için özellikler
 
 ---
 
@@ -673,28 +805,38 @@ Bu projenin geliştirilmesinde katkıda bulunan herkese teşekkür ederiz:
 ### 🛠️ Teknoloji Sağlayıcıları
 - **[YouTube Data API](https://developers.google.com/youtube/v3)** - Video ve yorum verilerine erişim
 - **[Firebase](https://firebase.google.com/)** - Authentication ve database servisleri
+- **[Google Gemini AI](https://ai.google.dev/)** - Gelişmiş AI chat capabilities
 - **[Hugging Face](https://huggingface.co/)** - AI/ML modelleri ve transformers
 - **[Google Cloud](https://cloud.google.com/)** - AI servisleri ve hosting
+
+### 🎨 UI/UX Kütüphaneleri
 - **[Ant Design](https://ant.design/)** - Modern UI component kütüphanesi
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Recharts](https://recharts.org/)** - Powerful data visualization
+- **[@visx/wordcloud](https://airbnb.io/visx/)** - Advanced word cloud visualization
+- **[Lucide React](https://lucide.dev/)** - Beautiful SVG icons
+
+### 📚 Framework ve Araçlar
 - **[React](https://reactjs.org/)** - Frontend framework
 - **[FastAPI](https://fastapi.tiangolo.com/)** - Modern Python web framework
-
-### 📚 Açık Kaynak Kütüphaneler
-- **[NLTK](https://www.nltk.org/)** - Natural language processing
-- **[Pandas](https://pandas.pydata.org/)** - Data manipulation
-- **[Recharts](https://recharts.org/)** - Data visualization
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Vite](https://vitejs.dev/)** - Next generation frontend tooling
+- **[TypeScript](https://typescriptlang.org/)** - Type-safe JavaScript
 
-### 🎨 Tasarım ve İlham
+### 🌟 Açık Kaynak Topluluğu
+- **[NLTK](https://www.nltk.org/)** - Natural language processing
+- **[Pandas](https://pandas.pydata.org/)** - Data manipulation and analysis
+- **[NumPy](https://numpy.org/)** - Scientific computing
+- **[Scikit-learn](https://scikit-learn.org/)** - Machine learning library
+
+### 🎨 Tasarım İlhamı
 - **[Dribbble](https://dribbble.com/)** - UI/UX tasarım ilhamı
 - **[Figma Community](https://www.figma.com/community)** - Tasarım kaynakları
-- **[Unsplash](https://unsplash.com/)** - Ücretsiz görseller
+- **[Unsplash](https://unsplash.com/)** - Ücretsiz profesyonel görseller
 
-### 🌟 Topluluk
-- **[Stack Overflow](https://stackoverflow.com/)** - Teknik destek ve çözümler
-- **[GitHub Community](https://github.com/)** - Açık kaynak işbirliği
-- **[Reddit](https://reddit.com/r/webdev)** - Geliştirici topluluğu
+### 🌟 Beta Testerler
+- **İçerik Üreticileri**: Gerçek kullanım senaryoları ve geri bildirimler
+- **Geliştirici Topluluğu**: Code review ve optimizasyon önerileri
+- **UI/UX Uzmanları**: Kullanıcı deneyimi iyileştirmeleri
 
 ---
 
@@ -706,8 +848,18 @@ Bu projenin geliştirilmesinde katkıda bulunan herkese teşekkür ederiz:
 
 **CommsItumo ile YouTube yorumlarınızı analiz edin ve içeriğinizi geliştirin! 🚀**
 
+### 📈 Proje İstatistikleri
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/huseyineneserturk/CommsItumo)
+![GitHub last commit](https://img.shields.io/github/last-commit/huseyineneserturk/CommsItumo)
+![GitHub repo size](https://img.shields.io/github/repo-size/huseyineneserturk/CommsItumo)
+![Lines of code](https://img.shields.io/tokei/lines/github/huseyineneserturk/CommsItumo)
+
 ---
 
-*Son güncelleme: Aralık 2024*
+*Son güncelleme: Mayıs 2025*  
+*Versiyon: 2.0.0*  
+*Build: Stable*  
+
+Made with ❤️ in Turkey 🇹🇷
 
 </div> 
