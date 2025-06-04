@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, WebSocket, WebSocketDisconnect, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -14,6 +14,9 @@ from pathlib import Path
 from services.sentiment_service import SentimentService
 from pydantic import BaseModel
 from app.routers import csv_router, gemini
+import asyncio
+import uuid
+from datetime import datetime
 
 load_dotenv()
 
@@ -33,11 +36,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# WebSocket Connection Manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        self.active_connections[user_id] = websocket
+        print(f"✅ WebSocket bağlantısı kuruldu: {user_id}")
+
+    def disconnect(self, user_id: str):
+        if user_id in self.active_connections:
+            del self.active_connections[user_id]
+            print(f"❌ WebSocket bağlantısı kapandı: {user_id}")
+
+    async def send_progress(self, user_id: str, message: dict):
+        if user_id in self.active_connections:
+            try:
+                await self.active_connections[user_id].send_text(json.dumps(message))
+                print(f"📤 Progress gönderildi {user_id}: {message.get('message', '')}")
+            except Exception as e:
+                print(f"⚠️ Progress gönderilemedi {user_id}: {e}")
+                self.disconnect(user_id)
+
+# Global connection manager
+manager = ConnectionManager()
+
+# Background task storage
+background_tasks_storage: Dict[str, Dict] = {}
+
 # User modeli
 class User(BaseModel):
     uid: str
     email: str
     display_name: str = None
+
+class AsyncVideoAnalysisRequest(BaseModel):
+    video_id: str
+    max_comments: int = 100
+    use_async: bool = True
 
 # Kimlik doğrulama fonksiyonu
 async def get_current_user(authorization: str = Header(None)) -> User:
@@ -500,6 +538,277 @@ async def root():
 # Router'ları ekle
 app.include_router(csv_router.router, prefix="/api/csv", tags=["csv"])
 app.include_router(gemini.router, prefix="/api/gemini", tags=["gemini"])
+
+# WebSocket endpoint
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await manager.connect(websocket, user_id)
+    try:
+        while True:
+            # WebSocket mesajlarını dinle
+            data = await websocket.receive_text()
+            
+            try:
+                message = json.loads(data)
+                if message.get('type') == 'ping':
+                    # Ping mesajına pong ile yanıt ver
+                    await websocket.send_text(json.dumps({'type': 'pong', 'timestamp': datetime.now().isoformat()}))
+                    print(f"🏓 Ping-pong: {user_id}")
+                else:
+                    # Diğer mesajlar için echo
+                    await websocket.send_text(f"Echo: {data}")
+            except json.JSONDecodeError:
+                # JSON olmayan mesajlar için echo
+                await websocket.send_text(f"Echo: {data}")
+                
+    except WebSocketDisconnect:
+        manager.disconnect(user_id)
+        print(f"🔌 WebSocket disconnected: {user_id}")
+
+# Background task için async video analysis
+async def background_video_analysis(
+    video_id: str, 
+    user_id: str, 
+    max_comments: int,
+    task_id: str
+):
+    """Background'da video analizi yapar ve progress bilgisi gönderir"""
+    try:
+        global youtube_service
+        
+        if not youtube_service:
+            raise Exception("YouTube service bulunamadı")
+        
+        # İlk durum güncelleme
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "started",
+            "progress": 0,
+            "message": "Video analizi başlatıldı...",
+            "step": "Başlatılıyor"
+        })
+        
+        # Video bilgilerini al
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "fetching_video_info",
+            "progress": 10,
+            "message": "Video bilgileri alınıyor...",
+            "step": "Video Bilgileri"
+        })
+        
+        video_info = await youtube_service.get_video_info(video_id)
+        if not video_info:
+            raise Exception(f"Video bilgileri alınamadı: {video_id}")
+        
+        # Yorumları al
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "fetching_comments",
+            "progress": 25,
+            "message": f"Yorumlar alınıyor... (Max {max_comments})",
+            "step": "Yorumlar",
+            "video_info": {
+                "title": video_info.get('title', 'Bilinmeyen Video'),
+                "view_count": video_info.get('view_count', 0),
+                "comment_count": video_info.get('comment_count', 0)
+            }
+        })
+        
+        comments = await youtube_service.get_video_comments(video_id, max_comments)
+        if not comments:
+            result = {
+                'video_id': video_id,
+                'video_title': video_info.get('title', 'Bilinmeyen Video'),
+                'video_info': video_info,
+                'total_comments': 0,
+                'analysis_id': None,
+                'message': 'Analiz edilecek yorum bulunamadı'
+            }
+            background_tasks_storage[task_id] = {"status": "completed", "result": result}
+            await manager.send_progress(user_id, {
+                "task_id": task_id,
+                "status": "completed",
+                "progress": 100,
+                "message": "Analiz tamamlandı - Yorum bulunamadı",
+                "step": "Tamamlandı",
+                "result": result
+            })
+            return
+        
+        # Yorumları analiz et - Progress tracking ile
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "analyzing", 
+            "progress": 40,
+            "message": f"Yorumlar analiz ediliyor... ({len(comments)} yorum)",
+            "step": "Sentiment Analizi",
+            "comments_found": len(comments)
+        })
+        
+        # Sentiment service kontrolü
+        if not youtube_service.sentiment_enabled or not youtube_service.sentiment_service:
+            raise Exception("Sentiment servis aktif değil")
+        
+        # Batch processing ile analiz
+        chunk_size = 20
+        analyzed_comments = []
+        total_chunks = len(comments) // chunk_size + (1 if len(comments) % chunk_size else 0)
+        
+        for i in range(0, len(comments), chunk_size):
+            chunk = comments[i:i + chunk_size]
+            chunk_analyzed = youtube_service.sentiment_service.analyze_comments(chunk)
+            analyzed_comments.extend(chunk_analyzed)
+            
+            # Progress update
+            current_chunk = i // chunk_size + 1
+            progress = 40 + (current_chunk / total_chunks) * 30
+            await manager.send_progress(user_id, {
+                "task_id": task_id,
+                "status": "analyzing",
+                "progress": int(progress),
+                "message": f"Analiz ediliyor... ({current_chunk}/{total_chunks} batch) - {len(analyzed_comments)} yorum tamamlandı",
+                "step": "Sentiment Analizi",
+                "processed_comments": len(analyzed_comments),
+                "total_comments": len(comments)
+            })
+            
+            # Kısa bekleme
+            await asyncio.sleep(0.1)
+        
+        # İstatistikleri hesapla
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "calculating_stats",
+            "progress": 80,
+            "message": "İstatistikler hesaplanıyor...",
+            "step": "İstatistikler"
+        })
+        
+        sentiment_stats = youtube_service.sentiment_service.get_sentiment_stats(analyzed_comments)
+        word_cloud = youtube_service.sentiment_service.get_word_cloud(analyzed_comments)
+        
+        # Firestore'a kaydet
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "saving",
+            "progress": 95,
+            "message": "Sonuçlar kaydediliyor...",
+            "step": "Kaydetme"
+        })
+        
+        analysis_result = {
+            'video_id': video_id,
+            'video_title': video_info.get('title', 'Bilinmeyen Video'),
+            'sentiment_stats': sentiment_stats,
+            'word_cloud': word_cloud,
+            'comments': analyzed_comments
+        }
+        
+        analysis_id = None
+        if youtube_service.sentiment_service.firestore_enabled and youtube_service.sentiment_service.firestore_service:
+            analysis_id = await youtube_service.sentiment_service.firestore_service.save_analysis(
+                analysis_result, user_id
+            )
+        
+        # Sonucu hazırla
+        result = {
+            'video_id': video_id,
+            'video_title': video_info.get('title'),
+            'video_info': video_info,
+            'analysis_id': analysis_id,
+            'total_comments': len(analyzed_comments),
+            'sentiment_stats': sentiment_stats,
+            'word_cloud': word_cloud[:10],
+            'comments': analyzed_comments,
+            'analysis_summary': {
+                'dominant_sentiment': youtube_service._get_dominant_sentiment(sentiment_stats['categories']),
+                'average_polarity': sentiment_stats['average_polarity'],
+                'language_distribution': sentiment_stats['language_distribution']
+            }
+        }
+        
+        background_tasks_storage[task_id] = {"status": "completed", "result": result}
+        
+        # Tamamlandı mesajı
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "completed",
+            "progress": 100,
+            "message": f"Analiz tamamlandı! {len(analyzed_comments)} yorum analiz edildi.",
+            "step": "Tamamlandı",
+            "result": result,
+            "final_stats": {
+                "positive": sentiment_stats['categories']['positive'],
+                "negative": sentiment_stats['categories']['negative'],
+                "neutral": sentiment_stats['categories']['neutral'],
+                "average_polarity": sentiment_stats['average_polarity']
+            }
+        })
+        
+    except Exception as e:
+        error_msg = f"Analiz hatası: {str(e)}"
+        print(f"❌ Background analysis error: {error_msg}")
+        background_tasks_storage[task_id] = {"status": "error", "error": error_msg}
+        await manager.send_progress(user_id, {
+            "task_id": task_id,
+            "status": "error",
+            "progress": 0,
+            "message": error_msg,
+            "step": "Hata"
+        })
+
+@app.post("/api/youtube/analyze-video-async")
+async def analyze_video_async(
+    request: AsyncVideoAnalysisRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user)
+):
+    """Asenkron video analizi başlatır"""
+    try:
+        global youtube_service, youtube_credentials
+        
+        if not youtube_service or not youtube_credentials:
+            credentials = load_credentials()
+            if credentials:
+                youtube_credentials = credentials
+                youtube_service = YouTubeService(credentials)
+            else:
+                raise HTTPException(status_code=401, detail="YouTube kimlik doğrulaması gerekli")
+        
+        if youtube_credentials.expired:
+            youtube_credentials.refresh(Request())
+            save_credentials(youtube_credentials)
+            youtube_service = YouTubeService(youtube_credentials)
+        
+        # Task ID oluştur
+        task_id = str(uuid.uuid4())
+        
+        # Background task başlat
+        background_tasks.add_task(
+            background_video_analysis,
+            request.video_id,
+            current_user.uid,
+            request.max_comments,
+            task_id
+        )
+        
+        return {
+            "task_id": task_id,
+            "message": "Async analiz başlatıldı",
+            "status": "started"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/youtube/analysis-status/{task_id}")
+async def get_analysis_status(task_id: str):
+    """Background task durumunu kontrol eder"""
+    if task_id in background_tasks_storage:
+        return background_tasks_storage[task_id]
+    else:
+        return {"status": "not_found", "message": "Task bulunamadı"}
 
 if __name__ == "__main__":
     import uvicorn

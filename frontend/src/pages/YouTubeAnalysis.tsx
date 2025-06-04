@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Card, List, message, Spin, Typography, Row, Col, Statistic, Tag, Select, Button, Tabs, Collapse, Progress, Timeline, Avatar, Space, Divider } from 'antd';
+import { Card, List, message, Spin, Typography, Row, Col, Statistic, Tag, Select, Button, Tabs, Collapse, Progress, Timeline, Avatar, Space, Divider, Input, Image, Modal, Switch, Steps } from 'antd';
 import { sentimentService, AnalysisResult } from '../services/sentimentService';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
-import { CalendarOutlined, FilterOutlined, ReloadOutlined, FileTextOutlined, YoutubeOutlined, BarChartOutlined, RiseOutlined, MessageOutlined, UserOutlined, ClockCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, CommentOutlined } from '@ant-design/icons';
+import youtubeService, { VideoInfo } from '../services/youtubeService';
+import { analysisService } from '../services/analysisService';
+import { asyncAnalysisService } from '../services/asyncAnalysisService';
+import { AsyncAnalysisProgress } from '../components/AsyncAnalysisProgress';
+import { analysisCache, videoCache } from '../services/intelligentCache';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, Area, AreaChart, CartesianGrid } from 'recharts';
+import { CalendarOutlined, FilterOutlined, ReloadOutlined, FileTextOutlined, YoutubeOutlined, BarChartOutlined, RiseOutlined, MessageOutlined, UserOutlined, ClockCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, CommentOutlined, PlayCircleOutlined, EyeOutlined, LikeOutlined, SearchOutlined, ThunderboltOutlined, SettingOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Wordcloud } from '@visx/wordcloud';
 import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
 import { getAuth } from 'firebase/auth';
 import { useCache } from '../contexts/CacheContext';
+import { useAI } from '../contexts/AIContext';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
+const { Search } = Input;
+const { Step } = Steps;
 
 const COLORS = ['#00C49F', '#FFBB28', '#FF8042'];
 const SENTIMENT_COLORS = {
@@ -24,6 +32,237 @@ const SENTIMENT_COLORS = {
 interface WordCloudProps {
   words: { text: string; value: number }[];
 }
+
+// Video Seçimi Bileşeni
+const VideoSelection: React.FC<{
+  onVideoSelect: (video: VideoInfo) => void;
+}> = ({ onVideoSelect }) => {
+  const [videos, setVideos] = useState<VideoInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredVideos, setFilteredVideos] = useState<VideoInfo[]>([]);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = videos.filter(video =>
+        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredVideos(filtered);
+    } else {
+      setFilteredVideos(videos);
+    }
+  }, [searchQuery, videos]);
+
+  const fetchVideos = async () => {
+    try {
+      setLoading(true);
+      const videoList = await youtubeService.getChannelVideos(50);
+      setVideos(videoList);
+      setFilteredVideos(videoList);
+    } catch (error) {
+      message.error('Video listesi yüklenirken bir hata oluştu');
+      console.error('Video listesi hatası:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatNumber = (num: string | number) => {
+    const number = typeof num === 'string' ? parseInt(num) : num;
+    if (number >= 1000000) return `${(number / 1000000).toFixed(1)}M`;
+    if (number >= 1000) return `${(number / 1000).toFixed(1)}K`;
+    return number.toString();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <Title level={2} className="mb-2 text-gray-900">
+                <YoutubeOutlined className="mr-3 text-red-600" />
+                Video Seçimi
+              </Title>
+              <Text className="text-gray-600 text-lg">
+                Analiz etmek istediğiniz videoyu seçin
+              </Text>
+            </div>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={fetchVideos}
+              size="large"
+              className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
+            >
+              Videoları Yenile
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-6 py-8">
+        {/* Arama ve İstatistikler */}
+        <Row gutter={[24, 24]} className="mb-8">
+          <Col xs={24} lg={16}>
+            <Card className="shadow-lg border-0">
+              <Search
+                placeholder="Video ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                size="large"
+                prefix={<SearchOutlined className="text-gray-400" />}
+                className="mb-4"
+              />
+              <div className="flex items-center justify-between">
+                <Text type="secondary">
+                  {filteredVideos.length} video gösteriliyor
+                </Text>
+                {searchQuery && (
+                  <Button 
+                    type="link" 
+                    onClick={() => setSearchQuery('')}
+                    className="text-red-600"
+                  >
+                    Filtreyi Temizle
+                  </Button>
+                )}
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} lg={8}>
+            <Card className="shadow-lg border-0 bg-gradient-to-r from-red-50 to-pink-50">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic
+                    title="Toplam Video"
+                    value={videos.length}
+                    valueStyle={{ color: '#d32f2f', fontSize: '2rem' }}
+                  />
+                </Col>
+                <Col span={12}>
+                  <Statistic
+                    title="Toplam Görüntülenme"
+                    value={formatNumber(videos.reduce((acc, video) => acc + parseInt(video.view_count || '0'), 0))}
+                    valueStyle={{ color: '#d32f2f', fontSize: '2rem' }}
+                  />
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Video Listesi */}
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredVideos.map((video) => (
+              <Card
+                key={video.id}
+                className="shadow-lg border-0 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+                onClick={() => onVideoSelect(video)}
+                cover={
+                  <div className="relative overflow-hidden">
+                    <Image
+                      alt={video.title}
+                      src={video.thumbnail}
+                      className="w-full h-48 object-cover"
+                      preview={false}
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                      <PlayCircleOutlined className="text-white text-6xl opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+                      <ClockCircleOutlined className="mr-1" />
+                      {formatDate(video.published_at)}
+                    </div>
+                  </div>
+                }
+                actions={[
+                  <div key="views" className="flex items-center justify-center text-blue-600">
+                    <EyeOutlined className="mr-1" />
+                    <span className="text-xs">{formatNumber(video.view_count)}</span>
+                  </div>,
+                  <div key="likes" className="flex items-center justify-center text-green-600">
+                    <LikeOutlined className="mr-1" />
+                    <span className="text-xs">{formatNumber(video.like_count)}</span>
+                  </div>,
+                  <div key="comments" className="flex items-center justify-center text-purple-600">
+                    <CommentOutlined className="mr-1" />
+                    <span className="text-xs">{formatNumber(video.comment_count)}</span>
+                  </div>
+                ]}
+              >
+                <Card.Meta
+                  title={
+                    <div className="line-clamp-2 h-12 overflow-hidden">
+                      <Text strong className="text-sm leading-tight">
+                        {video.title}
+                      </Text>
+                    </div>
+                  }
+                  description={
+                    <div className="mt-2">
+                      <Text type="secondary" className="text-xs line-clamp-3">
+                        {video.description || 'Açıklama bulunmuyor'}
+                      </Text>
+                      <div className="mt-3 pt-2 border-t border-gray-100">
+                        <div className="flex justify-between items-center">
+                          <Tag color="blue" className="text-xs">
+                            {formatNumber(video.comment_count)} yorum
+                          </Tag>
+                          <Button 
+                            type="primary" 
+                            size="small"
+                            className="bg-red-600 border-red-600 hover:bg-red-700"
+                          >
+                            Analiz Et
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                />
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {filteredVideos.length === 0 && !loading && (
+          <div className="text-center py-16">
+            <YoutubeOutlined className="text-6xl text-gray-300 mb-4" />
+            <Title level={4} className="text-gray-500 mb-2">
+              {searchQuery ? 'Arama sonucu bulunamadı' : 'Video bulunamadı'}
+            </Title>
+            <Text type="secondary">
+              {searchQuery 
+                ? 'Farklı arama terimleri deneyin'
+                : 'Kanal videolarını yüklemek için yenile butonuna tıklayın'
+              }
+            </Text>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const SummaryCard: React.FC<{ comments: any[] }> = ({ comments }) => {
   const [loading, setLoading] = useState(false);
@@ -353,72 +592,201 @@ const CommentsSection: React.FC<{ comments: any[] }> = ({ comments }) => {
 };
 
 export const YouTubeAnalysis: React.FC = () => {
+  const [videos, setVideos] = useState<VideoInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoInfo | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [dateRange, setDateRange] = useState('last-30');
-  const [sentimentFilter, setSentimentFilter] = useState('all');
-  const [themeFilter, setThemeFilter] = useState('all');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const [filteredAnalysis, setFilteredAnalysis] = useState<AnalysisResult | null>(null);
+  const [sentimentFilter, setSentimentFilter] = useState<string>('all');
+  const [themeFilter, setThemeFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<string>('all');
   const [isFromCache, setIsFromCache] = useState(false);
-  
-  // Cache sistemini kullan
-  const { youtubeAnalysis, setYoutubeAnalysis } = useCache();
-  
-  // Kullanıcı bilgisi
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [showSettings, setShowSettings] = useState(false);
+  const [useAsync, setUseAsync] = useState(true);
+  const [isAsyncAnalyzing, setIsAsyncAnalyzing] = useState(false);
+  const [asyncProgress, setAsyncProgress] = useState(0);
+  const [currentVideoId, setCurrentVideoId] = useState<string>('');
+  const [currentVideoTitle, setCurrentVideoTitle] = useState<string>('');
 
-  const fetchAnalysis = async (forceRefresh: boolean = false) => {
+  const { setComments: setAIComments } = useAI();
+  const { 
+    getVideoAnalysis, 
+    setVideoAnalysis
+  } = useCache();
+
+  // Component mount olduğunda video listesini yükle
+  useEffect(() => {
+    const loadVideos = async () => {
+      try {
+        setLoading(true);
+        console.log('📺 Video listesi yükleniyor...');
+        const videoList = await youtubeService.getChannelVideos();
+        setVideos(videoList);
+      } catch (error) {
+        console.error('Video listesi yüklenirken hata:', error);
+        message.error('Video listesi yüklenirken bir hata oluştu.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
+  }, []);
+
+  // Component unmount olduğunda aktif taskları temizle, ama WebSocket'i koru
+  useEffect(() => {
+    return () => {
+      if (isAsyncAnalyzing) {
+        console.log('🧹 Component unmount - aktif tasklar temizleniyor');
+        asyncAnalysisService.clearActiveTasks();
+        setIsAsyncAnalyzing(false);
+      }
+    };
+  }, [isAsyncAnalyzing]);
+
+  const analyzeSelectedVideo = async (video: VideoInfo) => {
+    // Cache kontrolü
+    const cacheKey = `video_analysis_${video.id}`;
+    const cachedAnalysis = analysisCache.get(cacheKey);
+    
+    if (cachedAnalysis) {
+      console.log('📦 Cache\'den analiz yüklendi:', video.id);
+      setSelectedVideo(video);
+      setAnalysis(cachedAnalysis as AnalysisResult);
+      message.success(`"${video.title}" analizi cache'den yüklendi!`);
+      return;
+    }
+
+    if (useAsync) {
+      // Async analysis başlat
+      setIsAsyncAnalyzing(true);
+      setSelectedVideo(video);
+    } else {
+      // Sync analysis (eski yöntem)
+      await performSyncAnalysis(video);
+    }
+  };
+
+  const performSyncAnalysis = async (video: VideoInfo) => {
     try {
       setLoading(true);
-      setError(null);
-      setIsFromCache(false);
+      setSelectedVideo(video);
       
-      // Cache kontrolü - sadece force refresh değilse
-      if (!forceRefresh && youtubeAnalysis) {
-        console.log('📦 Cache\'den YouTube analizi yüklendi');
-        setAnalysis(youtubeAnalysis);
-        setIsFromCache(true);
-        setLoading(false);
-        return;
+      console.log('🔄 Sync video analizi başlatıldı:', video.id);
+      
+      const result = await analysisService.analyzeVideo(video.id, 100);
+      console.log('Video analiz sonucu:', result);
+      
+      const formattedResult: any = {
+        video_id: result.video_id,
+        video_title: result.video_title,
+        total_comments: result.total_comments,
+        sentiment_stats: result.sentiment_stats || {
+          total: result.total_comments || 0,
+          categories: {
+            positive: 0,
+            neutral: 0,
+            negative: 0
+          },
+          average_polarity: 0,
+          language_distribution: {
+            tr: 0,
+            en: 0
+          },
+          themes: {}
+        },
+        word_cloud: result.word_cloud || [],
+        comments: []
+      };
+
+      if (result.analysis_id) {
+        try {
+          const analysisData = await analysisService.getAnalysisById(result.analysis_id);
+          if (analysisData && analysisData.comments) {
+            formattedResult.comments = analysisData.comments;
+            formattedResult.sentiment_stats = analysisData.sentimentStats;
+            formattedResult.word_cloud = analysisData.wordCloud || [];
+          }
+        } catch (commentsError) {
+          console.warn('Analiz detayları çekilemedi:', commentsError);
+        }
       }
-      
-      console.log('🌐 API\'den fresh YouTube analizi çekiliyor...');
-      const data = await sentimentService.getCommentsAnalysis();
-      setAnalysis(data);
-      
+
       // Cache'e kaydet
-      setYoutubeAnalysis(data);
-      
+      const cacheKey = `video_analysis_${video.id}`;
+      analysisCache.set(cacheKey, formattedResult);
+
+      setAnalysis(formattedResult);
+      message.success(`"${video.title}" videosu başarıyla analiz edildi! ${formattedResult.total_comments} yorum analiz edildi.`);
     } catch (error) {
-      console.error('Analiz verileri alınamadı:', error);
-      setError('Analiz verileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
-      message.error('Analiz verileri yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+      console.error('Video analizi hatası:', error);
+      message.error('Video analizi sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAnalysis();
-  }, [user]);
+  const handleAsyncAnalysisComplete = (result: any) => {
+    console.log('🎉 Async analiz tamamlandı:', result);
+    
+    // Cache'e kaydet
+    const cacheKey = `video_analysis_${selectedVideo?.id}`;
+    analysisCache.set(cacheKey, result);
+    
+    setAnalysis(result as AnalysisResult);
+    setIsAsyncAnalyzing(false);
+    message.success(`"${selectedVideo?.title}" videosu başarıyla analiz edildi!`);
+  };
+
+  const handleAsyncAnalysisError = (error: string) => {
+    console.error('❌ Async analiz hatası:', error);
+    message.error(`Analiz hatası: ${error}`);
+    setIsAsyncAnalyzing(false);
+  };
+
+  const handleAsyncAnalysisCancel = () => {
+    setIsAsyncAnalyzing(false);
+    setSelectedVideo(null);
+    message.info('Analiz iptal edildi');
+  };
+
+  const goBackToVideoSelection = () => {
+    setSelectedVideo(null);
+    setAnalysis(null);
+    message.info('Video seçimine dönüldü');
+  };
+
+  const toggleAnalysisMode = (checked: boolean) => {
+    setUseAsync(checked);
+    message.info(checked ? 'Hızlı analiz modu açıldı' : 'Standart analiz modu açıldı');
+  };
+
+  const clearCache = () => {
+    videoCache.clear();
+    analysisCache.clear();
+    message.success('Önbellek temizlendi');
+  };
 
   useEffect(() => {
     if (analysis) {
       let filtered = { ...analysis };
+      const commentsArray = analysis.comments || [];
       
       // Duygu filtresi
       if (sentimentFilter !== 'all') {
-        filtered.comments = analysis.comments.filter(
-          comment => comment.sentiment.category === sentimentFilter
+        filtered.comments = commentsArray.filter(
+          comment => comment.sentiment && comment.sentiment.category === sentimentFilter
         );
+      } else {
+        filtered.comments = commentsArray;
       }
       
       // Tema filtresi
       if (themeFilter !== 'all') {
-        filtered.comments = filtered.comments.filter(
-          comment => comment.theme[themeFilter] > 0.1
+        filtered.comments = (filtered.comments || []).filter(
+          comment => comment.theme && comment.theme[themeFilter] > 0.1
         );
       }
       
@@ -428,30 +796,33 @@ export const YouTubeAnalysis: React.FC = () => {
         const days = parseInt(dateRange.split('-')[1]);
         const cutoffDate = new Date(now.setDate(now.getDate() - days));
         
-        filtered.comments = filtered.comments.filter(
+        filtered.comments = (filtered.comments || []).filter(
           comment => new Date(comment.date) >= cutoffDate
         );
       }
       
       // İstatistikleri güncelle
+      const filteredCommentsArray = filtered.comments || [];
       filtered.sentiment_stats = {
         ...analysis.sentiment_stats,
-        total: filtered.comments.length,
+        total: filteredCommentsArray.length,
         categories: {
-          positive: filtered.comments.filter(c => c.sentiment.category === 'positive').length,
-          neutral: filtered.comments.filter(c => c.sentiment.category === 'neutral').length,
-          negative: filtered.comments.filter(c => c.sentiment.category === 'negative').length
+          positive: filteredCommentsArray.filter(c => c.sentiment && c.sentiment.category === 'positive').length,
+          neutral: filteredCommentsArray.filter(c => c.sentiment && c.sentiment.category === 'neutral').length,
+          negative: filteredCommentsArray.filter(c => c.sentiment && c.sentiment.category === 'negative').length
         },
         language_distribution: {
-          tr: filtered.comments.filter(c => c.sentiment.language === 'tr').length,
-          en: filtered.comments.filter(c => c.sentiment.language === 'en').length
+          tr: filteredCommentsArray.filter(c => c.sentiment && c.sentiment.language === 'tr').length,
+          en: filteredCommentsArray.filter(c => c.sentiment && c.sentiment.language === 'en').length
         },
-        themes: filtered.comments.reduce((acc, comment) => {
-          Object.entries(comment.theme).forEach(([theme, score]) => {
-            if (score > 0.1) {
-              acc[theme] = (acc[theme] || 0) + 1;
-            }
-          });
+        themes: filteredCommentsArray.reduce((acc, comment) => {
+          if (comment.theme) {
+            Object.entries(comment.theme).forEach(([theme, score]) => {
+              if (score > 0.1) {
+                acc[theme] = (acc[theme] || 0) + 1;
+              }
+            });
+          }
           return acc;
         }, {} as Record<string, number>)
       };
@@ -460,39 +831,91 @@ export const YouTubeAnalysis: React.FC = () => {
     }
   }, [analysis, sentimentFilter, themeFilter, dateRange]);
 
-  if (loading) {
+  // Video seçimi yapılmamışsa video seçim ekranını göster
+  if (!selectedVideo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 flex justify-center items-center">
-        <div className="text-center">
-          <Spin size="large" />
-          <div className="mt-4">
-            <Text className="text-lg text-gray-600">
-              {isFromCache ? 'Önbellek verileri yükleniyor...' : 'Kanal analizi yükleniyor...'}
-            </Text>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 p-6">
+        {/* Settings Panel */}
+        <Card 
+          size="small" 
+          className="mb-4 max-w-4xl mx-auto"
+          title={
+            <Space>
+              <SettingOutlined />
+              <span>Analiz Ayarları</span>
+            </Space>
+          }
+        >
+          <Row gutter={16} align="middle">
+            <Col span={12}>
+              <Space>
+                <ThunderboltOutlined />
+                <span>Hızlı Analiz Modu:</span>
+                <Switch
+                  checked={useAsync}
+                  onChange={toggleAnalysisMode}
+                  checkedChildren="Async"
+                  unCheckedChildren="Sync"
+                />
+                <span className="text-gray-500">
+                  {useAsync ? 'Real-time progress' : 'Standart bekleme'}
+                </span>
+              </Space>
+            </Col>
+            <Col span={12}>
+              <Space>
+                <Button 
+                  size="small" 
+                  onClick={clearCache}
+                  icon={<ReloadOutlined />}
+                >
+                  Cache Temizle
+                </Button>
+                <Tag color="blue">
+                  Cache: {analysisCache.getStats().size} analiz
+                </Tag>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
+        
+        <VideoSelection onVideoSelect={analyzeSelectedVideo} />
       </div>
     );
   }
 
-  if (error) {
+  // Async analysis progress ekranı
+  if (isAsyncAnalyzing && selectedVideo) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 p-6">
+        <AsyncAnalysisProgress
+          videoId={selectedVideo.id}
+          videoTitle={selectedVideo.title}
+          maxComments={100}
+          onComplete={handleAsyncAnalysisComplete}
+          onError={handleAsyncAnalysisError}
+          onCancel={handleAsyncAnalysisCancel}
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 flex justify-center items-center">
         <Card className="w-full max-w-2xl shadow-xl">
           <div className="text-center">
-            <div className="mb-4">
-              <YoutubeOutlined className="text-6xl text-red-400" />
+            <Spin size="large" />
+            <div className="mt-4">
+              <Text className="text-lg text-gray-600">
+                "{selectedVideo.title}" videosu analiz ediliyor...
+              </Text>
+              <div className="mt-2">
+                <Text className="text-sm text-gray-500">
+                  {useAsync ? 'Hızlı analiz kullanın - real-time progress' : 'Standart analiz'}
+                </Text>
+              </div>
             </div>
-            <Title level={3} className="text-red-500 mb-4">{error}</Title>
-            <Button 
-              type="primary" 
-              size="large"
-              icon={<ReloadOutlined />} 
-              onClick={() => fetchAnalysis(true)}
-              className="bg-red-600 border-red-600 hover:bg-red-700"
-            >
-              Yeniden Dene
-            </Button>
           </div>
         </Card>
       </div>
@@ -630,45 +1053,92 @@ export const YouTubeAnalysis: React.FC = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <Title level={2} className="mb-2 text-gray-900">
-                <YoutubeOutlined className="mr-3 text-red-600" />
-                Kanal Analizi
-                {isFromCache && (
-                  <Tag color="blue" className="ml-3 text-xs">
-                    📦 Önbellekten
-                  </Tag>
-                )}
-              </Title>
-              <Text className="text-gray-600 text-lg">
-                Kanalınızın video yorumlarının detaylı sentiment analizi
-              </Text>
-            </div>
-            <div className="flex gap-2">
+            <div className="flex items-center space-x-4">
               <Button
                 type="default"
-                icon={<ReloadOutlined />}
-                onClick={() => fetchAnalysis(false)}
+                icon={<YoutubeOutlined />}
+                onClick={goBackToVideoSelection}
                 size="large"
                 className="rounded-xl"
               >
-                Önbellekten Yükle
+                Video Seç
               </Button>
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                onClick={() => fetchAnalysis(true)}
-                size="large"
-                className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
-              >
-                Yenile
-              </Button>
+              <div>
+                <Title level={2} className="mb-2 text-gray-900">
+                  <PlayCircleOutlined className="mr-3 text-red-600" />
+                  Video Analizi
+                </Title>
+                <Text className="text-gray-600 text-lg">
+                  "{selectedVideo.title}" - Yorum Sentiment Analizi
+                </Text>
+              </div>
             </div>
+            <Button
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={() => analyzeSelectedVideo(selectedVideo)}
+              size="large"
+              className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
+            >
+              Yeniden Analiz Et
+            </Button>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8">
+        {/* Video Bilgi Kartı */}
+        <Card className="mb-8 shadow-lg border-0">
+          <Row gutter={24} align="middle">
+            <Col xs={24} sm={8} md={6}>
+              <Image
+                src={selectedVideo.thumbnail}
+                alt={selectedVideo.title}
+                className="w-full rounded-xl shadow-md"
+                preview={false}
+              />
+            </Col>
+            <Col xs={24} sm={16} md={18}>
+              <div className="space-y-4">
+                <Title level={3} className="mb-2">{selectedVideo.title}</Title>
+                <Text type="secondary" className="text-base line-clamp-3">
+                  {selectedVideo.description || 'Açıklama bulunmuyor'}
+                </Text>
+                <Row gutter={16}>
+                  <Col xs={12} sm={6}>
+                    <Statistic
+                      title="Görüntülenme"
+                      value={parseInt(selectedVideo.view_count || '0').toLocaleString('tr-TR')}
+                      prefix={<EyeOutlined />}
+                    />
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <Statistic
+                      title="Beğeni"
+                      value={parseInt(selectedVideo.like_count || '0').toLocaleString('tr-TR')}
+                      prefix={<LikeOutlined />}
+                    />
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <Statistic
+                      title="Yorum"
+                      value={parseInt(selectedVideo.comment_count || '0').toLocaleString('tr-TR')}
+                      prefix={<CommentOutlined />}
+                    />
+                  </Col>
+                  <Col xs={12} sm={6}>
+                    <Statistic
+                      title="Yayın Tarihi"
+                      value={new Date(selectedVideo.published_at).toLocaleDateString('tr-TR')}
+                      prefix={<CalendarOutlined />}
+                    />
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+          </Row>
+        </Card>
+
         {/* Filtreler */}
         <Card className="mb-8 shadow-lg border-0">
           <Row gutter={16} align="middle">
@@ -717,7 +1187,7 @@ export const YouTubeAnalysis: React.FC = () => {
               <Button
                 type="primary"
                 icon={<ReloadOutlined />}
-                onClick={() => fetchAnalysis(true)}
+                onClick={() => analyzeSelectedVideo(selectedVideo)}
                 className="w-full bg-red-600 border-red-600 hover:bg-red-700"
                 size="large"
               >
@@ -754,7 +1224,7 @@ export const YouTubeAnalysis: React.FC = () => {
                   showInfo={false}
                 />
                 <Text type="secondary" className="text-xs mt-1 block">
-                  {isFromCache ? '📦 Önbellekten' : '🌐 Canlı veri'}
+                  {filteredAnalysis.sentiment_stats.total} yorum
                 </Text>
               </div>
             </Card>
@@ -1195,11 +1665,13 @@ export const YouTubeAnalysis: React.FC = () => {
         </Row>
 
         {/* Kelime Bulutu */}
-        <WordCloudChart words={filteredAnalysis.word_cloud} />
+        {filteredAnalysis.word_cloud && filteredAnalysis.word_cloud.length > 0 && (
+          <WordCloudChart words={filteredAnalysis.word_cloud} />
+        )}
 
         {/* Yorumlar Listesi */}
         <div className="mt-8">
-          <CommentsSection comments={filteredAnalysis.comments} />
+          <CommentsSection comments={filteredAnalysis.comments || []} />
         </div>
       </div>
     </div>

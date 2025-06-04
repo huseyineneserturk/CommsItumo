@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Card, message, Spin, Typography, Row, Col, Statistic, Button, Input, Form, Alert, Tag, Tabs, List, Progress, Space } from 'antd';
+import { Card, message, Spin, Typography, Row, Col, Statistic, Button, Input, Form, Alert, Tag, Tabs, List, Progress, Space, Switch } from 'antd';
 import { analysisService } from '../services/analysisService';
 import { AnalysisResult, AnalysisSummary } from '../types/analysis';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { YoutubeOutlined, PlayCircleOutlined, BarChartOutlined, FileTextOutlined, LinkOutlined, ReloadOutlined, EyeOutlined, LikeOutlined, MessageOutlined, CalendarOutlined, HistoryOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined } from '@ant-design/icons';
+import { YoutubeOutlined, PlayCircleOutlined, BarChartOutlined, FileTextOutlined, LinkOutlined, ReloadOutlined, EyeOutlined, LikeOutlined, MessageOutlined, CalendarOutlined, HistoryOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Wordcloud } from '@visx/wordcloud';
 import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
 import { getAuth } from 'firebase/auth';
 import { useAI } from '../contexts/AIContext';
 import { useCache } from '../contexts/CacheContext';
+import { AsyncAnalysisProgress } from '../components/AsyncAnalysisProgress';
+import { asyncAnalysisService } from '../services/asyncAnalysisService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -30,6 +32,10 @@ const VideoAnalysis: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('input');
   const [isFromCache, setIsFromCache] = useState(false);
+  const [useAsync, setUseAsync] = useState(true);
+  const [isAsyncAnalyzing, setIsAsyncAnalyzing] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState<string>('');
+  const [currentVideoTitle, setCurrentVideoTitle] = useState<string>('');
   
   // Geçmiş analizler için state'ler
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisSummary[]>([]);
@@ -101,6 +107,53 @@ const VideoAnalysis: React.FC = () => {
     }
   }, [user]);
 
+  const handleAsyncAnalysisComplete = (result: any) => {
+    console.log('✅ Async analiz tamamlandı:', result);
+    setAnalysisResult(result);
+    setVideoInfo(result.video_info);
+    setActiveTab('results');
+    setIsAsyncAnalyzing(false);
+    
+    // Cache'e kaydet
+    setVideoAnalysis(currentVideoId, result);
+    
+    // AI Context'e yorumları gönder
+    if (result.comments) {
+      const aiComments = result.comments.map((comment: any) => ({
+        id: comment.id || Math.random().toString(),
+        text: comment.text,
+        author: comment.author,
+        date: comment.date,
+        language: comment.sentiment?.language || 'tr',
+        video_title: result.video_info?.title || 'Video',
+        sentiment: {
+          polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
+          subjectivity: 0.5,
+          confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
+        }
+      }));
+      setAIComments(aiComments);
+    }
+    
+    message.success(`Video analizi tamamlandı! ${result.total_comments} yorum analiz edildi.`);
+    
+    // Analiz geçmişini yenile
+    fetchAnalysisHistory();
+  };
+
+  const handleAsyncAnalysisError = (error: string) => {
+    console.error('❌ Async analiz hatası:', error);
+    setError(error);
+    setIsAsyncAnalyzing(false);
+    message.error(error);
+  };
+
+  const handleAsyncAnalysisCancel = () => {
+    console.log('🚫 Async analiz iptal edildi');
+    setIsAsyncAnalyzing(false);
+    setActiveTab('input');
+  };
+
   const handleAnalyze = async (values: { videoUrl: string }) => {
     if (!user) {
       message.error('Lütfen önce giriş yapın.');
@@ -114,9 +167,8 @@ const VideoAnalysis: React.FC = () => {
     }
 
     try {
-      setAnalyzing(true);
       setError(null);
-      setIsFromCache(false);
+      setCurrentVideoId(videoId);
       
       // Önce cache'e bak
       const cachedResult = getVideoAnalysis(videoId);
@@ -126,6 +178,9 @@ const VideoAnalysis: React.FC = () => {
         setVideoInfo(cachedResult.video_info);
         setActiveTab('results');
         setIsFromCache(true);
+        
+        // Video title'ını set et
+        setCurrentVideoTitle(cachedResult.video_info?.title || 'Bilinmeyen Video');
         
         // AI Context'e yorumları gönder
         if (cachedResult.comments) {
@@ -149,40 +204,54 @@ const VideoAnalysis: React.FC = () => {
         return;
       }
       
-      console.log(`🌐 API'den fresh video analizi yapılıyor:`, videoId);
-      
-      // Video analizi yap
-      const result = await analysisService.analyzeVideo(videoId, 100);
-      
-      setAnalysisResult(result);
-      setVideoInfo(result.video_info);
-      setActiveTab('results');
-      
-      // Cache'e kaydet
-      setVideoAnalysis(videoId, result);
-      
-      // AI Context'e yorumları gönder
-      if (result.comments) {
-        const aiComments = result.comments.map((comment: any) => ({
-          id: comment.id || Math.random().toString(),
-          text: comment.text,
-          author: comment.author,
-          date: comment.date,
-          language: comment.sentiment?.language || 'tr',
-          video_title: result.video_info?.title || 'Video',
-          sentiment: {
-            polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
-            subjectivity: 0.5,
-            confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
-          }
-        }));
-        setAIComments(aiComments);
+      // Video bilgilerini önce al
+      const videoInfoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`);
+      const videoData = await videoInfoResponse.json();
+      const title = videoData.items?.[0]?.snippet?.title || 'Bilinmeyen Video';
+      setCurrentVideoTitle(title);
+
+      if (useAsync) {
+        // Async analiz
+        console.log(`🚀 Async video analizi başlatılıyor:`, videoId);
+        setIsAsyncAnalyzing(true);
+        setActiveTab('async-progress');
+      } else {
+        // Sync analiz (eski yöntem)
+        setAnalyzing(true);
+        console.log(`🌐 API'den fresh video analizi yapılıyor:`, videoId);
+        
+        const result = await analysisService.analyzeVideo(videoId, 100);
+        
+        setAnalysisResult(result);
+        setVideoInfo(result.video_info);
+        setActiveTab('results');
+        
+        // Cache'e kaydet
+        setVideoAnalysis(videoId, result);
+        
+        // AI Context'e yorumları gönder
+        if (result.comments) {
+          const aiComments = result.comments.map((comment: any) => ({
+            id: comment.id || Math.random().toString(),
+            text: comment.text,
+            author: comment.author,
+            date: comment.date,
+            language: comment.sentiment?.language || 'tr',
+            video_title: result.video_info?.title || 'Video',
+            sentiment: {
+              polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
+              subjectivity: 0.5,
+              confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
+            }
+          }));
+          setAIComments(aiComments);
+        }
+        
+        message.success(`Video analizi tamamlandı! ${result.total_comments} yorum analiz edildi.`);
+        
+        // Analiz geçmişini yenile
+        await fetchAnalysisHistory();
       }
-      
-      message.success(`Video analizi tamamlandı! ${result.total_comments} yorum analiz edildi.`);
-      
-      // Analiz geçmişini yenile
-      await fetchAnalysisHistory();
       
     } catch (error) {
       console.error('Video analizi hatası:', error);
@@ -201,6 +270,11 @@ const VideoAnalysis: React.FC = () => {
     setSelectedAnalysis(null);
     setActiveTab('input');
     setIsFromCache(false);
+    setIsAsyncAnalyzing(false);
+    setCurrentVideoId('');
+    setCurrentVideoTitle('');
+    // WebSocket bağlantısını koru, sadece task'ları temizle
+    asyncAnalysisService.clearActiveTasks();
     form.resetFields();
   };
 
@@ -953,6 +1027,21 @@ const VideoAnalysis: React.FC = () => {
                     </Text>
                   </div>
 
+                  {/* Async Mode Toggle */}
+                  <div className="flex justify-center items-center mb-6 p-4 bg-gray-50 rounded-xl">
+                    <ThunderboltOutlined className={useAsync ? 'text-blue-500 mr-3' : 'text-gray-400 mr-3'} />
+                    <Switch
+                      checked={useAsync}
+                      onChange={setUseAsync}
+                      checkedChildren="Async"
+                      unCheckedChildren="Sync"
+                      disabled={analyzing || isAsyncAnalyzing}
+                    />
+                    <Text type="secondary" className="ml-3 text-sm">
+                      {useAsync ? 'Real-time progress tracking' : 'Geleneksel analiz'}
+                    </Text>
+                  </div>
+
                   <Form
                     form={form}
                     onFinish={handleAnalyze}
@@ -979,6 +1068,7 @@ const VideoAnalysis: React.FC = () => {
                         placeholder="https://www.youtube.com/watch?v=..."
                         prefix={<YoutubeOutlined className="text-red-500" />}
                         className="rounded-xl"
+                        disabled={analyzing || isAsyncAnalyzing}
                       />
                     </Form.Item>
 
@@ -992,6 +1082,12 @@ const VideoAnalysis: React.FC = () => {
                         <li>• Pozitif, negatif ve nötr yorumlar kategorize edilir</li>
                         <li>• Kelime bulutu ve tema analizi yapılır</li>
                         <li>• Analiz sonuçları görsel grafiklerle sunulur</li>
+                        {useAsync && (
+                          <>
+                            <li>• Real-time progress tracking ile anlık güncelleme</li>
+                            <li>• WebSocket bağlantısı ile hızlı iletişim</li>
+                          </>
+                        )}
                       </ul>
                     </div>
 
@@ -1010,12 +1106,15 @@ const VideoAnalysis: React.FC = () => {
                         type="primary"
                         htmlType="submit"
                         size="large"
-                        loading={analyzing}
-                        disabled={analyzing}
+                        loading={analyzing || isAsyncAnalyzing}
+                        disabled={analyzing || isAsyncAnalyzing}
                         className="bg-red-600 border-red-600 hover:bg-red-700 px-12 py-3 h-auto rounded-xl font-semibold"
-                        icon={<BarChartOutlined />}
+                        icon={useAsync ? <ThunderboltOutlined /> : <BarChartOutlined />}
                       >
-                        {analyzing ? 'Analiz Ediliyor...' : 'Analizi Başlat'}
+                        {analyzing || isAsyncAnalyzing ? 
+                          (useAsync ? 'Async Analiz Ediliyor...' : 'Analiz Ediliyor...') : 
+                          (useAsync ? 'Async Analizi Başlat' : 'Analizi Başlat')
+                        }
                       </Button>
                     </div>
                   </Form>
@@ -1115,6 +1214,28 @@ const VideoAnalysis: React.FC = () => {
               </Card>
             )}
           </TabPane>
+
+          {/* Async Progress Tab */}
+          {isAsyncAnalyzing && (
+            <TabPane 
+              tab={
+                <span className="flex items-center">
+                  <ThunderboltOutlined className="mr-2" />
+                  Async Analiz
+                </span>
+              } 
+              key="async-progress"
+            >
+              <AsyncAnalysisProgress
+                videoId={currentVideoId}
+                videoTitle={currentVideoTitle}
+                maxComments={100}
+                onComplete={handleAsyncAnalysisComplete}
+                onError={handleAsyncAnalysisError}
+                onCancel={handleAsyncAnalysisCancel}
+              />
+            </TabPane>
+          )}
 
           <TabPane tab={
             <span className="flex items-center">

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
-from ..services.gemini import analyze_comments
+from ..services.gemini import analyze_comments, chat_with_ai
 from ..models.comment import Comment
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import auth
@@ -16,6 +16,9 @@ class User(BaseModel):
 class AnalyzeRequest(BaseModel):
     comments: List[Comment]
     question: str
+
+class ChatRequest(BaseModel):
+    message: str
 
 async def get_current_user(authorization: str = Header(None)) -> User:
     if not authorization:
@@ -52,6 +55,20 @@ async def analyze_comments_endpoint(
         results = await analyze_comments(request.comments)
         return {
             "analysis": results["analysis"],
+            "timestamp": results["timestamp"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/chat")
+async def chat_endpoint(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        results = await chat_with_ai(request.message)
+        return {
+            "response": results["response"],
             "timestamp": results["timestamp"]
         }
     except Exception as e:

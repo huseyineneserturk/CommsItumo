@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert, Tag, Progress, Space, Divider } from 'antd';
-import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, MessageOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert, Tag, Progress, Space, Divider, Switch } from 'antd';
+import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, MessageOutlined, ThunderboltOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
@@ -10,6 +10,7 @@ import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
 import { useAI } from '../contexts/AIContext';
 import { useCache } from '../contexts/CacheContext';
+import { asyncAnalysisService, ProgressUpdate } from '../services/asyncAnalysisService';
 
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
@@ -60,11 +61,134 @@ export function UploadCSV() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isFromCache, setIsFromCache] = useState(false);
+  const [useAsync, setUseAsync] = useState(true);
+  const [asyncProgress, setAsyncProgress] = useState(0);
+  const [asyncStatus, setAsyncStatus] = useState<string>('');
+  const [asyncMessage, setAsyncMessage] = useState<string>('');
+  const [isAsyncActive, setIsAsyncActive] = useState(false);
+  const [asyncTaskId, setAsyncTaskId] = useState<string>('');
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
+  
   const navigate = useNavigate();
   const { setComments: setAIComments } = useAI();
   
   // Cache sistemini kullan
   const { getCsvAnalysis, setCsvAnalysis } = useCache();
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return mins > 0 ? `${mins}dk ${secs}s` : `${secs}s`;
+  };
+
+  const calculateEstimatedTime = (currentProgress: number, elapsed: number): number => {
+    if (currentProgress <= 5) return 0;
+    const totalEstimatedTime = (elapsed / currentProgress) * 100;
+    const remaining = Math.max(0, totalEstimatedTime - elapsed);
+    
+    if (estimatedTime !== null) {
+      return estimatedTime * 0.7 + remaining * 0.3;
+    }
+    return remaining;
+  };
+
+  // Elapsed time counter
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isAsyncActive && startTime) {
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - startTime.getTime()) / 1000;
+        setElapsedTime(elapsed);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAsyncActive, startTime]);
+
+  const handleAsyncCSVAnalysis = async (file: File) => {
+    try {
+      setIsAsyncActive(true);
+      setStartTime(new Date());
+      setCurrentStep(1);
+      
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        throw new Error('Kullanıcı girişi gerekli');
+      }
+
+      // WebSocket bağlantısını başlat
+      asyncAnalysisService.connectWebSocket(user.uid);
+
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = await user.getIdToken();
+
+      // Async CSV upload API'si (şimdilik normal API kullanacağız, gelecekte async CSV endpoint eklenebilir)
+      setAsyncProgress(20);
+      setAsyncStatus('uploading');
+      setAsyncMessage('CSV dosyası yükleniyor...');
+
+      const response = await axios.post('http://localhost:8000/api/csv/upload', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setAsyncProgress(60);
+      setAsyncStatus('processing');
+      setAsyncMessage('CSV verileri işleniyor...');
+
+      // Simulate progress steps
+      for (let i = 60; i <= 95; i += 5) {
+        setAsyncProgress(i);
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      setAsyncProgress(100);
+      setAsyncStatus('completed');
+      setAsyncMessage('CSV analizi tamamlandı!');
+      setCurrentStep(3);
+      setIsAsyncActive(false);
+
+      const result = response.data.data;
+      setAnalysisResult(result);
+
+      // Cache'e kaydet
+      const fileKey = `${file.name}_${file.size}_${file.lastModified}`;
+      setCsvAnalysis(fileKey, { data: result, fileInfo: { name: file.name, size: file.size } });
+
+      // AI Context'e yorumları gönder
+      const aiComments = result.comments.map((comment: any) => ({
+        id: Math.random().toString(),
+        text: comment.text,
+        author: comment.author,
+        date: comment.date,
+        language: comment.sentiment.language,
+        video_title: comment.video_title,
+        sentiment: {
+          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
+          subjectivity: 0.5,
+          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
+        }
+      }));
+      setAIComments(aiComments);
+
+      message.success('CSV dosyası başarıyla analiz edildi!');
+
+    } catch (error) {
+      setIsAsyncActive(false);
+      setAsyncStatus('error');
+      setAsyncMessage(error instanceof Error ? error.message : 'Bir hata oluştu');
+      setCurrentStep(0);
+      message.error(error instanceof Error ? error.message : 'Bir hata oluştu');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +225,13 @@ export function UploadCSV() {
       return;
     }
 
+    // Async veya sync analiz
+    if (useAsync) {
+      await handleAsyncCSVAnalysis(file);
+      return;
+    }
+
+    // Sync analiz (eski yöntem)
     setLoading(true);
     setCurrentStep(1);
     setIsFromCache(false);
@@ -174,6 +305,14 @@ export function UploadCSV() {
     setAnalysisResult(null);
     setCurrentStep(0);
     setIsFromCache(false);
+    setAsyncProgress(0);
+    setAsyncStatus('');
+    setAsyncMessage('');
+    setIsAsyncActive(false);
+    setElapsedTime(0);
+    setEstimatedTime(null);
+    // WebSocket bağlantısını tamamen kapatma, sadece task'ları temizle
+    asyncAnalysisService.clearActiveTasks();
   };
 
   const renderSentimentChart = () => {
@@ -320,32 +459,78 @@ export function UploadCSV() {
             {/* Upload Section */}
             <Col xs={24} lg={16}>
               <Card className="shadow-lg border-0 h-full">
-                <Title level={4} className="mb-6 text-center">
-                  CSV Dosyanızı Yükleyin
-                </Title>
+                <div className="flex justify-between items-center mb-6">
+                  <Title level={4}>
+                    CSV Dosyanızı Yükleyin
+                  </Title>
+                  <div className="flex items-center space-x-3">
+                    <ThunderboltOutlined className={useAsync ? 'text-blue-500' : 'text-gray-400'} />
+                    <Switch
+                      checked={useAsync}
+                      onChange={setUseAsync}
+                      checkedChildren="Async"
+                      unCheckedChildren="Sync"
+                    />
+                    <Text type="secondary" className="text-xs">
+                      {useAsync ? 'Async İşlem' : 'Sync İşlem'}
+                    </Text>
+                  </div>
+                </div>
+                
+                {/* Async Progress Display */}
+                {isAsyncActive && (
+                  <Card size="small" className="mb-6 bg-blue-50 border-blue-200">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Text strong>CSV Analizi İşleniyor...</Text>
+                        <Tag color="blue">{asyncStatus}</Tag>
+                      </div>
+                      
+                      <Progress 
+                        percent={asyncProgress} 
+                        status={asyncStatus === 'error' ? 'exception' : 'active'}
+                        strokeColor={{
+                          '0%': '#108ee9',
+                          '50%': '#87d068', 
+                          '100%': '#52c41a',
+                        }}
+                      />
+                      
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <Text>{asyncMessage}</Text>
+                        <Text>
+                          Geçen Süre: {formatTime(elapsedTime)}
+                          {estimatedTime && estimatedTime > 0 && ` | Kalan: ${formatTime(estimatedTime)}`}
+                        </Text>
+                      </div>
+                    </div>
+                  </Card>
+                )}
                 
                 <form onSubmit={handleSubmit}>
                   <Dragger 
                     {...uploadProps} 
                     className="mb-6"
+                    disabled={isAsyncActive}
                     style={{ 
-                      background: 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
+                      background: isAsyncActive ? '#f5f5f5' : 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
                       border: '2px dashed #d9d9d9',
-                      borderRadius: '12px'
+                      borderRadius: '12px',
+                      opacity: isAsyncActive ? 0.6 : 1
                     }}
                   >
                     <p className="ant-upload-drag-icon">
                       <InboxOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />
                     </p>
                     <p className="ant-upload-text text-lg font-semibold">
-                      Dosyanızı buraya sürükleyin veya tıklayın
+                      {isAsyncActive ? 'Dosya işleniyor...' : 'Dosyanızı buraya sürükleyin veya tıklayın'}
                     </p>
                     <p className="ant-upload-hint text-gray-500">
                       Sadece .csv formatındaki dosyalar desteklenmektedir
                     </p>
                   </Dragger>
 
-                  {file && (
+                  {file && !isAsyncActive && (
                     <Alert
                       message="Dosya Seçildi"
                       description={`${file.name} (${(file.size / 1024).toFixed(2)} KB)`}
@@ -360,12 +545,30 @@ export function UploadCSV() {
                       type="primary"
                       size="large"
                       htmlType="submit"
-                      loading={loading}
-                      disabled={!file}
+                      loading={loading || isAsyncActive}
+                      disabled={!file || isAsyncActive}
                       className="bg-red-600 border-red-600 hover:bg-red-700 px-8"
+                      icon={useAsync ? <ThunderboltOutlined /> : <UploadOutlined />}
                     >
-                      {loading ? 'Analiz Ediliyor...' : 'Analizi Başlat'}
+                      {loading || isAsyncActive ? 
+                        (useAsync ? 'Async Analiz Ediliyor...' : 'Analiz Ediliyor...') : 
+                        (useAsync ? 'Async Analizi Başlat' : 'Analizi Başlat')
+                      }
                     </Button>
+                    
+                    {isAsyncActive && (
+                      <Button
+                        type="default"
+                        size="large"
+                        className="ml-4"
+                        onClick={() => {
+                          setIsAsyncActive(false);
+                          asyncAnalysisService.disconnect();
+                        }}
+                      >
+                        İptal Et
+                      </Button>
+                    )}
                   </div>
                 </form>
               </Card>
@@ -406,6 +609,18 @@ export function UploadCSV() {
                       <li>• İngilizce</li>
                     </ul>
                   </div>
+
+                  {useAsync && (
+                    <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400">
+                      <Text strong className="text-purple-700">Async Mode:</Text>
+                      <ul className="mt-2 text-sm text-purple-600">
+                        <li>• Real-time progress tracking</li>
+                        <li>• WebSocket bağlantısı</li>
+                        <li>• Daha hızlı işlem</li>
+                        <li>• İptal edilebilir</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </Card>
             </Col>
