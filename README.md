@@ -926,7 +926,7 @@ SOFTWARE.
 [![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:huseyinenes.erturk@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-green?style=for-the-badge&logo=vercel)](https://huseyineneserturk.dev)
 
-**Arka Uç ve Veri Analisti Adayı**
+**Backend ve Veri Analisti Adayı**
 
 </div>
 
