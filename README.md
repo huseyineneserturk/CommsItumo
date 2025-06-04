@@ -978,9 +978,7 @@ Bu projenin geliştirilmesinde katkıda bulunan herkese teşekkür ederiz:
 - **[Unsplash](https://unsplash.com/)** - Ücretsiz profesyonel görseller
 
 ### 🌟 Beta Test Ediciler
-- **İçerik Üreticileri**: Gerçek kullanım senaryoları ve geri bildirimler
-- **Geliştirici Topluluğu**: Kod incelemesi ve optimizasyon önerileri
-- **Kullanıcı Arayüzü/Deneyimi Uzmanları**: Kullanıcı deneyimi iyileştirmeleri
+-Şimdilik sadece kendim :)
 
 ---
 
