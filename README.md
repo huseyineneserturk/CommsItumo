@@ -21,7 +21,7 @@
 ## 🌐 Language / Dil
 
 - [🇬🇧 **English Version**](#english-version) - Complete documentation in English
-- [🇹🇷 **Türkçe Versiyon**](#türkçe-versiyon) - Türkçe dokumentasyon (technical terimler İngilizce)
+- [🇹🇷 **Türkçe Versiyon**](#türkçe-versiyon) - Türkçe dokumentasyon 
 
 ---
 
