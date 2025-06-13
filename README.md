@@ -20,8 +20,8 @@
 
 ## 🌐 Language / Dil
 
-- [🇬🇧 **English Version**](#🇬🇧-English-Version) - Complete documentation
-- [🇹🇷 **Türkçe Versiyon**](#🇹🇷-Türkçe-Versiyon) - Türkçe dökümantasyon
+- [🇬🇧 **English Version**](#🇬🇧-english-version) - Complete documentation
+- [🇹🇷 **Türkçe Versiyon**](#🇹🇷-türkçe-versiyon) - Türkçe dökümantasyon
 
 ---
 
