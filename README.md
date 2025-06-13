@@ -368,124 +368,124 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 🎯 Proje Hakkında
 
-CommsItumo, YouTube video comment'larını AI destekli sentiment analysis ve theme detection ile analyze ederek content creator'lara ve marketing specialist'lerine değerli insight'lar sunan modern bir web application'dır.
+CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tema tespiti ile çözümleyerek içerik üreticilerine ve pazarlama uzmanlarına değerli bulgular sunan modern bir web uygulamasıdır.
 
 ### 🎯 Hedef Kitle
-- **Content Creator'lar**: Audience insight'ları arayan YouTube channel sahipleri
-- **Marketing Specialist'leri**: Brand sentiment track eden social media analyst'leri  
-- **Researcher'lar**: Social media trend'leri study eden academic ve industry professional'ları
-- **Brand'lar**: Customer feedback ve engagement analyze eden company'ler
+- **İçerik Üreticiler**: İzleyici öngörüleri arayan YouTube kanal sahipleri
+- **Pazarlama Uzmanları**: Marka duygularını takip eden sosyal medya analistleri  
+- **Araştırmacılar**: Sosyal medya trendlerini inceleyen akademik ve endüstri profesyonelleri
+- **Markalar**: Müşteri geri bildirimlerini ve etkileşimi analiz eden şirketler
 
 ### 🌟 Neden CommsItumo?
-- **⚡ Ultra Hızlı Analysis**: WebSocket technology ile real-time progress tracking
-- **🧠 Smart Caching**: Intelligent 3-tier cache system ile %40-50 daha fast processing
-- **🔄 Asynchronous Processing**: UI freezing olmadan background task processing
-- **🌐 Multi-language Support**: Türkçe ve İngilizce comment'ler için advanced support
-- **📊 Visual Report'lar**: Interactive chart'lar ve comprehensive statistics
-- **🎨 Modern UI/UX**: Ant Design ile intuitive ve responsive design
-- **🔒 Secure**: Firebase-powered authentication ve data storage
-- **📱 PWA Ready**: Mobile experience için Progressive Web App support
+- **⚡ Ultra Hızlı Analiz**: WebSocket teknolojisi ile gerçek zamanlı ilerleme takibi
+- **🧠 Akıllı Önbellekleme**: Akıllı 3 katmanlı önbellek sistemi ile %40-50 daha hızlı işleme
+- **🔄 Eşzamansız İşleme**: Arayüz donmadan arka planda görev işleme
+- **🌐 Çoklu Dil Desteği**: Türkçe ve İngilizce yorumlar için gelişmiş destek
+- **📊 Görsel Raporlar**: Etkileşimli grafikler ve kapsamlı istatistikler
+- **🎨 Modern Arayüz**: Ant Design ile sezgisel ve duyarlı tasarım
+- **🔒 Güvenli**: Firebase destekli kimlik doğrulama ve veri depolama
+- **📱 PWA Hazır**: Mobil deneyim için Progressive Web App desteği
 
 ---
 
 ## ✨ Özellikler
 
-### 🎬 YouTube Video Analysis
-- **Automatic Comment Fetching**: YouTube Data API v3 ile one-click comment collection
-- **⚡ Asynchronous Analysis**: WebSocket connection'lar via real-time progress update'ler
-- **📊 Batch Processing**: 20-comment batch'ler ile efficient processing
-- **🔄 Background Task'lar**: FastAPI background task'ları ile non-blocking analysis
-- **📈 Time Estimation**: Accurate completion time prediction'ları
-- **🎯 Progressive Loading**: 7-stage analysis progress visualization
-- **📱 Responsive Progress**: Mobile-optimized progress tracking interface
+### 🎬 YouTube Video Analizi
+- **Otomatik Yorum Toplama**: YouTube Data API v3 ile tek tıkla yorum toplama
+- **⚡ Eş Zamanlı Analiz**: WebSocket bağlantıları ile gerçek zamanlı ilerleme güncellemeleri
+- **📊 Toplu İşleme**: 20 yorumluk gruplar halinde verimli işleme
+- **🔄 Arka Plan Görevleri**: FastAPI arka plan görevleri ile engelleyici olmayan analiz
+- **📈 Zaman Tahmini**: Doğru tamamlanma süresi tahminleri
+- **🎯 Aşamalı Yükleme**: 7 aşamalı analiz ilerleme görselleştirmesi
+- **📱 Duyarlı İlerleme**: Mobil optimize ilerleme takip arayüzü
 
-### 📊 Advanced Sentiment Analysis
-- **AI-Powered Analysis**: Hugging Face integration ile Transformer-based model'ler
-- **Multi-Category Classification**: Positive, Negative, Neutral sentiment detection
-- **Confidence Scoring**: Her analysis result için reliability metric'leri
-- **Language Detection**: Automatic language identification ve model selection
-- **Trend Analysis**: Time-series sentiment change tracking
-- **Real-time Processing**: Fast result'lar için asynchronous model inference
+### 📊 Gelişmiş Duygu Analizi
+- **Yapay Zeka Destekli Analiz**: Hugging Face entegrasyonu ile Transformer tabanlı modeller
+- **Çoklu Kategori Sınıflandırma**: Pozitif, negatif, nötr duygu tespiti
+- **Güven Puanlama**: Her analiz sonucu için güvenilirlik ölçütleri
+- **Dil Algılama**: Otomatik dil tanıma ve model seçimi
+- **Trend Analizi**: Zaman serisi duygu değişim takibi
+- **Gerçek Zamanlı İşleme**: Hızlı sonuçlar için eş zamanlı model çıkarımı
 
-### 🏷️ Intelligent Theme Analysis
-- **Automatic Theme Detection**: Comment'larda NLP-powered topic identification
-- **Keyword Extraction**: Advanced word frequency ve importance analysis
-- **Category Classification**: Content quality, presentation style, technical aspect'ler
-- **Trend Visualization**: Zaman içinde theme evolution tracking
-- **Word Cloud Generation**: @visx/wordcloud ile visual representation
+### 🏷️ Akıllı Tema Analizi
+- **Otomatik Tema Tespiti**: Yorumlarda doğal dil işleme destekli konu tanımlama
+- **Anahtar Kelime Çıkarımı**: Gelişmiş kelime sıklığı ve önem analizi
+- **Kategori Sınıflandırma**: İçerik kalitesi, sunum tarzı, teknik yönler
+- **Trend Görselleştirme**: Zaman içinde tema evrimi takibi
+- **Kelime Bulutu Oluşturma**: @visx/wordcloud ile görsel gösterim
 
-### 📈 Modern Data Visualization
-- **Interactive Chart'lar**: Recharts powered dynamic visualization'lar
-- **Real-time Update'ler**: React state management ile live data binding
-- **Responsive Design**: Mobile-first visualization approach
-- **Export Capability'leri**: Report'lar için PNG/PDF export functionality
-- **Custom Animation'lar**: Smooth transition'lar ve hover effect'leri
+### 📈 Modern Veri Görselleştirme
+- **Etkileşimli Grafikler**: Recharts destekli dinamik görselleştirmeler
+- **Gerçek Zamanlı Güncellemeler**: React durum yönetimi ile canlı veri bağlama
+- **Duyarlı Tasarım**: Mobil öncelikli görselleştirme yaklaşımı
+- **Dışa Aktarma Yetenekleri**: Raporlar için PNG/PDF dışa aktarma işlevi
+- **Özel Animasyonlar**: Pürüzsüz geçişler ve hover efektleri
 
-### 📁 Flexible CSV Support
-- **Drag & Drop Upload**: Intuitive file upload interface
-- **Format Validation**: Automatic CSV structure detection ve validation
-- **Batch Processing**: Binlerce comment'i efficiently handle etme
-- **Custom Delimiter'lar**: Çeşitli CSV format'ları için support
-- **Error Handling**: User feedback ile comprehensive validation
+### 📁 Esnek CSV Desteği
+- **Sürükle Bırak Yükleme**: Sezgisel dosya yükleme arayüzü
+- **Format Doğrulama**: Otomatik CSV yapı algılama ve doğrulama
+- **Toplu İşleme**: Binlerce yorumu verimli şekilde işleme
+- **Özel Ayırıcılar**: Çeşitli CSV formatları için destek
+- **Hata İşleme**: Kullanıcı geri bildirimi ile kapsamlı doğrulama
 
-### 💾 Smart Caching System
-- **3-Tier Cache Architecture**:
-  - Analysis Cache: 1 hour TTL, 30MB limit
-  - Video Cache: 30 minute TTL, 20MB limit
-  - Quick Cache: 5 minute TTL, 10MB limit
-- **LRU Eviction Policy**: Intelligent memory management
-- **Cache Statistics**: Hit/miss ratio'ları ile performance monitoring
-- **Auto Cleanup**: Automatic memory optimization
-- **%70-80 Hit Rate**: Performance için optimized
+### 💾 Akıllı Önbellekleme Sistemi
+- **3 Katmanlı Önbellek Mimarisi**:
+  - Analiz Önbelleği: 1 saat TTL, 30MB limit
+  - Video Önbelleği: 30 dakika TTL, 20MB limit
+  - Hızlı Önbellek: 5 dakika TTL, 10MB limit
+- **LRU Çıkarma Politikası**: Akıllı bellek yönetimi
+- **Önbellek İstatistikleri**: İsabet/kaçırma oranları ile performans izleme
+- **Otomatik Temizlik**: Otomatik bellek optimizasyonu
+- **%70-80 İsabet Oranı**: Performans için optimize edilmiş
 
-### 🌐 Real-time WebSocket System
-- **Singleton Connection Manager**: Efficient connection pooling
-- **Heartbeat Monitoring**: Ping-pong based connection health check'leri
-- **Auto Reconnection**: Robust error recovery mechanism'ları
-- **User-based Session'lar**: Per user isolated progress tracking
-- **Task Queue Management**: Priority ile ordered task processing
+### 🌐 Gerçek Zamanlı WebSocket Sistemi
+- **Tekil Bağlantı Yöneticisi**: Verimli bağlantı havuzlama
+- **Kalp Atışı İzleme**: Ping-pong tabanlı bağlantı sağlık kontrolleri
+- **Otomatik Yeniden Bağlanma**: Sağlam hata kurtarma mekanizmaları
+- **Kullanıcı Tabanlı Oturumlar**: Kullanıcı başına izole ilerleme takibi
+- **Görev Kuyruğu Yönetimi**: Öncelik ile sıralı görev işleme
 
-### 🤖 AI Chat Assistant
-- **Google Gemini Integration**: Advanced conversational AI capability'leri
-- **Context-Aware Response'lar**: Analysis data-driven intelligent answer'lar
-- **Natural Language Processing**: Intuitive user interaction
-- **Suggestion Engine**: Actionable insight'lar ve recommendation'lar
-- **Multi-turn Conversation'lar**: Contextual dialogue management
+### 🤖 Yapay Zeka Sohbet Asistanı
+- **Google Gemini Entegrasyonu**: Gelişmiş konuşma yapay zeka yetenekleri
+- **Bağlam Farkında Yanıtlar**: Analiz verisi temelli akıllı cevaplar
+- **Doğal Dil İşleme**: Sezgisel kullanıcı etkileşimi
+- **Öneri Motoru**: Eyleme dönüştürülebilir bulgular ve öneriler
+- **Çok Turlu Konuşmalar**: Bağlamsal diyalog yönetimi
 
 ---
 
 ## 🛠️ Teknolojiler
 
-### 🎨 Frontend Stack
-| Technology | Version | Amaç |
+### 🎨 Ön Uç Teknolojileri
+| Teknoloji | Versiyon | Amaç |
 |-----------|---------|------|
-| **React** | 18.2.0 | Component-based UI framework |
-| **TypeScript** | 5.0.2 | Type-safe JavaScript development |
-| **Vite** | 4.4.5 | Fast build tool ve dev server |
-| **Ant Design** | 5.8.4 | Enterprise-class UI component'leri |
-| **Tailwind CSS** | 3.3.0 | Utility-first CSS framework |
-| **Recharts** | 2.7.2 | Declarative chart library |
-| **@visx/wordcloud** | 3.0.0 | Advanced word cloud visualization |
-| **Firebase SDK** | 10.1.0 | Authentication ve real-time database |
+| **React** | 18.2.0 | Bileşen tabanlı kullanıcı arayüzü çerçevesi |
+| **TypeScript** | 5.0.2 | Tip güvenli JavaScript geliştirme |
+| **Vite** | 4.4.5 | Hızlı derleme aracı ve geliştirme sunucusu |
+| **Ant Design** | 5.8.4 | Kurumsal sınıf kullanıcı arayüzü bileşenleri |
+| **Tailwind CSS** | 3.3.0 | Yardımcı program öncelikli CSS çerçevesi |
+| **Recharts** | 2.7.2 | Bildirimsel grafik kütüphanesi |
+| **@visx/wordcloud** | 3.0.0 | Gelişmiş kelime bulutu görselleştirme |
+| **Firebase SDK** | 10.1.0 | Kimlik doğrulama ve gerçek zamanlı veritabanı |
 
-### ⚙️ Backend Stack
-| Technology | Version | Amaç |
+### ⚙️ Arka Uç Teknolojileri
+| Teknoloji | Versiyon | Amaç |
 |-----------|---------|------|
-| **FastAPI** | 0.104.1 | High-performance async web framework |
-| **Python** | 3.8+ | Core programming language |
-| **Transformers** | 4.51.3 | Pre-trained NLP model'leri |
-| **NLTK** | 3.8.1 | Natural language toolkit |
-| **Pandas** | 2.2.1 | Data manipulation ve analysis |
-| **NumPy** | 1.26.4 | Numerical computing library |
-| **Scikit-learn** | 1.4.1 | Machine learning algorithm'ları |
-| **Uvicorn** | 0.23.2 | ASGI server implementation |
+| **FastAPI** | 0.104.1 | Yüksek performanslı eş zamanlı web çerçevesi |
+| **Python** | 3.8+ | Temel programlama dili |
+| **Transformers** | 4.51.3 | Önceden eğitilmiş doğal dil işleme modelleri |
+| **NLTK** | 3.8.1 | Doğal dil araç seti |
+| **Pandas** | 2.2.1 | Veri manipülasyonu ve analizi |
+| **NumPy** | 1.26.4 | Sayısal hesaplama kütüphanesi |
+| **Scikit-learn** | 1.4.1 | Makine öğrenmesi algoritmaları |
+| **Uvicorn** | 0.23.2 | ASGI sunucu uygulaması |
 
-### 🗄️ Service'ler ve API'ler
-- **Firebase Firestore**: NoSQL document database
-- **Firebase Authentication**: Google OAuth integration
-- **YouTube Data API v3**: Video ve comment data access
-- **Google Gemini AI**: Advanced conversational AI
-- **Hugging Face Hub**: Pre-trained model repository
+### 🗄️ Servisler ve API'ler
+- **Firebase Firestore**: NoSQL döküman veritabanı
+- **Firebase Authentication**: Google OAuth entegrasyonu
+- **YouTube Data API v3**: Video ve yorum verisi erişimi
+- **Google Gemini AI**: Gelişmiş konuşma yapay zekası
+- **Hugging Face Hub**: Önceden eğitilmiş model deposu
 
 ---
 
@@ -493,72 +493,72 @@ CommsItumo, YouTube video comment'larını AI destekli sentiment analysis ve the
 
 ### 📋 Ön Gereksinimler
 
-Aşağıdakilerin installed olduğundan emin olun:
+Aşağıdakilerin kurulu olduğundan emin olun:
 - **Node.js** (v18.0.0+) - [İndir](https://nodejs.org/)
 - **Python** (v3.8+) - [İndir](https://python.org/)
 - **Git** - [İndir](https://git-scm.com/)
 
 ### 🔧 Hızlı Başlangıç
 
-#### 1️⃣ Repository Clone
+#### 1️⃣ Depoyu Klonlayın
    ```bash
 git clone https://github.com/huseyineneserturk/CommsItumo.git
 cd CommsItumo
    ```
 
-#### 2️⃣ Backend Setup
+#### 2️⃣ Arka Uç Kurulumu
    ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
-# .env'i API key'lerinizle configure edin
+# .env dosyasını API anahtarlarınızla yapılandırın
 ```
 
-#### 3️⃣ Frontend Setup
+#### 3️⃣ Ön Uç Kurulumu
    ```bash
 cd ../frontend
 npm install
 cp .env.example .env
-# .env'i Firebase config ile configure edin
+# .env dosyasını Firebase yapılandırması ile güncelleyin
 ```
 
-#### 4️⃣ Development Server'ları Start Edin
+#### 4️⃣ Geliştirme Sunucularını Başlatın
 ```bash
-# Terminal 1 - Backend
+# Terminal 1 - Arka Uç
 cd backend && uvicorn main:app --reload
 
-# Terminal 2 - Frontend  
+# Terminal 2 - Ön Uç  
 cd frontend && npm run dev
 ```
 
-### 🌐 Access Point'leri
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+### 🌐 Erişim Noktaları
+- **Ön Uç**: http://localhost:3000
+- **Arka Uç API**: http://localhost:8000
+- **API Belgeleri**: http://localhost:8000/docs
 
 ---
 
 ## 🚀 Kullanım
 
-### 📊 YouTube Analysis
-1. Google account'unuzla **Login** olun
-2. YouTube video URL'ini **girin**
-3. Analysis parameter'larını **configure** edin (comment limit, language)
-4. WebSocket via real-time progress'i **watch** edin
-5. Interactive visualization'larla result'ları **explore** edin
+### 📊 YouTube Analizi
+1. Google hesabınızla **giriş yapın**
+2. YouTube video URL'sini **girin**
+3. Analiz parametrelerini **yapılandırın** (yorum limiti, dil)
+4. WebSocket ile gerçek zamanlı ilerlemeyi **izleyin**
+5. Etkileşimli görselleştirmelerle sonuçları **keşfedin**
 
-### 📁 CSV Analysis
-1. CSV file'ınızı drag-and-drop ile **upload** edin
-2. Required field'lara column'ları **map** edin
-3. Batch analysis'i **start** edin
-4. Result'ları ve visualization'ları **download** edin
+### 📁 CSV Analizi
+1. CSV dosyanızı sürükle-bırak ile **yükleyin**
+2. Gerekli alanlara sütunları **eşleyin**
+3. Toplu analizi **başlatın**
+4. Sonuçları ve görselleştirmeleri **indirin**
 
-### 🤖 AI Assistant
-1. Bottom-right'taki chat icon'una **click** edin
-2. Analysis result'larınız hakkında **question** sorun
-3. Actionable insight'lar ve recommendation'lar **alın**
+### 🤖 Yapay Zeka Asistanı
+1. Sağ alttaki sohbet simgesine **tıklayın**
+2. Analiz sonuçlarınız hakkında **soru sorun**
+3. Eyleme dönüştürülebilir bulgular ve öneriler **alın**
 
 ---
 
@@ -566,51 +566,51 @@ cd frontend && npm run dev
 
 ```
 CommsItumo/
-├── frontend/                 # React application
+├── frontend/                 # React uygulaması
 │   ├── src/
-│   │   ├── components/      # Reusable UI component'leri
-│   │   ├── pages/          # Page component'leri
-│   │   ├── services/       # API integration
-│   │   ├── contexts/       # React context'leri
-│   │   └── types/          # TypeScript definition'ları
-│   └── public/             # Static asset'ler
-├── backend/                 # FastAPI application
-│   ├── app/                # Core application
-│   │   ├── routers/        # API endpoint'leri
-│   │   ├── models/         # Data model'leri
-│   │   └── services/       # Business logic
-│   ├── services/           # External integration'lar
-│   └── main.py            # Application entry point
-└── docs/                   # Documentation
+│   │   ├── components/      # Yeniden kullanılabilir arayüz bileşenleri
+│   │   ├── pages/          # Sayfa bileşenleri
+│   │   ├── services/       # API entegrasyonu
+│   │   ├── contexts/       # React bağlamları
+│   │   └── types/          # TypeScript tanımları
+│   └── public/             # Statik varlıklar
+├── backend/                 # FastAPI uygulaması
+│   ├── app/                # Ana uygulama
+│   │   ├── routers/        # API uç noktaları
+│   │   ├── models/         # Veri modelleri
+│   │   └── services/       # İş mantığı
+│   ├── services/           # Harici entegrasyonlar
+│   └── main.py            # Uygulama giriş noktası
+└── docs/                   # Belgeler
 ```
 
 ---
 
 ## 🔧 Konfigürasyon
 
-### Backend Environment (.env)
+### Arka Uç Ortam Değişkenleri (.env)
 ```env
-# Firebase Configuration
+# Firebase Yapılandırması
 FIREBASE_PROJECT_ID=your-project-id
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 FIREBASE_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
 
-# API Key'ler
+# API Anahtarları
 YOUTUBE_API_KEY=your-youtube-api-key
 GEMINI_API_KEY=your-gemini-api-key
 HUGGINGFACE_TOKEN=your-hf-token
 
-# Application
+# Uygulama
 DEBUG=False
 CORS_ORIGINS=http://localhost:3000
 ```
 
-### Frontend Environment (.env)
+### Ön Uç Ortam Değişkenleri (.env)
 ```env
-# API Configuration
+# API Yapılandırması
 VITE_API_URL=http://localhost:8000
 
-# Firebase Configuration
+# Firebase Yapılandırması
 VITE_FIREBASE_API_KEY=your-api-key
 VITE_FIREBASE_AUTH_DOMAIN=project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
@@ -623,65 +623,65 @@ VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 
 ## 📊 API Dokümantasyonu
 
-### WebSocket Connection
+### WebSocket Bağlantısı
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/{user_id}');
 
 ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
-  console.log(`Progress: ${update.progress}%`);
-  console.log(`Status: ${update.status}`);
+  console.log(`İlerleme: ${update.progress}%`);
+  console.log(`Durum: ${update.status}`);
 };
 ```
 
-### REST Endpoint'ler
-- `POST /api/youtube/analyze-video-async` - Async video analysis start et
-- `GET /api/youtube/analysis-status/{task_id}` - Analysis status check et
-- `POST /api/csv/upload` - CSV upload ve analyze et
-- `POST /api/gemini/chat` - AI chat interaction
+### REST Uç Noktaları
+- `POST /api/youtube/analyze-video-async` - Eş zamanlı video analizi başlat
+- `GET /api/youtube/analysis-status/{task_id}` - Analiz durumunu kontrol et
+- `POST /api/csv/upload` - CSV yükle ve analiz et
+- `POST /api/gemini/chat` - Yapay zeka sohbet etkileşimi
 
-Complete API documentation için visit edin: http://localhost:8000/docs
+Tam API belgeleri için ziyaret edin: http://localhost:8000/docs
 
 ---
 
 ## 🤝 Katkıda Bulunma
 
-Contribution'larınızı welcome ediyoruz! Detail'ler için [Contributing Guidelines](CONTRIBUTING.md)'ı read edin.
+Katkılarınızı memnuniyetle karşılıyoruz! Ayrıntılar için [Katkı Rehberi](CONTRIBUTING.md)'ni okuyun.
 
-### Development Workflow
-1. Repository'yi fork edin
-2. Feature branch create edin: `git checkout -b feature/amazing-feature`
-3. Change'leri commit edin: `git commit -m 'feat: Add amazing feature'`
-4. Branch'e push edin: `git push origin feature/amazing-feature`
-5. Pull Request open edin
+### Geliştirme İş Akışı
+1. Depoyu çatallayın
+2. Özellik dalı oluşturun: `git checkout -b feature/amazing-feature`
+3. Değişiklikleri işleyin: `git commit -m 'feat: Add amazing feature'`
+4. Dala gönderin: `git push origin feature/amazing-feature`
+5. Çekme isteği açın
 
-### Commit Convention
-[Conventional Commits](https://conventionalcommits.org/) follow ediyoruz:
-- `feat:` New feature'lar
-- `fix:` Bug fix'leri
-- `docs:` Documentation update'leri
-- `style:` Code formatting
-- `refactor:` Code refactoring
-- `test:` Test addition'ları
-- `chore:` Maintenance task'ları
+### İşleme Kuralı
+[Geleneksel İşlemeler](https://conventionalcommits.org/) takip ediyoruz:
+- `feat:` Yeni özellikler
+- `fix:` Hata düzeltmeleri
+- `docs:` Belge güncellemeleri
+- `style:` Kod biçimlendirme
+- `refactor:` Kod yeniden düzenleme
+- `test:` Test eklemeleri
+- `chore:` Bakım görevleri
 
 ---
 
 ## 📄 Lisans
 
-Bu project [MIT License](LICENSE) altında licensed'dır.
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
 
 ---
 
 <div align="center">
 
-### 🌟 Project'i Beğendiyseniz Star Vermeyi Unutmayın!
+### 🌟 Projeyi Beğendiyseniz Yıldız Vermeyi Unutmayın!
 
 [![GitHub Stars](https://img.shields.io/github/stars/huseyineneserturk/CommsItumo?style=social)](https://github.com/huseyineneserturk/CommsItumo/stargazers)
 
-**CommsItumo ile YouTube comment'larınızı analyze edin ve content'inizi improve edin! 🚀**
+**CommsItumo ile YouTube yorumlarınızı analiz edin ve içeriğinizi geliştirin! 🚀**
 
-### 👨‍💻 Geliştirici | Developer
+### 👨‍💻 Geliştirici
 
 **Hüseyin Enes Ertürk**
 
@@ -689,27 +689,27 @@ Bu project [MIT License](LICENSE) altında licensed'dır.
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/huseyineneserturk)
 [![Email](https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail)](mailto:huseyinenes.erturk@gmail.com)
 
-**Backend Developer ve Data Analyst Adayı | Backend Developer and Data Analyst Candidate**
+**Yazılım Mühendisliği Öğrencisi**
 
-### 📊 Project Performance Statistics
+### 📊 Proje Performans İstatistikleri
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/huseyineneserturk/CommsItumo)
 ![GitHub last commit](https://img.shields.io/github/last-commit/huseyineneserturk/CommsItumo)
 ![GitHub repo size](https://img.shields.io/github/repo-size/huseyineneserturk/CommsItumo)
 ![GitHub language count](https://img.shields.io/github/languages/count/huseyineneserturk/CommsItumo)
 
-### ⚡ Performance Metrics | Performans Metrikleri
+### ⚡ Performans Ölçütleri
 
-- **Analysis Speed | Analysis Hızı**: %40-50 faster than previous | öncekinden daha fast
-- **UI Responsiveness | UI Duyarlılığı**: %100 freeze-free | donmama
-- **Cache Hit Rate | Cache Hit Oranı**: Average %70-80 | ortalama
-- **Memory Usage | Memory Kullanımı**: Controlled 60MB limit | kontrollü limit
-- **WebSocket Uptime | WebSocket Çalışma Süresi**: %99.9 connection stability | bağlantı kararlılığı
+- **Analiz Hızı**: Öncekinden %40-50 daha hızlı
+- **Arayüz Duyarlılığı**: %100 donmama garantisi
+- **Önbellek İsabet Oranı**: Ortalama %70-80
+- **Bellek Kullanımı**: Kontrollü 60MB limiti
+- **WebSocket Çalışma Süresi**: %99.9 bağlantı kararlılığı
 
 ---
 
-*Made with ❤️ in Turkey 🇹🇷 | Türkiye'de ❤️ ile yapıldı*  
-*Last Update | Son Güncelleme: Aralık 2024*  
-*Version | Versiyon: 2.1.0*
+*Türkiye'de ❤️ ile yapıldı 🇹🇷*  
+*Son Güncelleme: Haziran 2025*  
+*Versiyon: 2.1.0*
 
 </div> 
