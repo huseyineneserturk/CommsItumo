@@ -14,6 +14,8 @@ import { Text as VisxText } from '@visx/text';
 import { getAuth } from 'firebase/auth';
 import { useCache } from '../contexts/CacheContext';
 import { useAI } from '../contexts/AIContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -338,10 +340,44 @@ const SummaryCard: React.FC<{ comments: any[] }> = ({ comments }) => {
         </div>
       ) : summary ? (
         <div className="prose max-w-none">
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl border-l-4 border-red-400">
-            <Typography.Paragraph className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+          <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl border-l-4 border-red-400 ai-summary-content">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }: any) => <p className="mb-3 last:mb-0 text-gray-700 leading-relaxed">{children}</p>,
+                strong: ({ children }: any) => <strong className="font-bold text-gray-900">{children}</strong>,
+                em: ({ children }: any) => <em className="italic text-gray-800">{children}</em>,
+                ul: ({ children }: any) => <ul className="list-disc list-inside ml-4 mb-3 space-y-1">{children}</ul>,
+                ol: ({ children }: any) => <ol className="list-decimal list-inside ml-4 mb-3 space-y-1">{children}</ol>,
+                li: ({ children }: any) => <li className="mb-1 text-gray-700">{children}</li>,
+                code: ({ children }: any) => (
+                  <code className="bg-red-100 px-2 py-1 rounded text-sm font-mono text-red-800 border border-red-200">
+                    {children}
+                  </code>
+                ),
+                pre: ({ children }: any) => (
+                  <pre className="bg-red-100 p-4 rounded-lg overflow-x-auto mb-3 border border-red-200">
+                    {children}
+                  </pre>
+                ),
+                blockquote: ({ children }: any) => (
+                  <blockquote className="border-l-4 border-red-400 pl-4 italic mb-3 text-gray-600 bg-red-25">
+                    {children}
+                  </blockquote>
+                ),
+                h1: ({ children }: any) => <h1 className="text-2xl font-bold text-gray-900 mb-3 mt-4 first:mt-0">{children}</h1>,
+                h2: ({ children }: any) => <h2 className="text-xl font-bold text-gray-900 mb-3 mt-4 first:mt-0">{children}</h2>,
+                h3: ({ children }: any) => <h3 className="text-lg font-bold text-gray-900 mb-2 mt-3 first:mt-0">{children}</h3>,
+                hr: () => <hr className="border-red-200 my-4" />,
+                a: ({ children, href }: any) => (
+                  <a href={href} className="text-red-600 hover:text-red-700 underline" target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                )
+              }}
+            >
               {summary}
-            </Typography.Paragraph>
+            </ReactMarkdown>
           </div>
         </div>
       ) : (
@@ -596,15 +632,11 @@ export const YouTubeAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<VideoInfo | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
   const [filteredAnalysis, setFilteredAnalysis] = useState<AnalysisResult | null>(null);
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
   const [themeFilter, setThemeFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('all');
   const [isFromCache, setIsFromCache] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [useAsync, setUseAsync] = useState(true);
   const [isAsyncAnalyzing, setIsAsyncAnalyzing] = useState(false);
   const [asyncProgress, setAsyncProgress] = useState(0);
   const [currentVideoId, setCurrentVideoId] = useState<string>('');
@@ -659,77 +691,12 @@ export const YouTubeAnalysis: React.FC = () => {
       return;
     }
 
-    if (useAsync) {
-      // Async analysis başlat
-      setIsAsyncAnalyzing(true);
-      setSelectedVideo(video);
-    } else {
-      // Sync analysis (eski yöntem)
-      await performSyncAnalysis(video);
-    }
-  };
-
-  const performSyncAnalysis = async (video: VideoInfo) => {
-    try {
-      setLoading(true);
-      setSelectedVideo(video);
-      
-      console.log('🔄 Sync video analizi başlatıldı:', video.id);
-      
-      const result = await analysisService.analyzeVideo(video.id, 100);
-      console.log('Video analiz sonucu:', result);
-      
-      const formattedResult: any = {
-        video_id: result.video_id,
-        video_title: result.video_title,
-        total_comments: result.total_comments,
-        sentiment_stats: result.sentiment_stats || {
-          total: result.total_comments || 0,
-          categories: {
-            positive: 0,
-            neutral: 0,
-            negative: 0
-          },
-          average_polarity: 0,
-          language_distribution: {
-            tr: 0,
-            en: 0
-          },
-          themes: {}
-        },
-        word_cloud: result.word_cloud || [],
-        comments: []
-      };
-
-      if (result.analysis_id) {
-        try {
-          const analysisData = await analysisService.getAnalysisById(result.analysis_id);
-          if (analysisData && analysisData.comments) {
-            formattedResult.comments = analysisData.comments;
-            formattedResult.sentiment_stats = analysisData.sentimentStats;
-            formattedResult.word_cloud = analysisData.wordCloud || [];
-          }
-        } catch (commentsError) {
-          console.warn('Analiz detayları çekilemedi:', commentsError);
-        }
-      }
-
-      // Cache'e kaydet
-      const cacheKey = `video_analysis_${video.id}`;
-      analysisCache.set(cacheKey, formattedResult);
-
-      setAnalysis(formattedResult);
-      message.success(`"${video.title}" videosu başarıyla analiz edildi! ${formattedResult.total_comments} yorum analiz edildi.`);
-    } catch (error) {
-      console.error('Video analizi hatası:', error);
-      message.error('Video analizi sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
-    } finally {
-      setLoading(false);
-    }
+    setIsAsyncAnalyzing(true);
+    setSelectedVideo(video);
   };
 
   const handleAsyncAnalysisComplete = (result: any) => {
-    console.log('🎉 Async analiz tamamlandı:', result);
+    console.log('🎉 Analiz tamamlandı:', result);
     
     // Cache'e kaydet
     const cacheKey = `video_analysis_${selectedVideo?.id}`;
@@ -741,7 +708,7 @@ export const YouTubeAnalysis: React.FC = () => {
   };
 
   const handleAsyncAnalysisError = (error: string) => {
-    console.error('❌ Async analiz hatası:', error);
+    console.error('❌ Analiz hatası:', error);
     message.error(`Analiz hatası: ${error}`);
     setIsAsyncAnalyzing(false);
   };
@@ -756,11 +723,6 @@ export const YouTubeAnalysis: React.FC = () => {
     setSelectedVideo(null);
     setAnalysis(null);
     message.info('Video seçimine dönüldü');
-  };
-
-  const toggleAnalysisMode = (checked: boolean) => {
-    setUseAsync(checked);
-    message.info(checked ? 'Hızlı analiz modu açıldı' : 'Standart analiz modu açıldı');
   };
 
   const clearCache = () => {
@@ -849,17 +811,10 @@ export const YouTubeAnalysis: React.FC = () => {
           <Row gutter={16} align="middle">
             <Col span={12}>
               <Space>
-                <ThunderboltOutlined />
-                <span>Hızlı Analiz Modu:</span>
-                <Switch
-                  checked={useAsync}
-                  onChange={toggleAnalysisMode}
-                  checkedChildren="Async"
-                  unCheckedChildren="Sync"
-                />
-                <span className="text-gray-500">
-                  {useAsync ? 'Real-time progress' : 'Standart bekleme'}
-                </span>
+                <ThunderboltOutlined className="text-blue-500" />
+                <span>Real-time Async Analiz:</span>
+                <Tag color="green">Aktif</Tag>
+                <span className="text-gray-500">WebSocket bağlantısı ile</span>
               </Space>
             </Col>
             <Col span={12}>
@@ -910,11 +865,6 @@ export const YouTubeAnalysis: React.FC = () => {
               <Text className="text-lg text-gray-600">
                 "{selectedVideo.title}" videosu analiz ediliyor...
               </Text>
-              <div className="mt-2">
-                <Text className="text-sm text-gray-500">
-                  {useAsync ? 'Hızlı analiz kullanın - real-time progress' : 'Standart analiz'}
-                </Text>
-              </div>
             </div>
           </div>
         </Card>
@@ -947,44 +897,84 @@ export const YouTubeAnalysis: React.FC = () => {
   const WordCloudChart: React.FC<WordCloudProps> = ({ words }) => {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
-    const data = words.map(word => ({
+    if (!words || words.length === 0) {
+      return (
+        <Card 
+          title={
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+                <FileTextOutlined className="text-white" />
+              </div>
+              <span className="text-lg font-semibold">Kelime Bulutu</span>
+            </div>
+          }
+          className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+        >
+          <div className="text-center py-16">
+            <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
+            <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
+            <Text className="text-gray-400">Analiz edilecek yeterli kelime bulunamadı</Text>
+          </div>
+        </Card>
+      );
+    }
+
+    const data = words.slice(0, 50).map(word => ({
       text: word.text,
       value: word.value
     }));
 
     const colorScale = scaleOrdinal({
       domain: data.map(d => d.text),
-      range: ['#ff8080', '#ff4d4d', '#ff1a1a', '#ff6666', '#ff3333']
+      range: [
+        '#ff4757', '#3742fa', '#2ed573', '#ffa502', '#ff6348',
+        '#1e90ff', '#ff1493', '#32cd32', '#ff8c00', '#9370db',
+        '#20b2aa', '#ff69b4', '#00ced1', '#ffd700', '#dc143c'
+      ]
     });
 
-    const fontScale = (value: number) => Math.max(12, Math.min(60, value * 2));
+    const fontScale = (value: number) => Math.max(10, Math.min(32, value * 1.5));
 
     return (
       <Card 
-        title="Kelime Bulutu" 
-        className="shadow-lg border-0 hover:shadow-xl transition-shadow"
+        title={
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+              <FileTextOutlined className="text-white" />
+            </div>
+            <span className="text-lg font-semibold">Kelime Bulutu</span>
+          </div>
+        }
+        className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
         extra={
-          selectedWord && (
-            <Button 
-              type="link" 
-              onClick={() => setSelectedWord(null)}
-              icon={<ReloadOutlined />}
-            >
-              Seçimi Temizle
-            </Button>
-          )
+          <div className="flex items-center space-x-2">
+            <Tag color="purple" className="font-medium">
+              {words.length} Kelime
+            </Tag>
+            {selectedWord && (
+              <Button 
+                type="link" 
+                onClick={() => setSelectedWord(null)}
+                icon={<ReloadOutlined />}
+                size="small"
+              >
+                Temizle
+              </Button>
+            )}
+          </div>
         }
       >
         <div className="relative">
-          <div className="h-[600px] w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-red-50 rounded-xl">
-            <svg width={800} height={600}>
+          {/* Kompakt Word Cloud */}
+          <div className="h-80 w-full flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl border border-purple-100 shadow-inner">
+            <svg width="100%" height="100%" viewBox="0 0 600 320" className="max-w-full">
               <Wordcloud
                 words={data}
-                width={800}
-                height={600}
+                width={600}
+                height={320}
                 fontSize={(datum) => fontScale(datum.value)}
-                font="Arial"
-                padding={2}
+                font="Inter, system-ui, sans-serif"
+                padding={1}
                 spiral="archimedean"
                 rotate={0}
                 random={() => 0.5}
@@ -995,11 +985,17 @@ export const YouTubeAnalysis: React.FC = () => {
                       key={w.text}
                       fill={colorScale(w.text || '')}
                       textAnchor="middle"
-                      transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+                      transform={`translate(${w.x}, ${w.y})`}
                       fontSize={w.size}
                       fontFamily={w.font}
+                      fontWeight="600"
                       onClick={() => setSelectedWord(w.text || '')}
-                      style={{ cursor: 'pointer' }}
+                      style={{ 
+                        cursor: 'pointer',
+                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+                        transition: 'all 0.2s ease'
+                      }}
+                      className="hover:opacity-80"
                     >
                       {w.text}
                     </VisxText>
@@ -1007,41 +1003,35 @@ export const YouTubeAnalysis: React.FC = () => {
                 }
               </Wordcloud>
             </svg>
-          </div>
-          
-          {selectedWord && (
-            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow-xl max-w-xs border border-gray-200">
-              <Text strong className="text-lg">{selectedWord}</Text>
-              <div className="mt-2">
-                <Text type="secondary">
-                  Kullanım Sayısı: {words.find(w => w.text === selectedWord)?.value || 0}
+            
+            {/* Selected Word Tooltip */}
+            {selectedWord && (
+              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg border max-w-48">
+                <Text strong className="text-sm text-gray-800 block">{selectedWord}</Text>
+                <Text type="secondary" className="text-xs">
+                  {words.find(w => w.text === selectedWord)?.value || 0} kullanım
                 </Text>
               </div>
+            )}
+          </div>
+          
+          {/* Kompakt İstatistikler */}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <div className="text-lg font-bold text-blue-600">{words.length}</div>
+              <div className="text-xs text-blue-500">Toplam</div>
             </div>
-          )}
-        </div>
-
-        <div className="mt-6">
-          <Row gutter={16}>
-            <Col span={8}>
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-2xl font-bold text-blue-600">{words.length}</div>
-                <div className="text-sm text-blue-500">Toplam Kelime</div>
+            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <div className="text-lg font-bold text-green-600 truncate" title={words[0]?.text || '-'}>
+                {words[0]?.text?.slice(0, 8) || '-'}
               </div>
-            </Col>
-            <Col span={8}>
-              <div className="text-center p-4 bg-green-50 rounded-xl">
-                <div className="text-2xl font-bold text-green-600">{words[0]?.text || '-'}</div>
-                <div className="text-sm text-green-500">En Sık Kullanılan</div>
-              </div>
-            </Col>
-            <Col span={8}>
-              <div className="text-center p-4 bg-red-50 rounded-xl">
-                <div className="text-2xl font-bold text-red-600">{words[0]?.value || 0}</div>
-                <div className="text-sm text-red-500">Kullanım Sayısı</div>
-              </div>
-            </Col>
-          </Row>
+              <div className="text-xs text-green-500">En Sık</div>
+            </div>
+            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
+              <div className="text-lg font-bold text-red-600">{words[0]?.value || 0}</div>
+              <div className="text-xs text-red-500">Sayısı</div>
+            </div>
+          </div>
         </div>
       </Card>
     );
@@ -1191,7 +1181,7 @@ export const YouTubeAnalysis: React.FC = () => {
                 className="w-full bg-red-600 border-red-600 hover:bg-red-700"
                 size="large"
               >
-                Fresh Yenile
+                Yenile
               </Button>
             </Col>
           </Row>

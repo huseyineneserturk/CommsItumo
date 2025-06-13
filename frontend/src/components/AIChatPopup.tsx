@@ -3,6 +3,8 @@ import { Modal, Input, Button, message, Spin, Avatar } from 'antd';
 import { SendOutlined, UserOutlined, RobotOutlined, CloseOutlined } from '@ant-design/icons';
 import { getAuth } from 'firebase/auth';
 import axios, { AxiosResponse } from 'axios';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const { TextArea } = Input;
 
@@ -24,6 +26,36 @@ export const AIChatPopup: React.FC = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // AI mesaj stillerini ekle
+  const aiMessageStyles = `
+    .ai-message-content p { margin-bottom: 0.5rem; }
+    .ai-message-content p:last-child { margin-bottom: 0; }
+    .ai-message-content strong { font-weight: 700; color: #111827; }
+    .ai-message-content em { font-style: italic; }
+    .ai-message-content ul, .ai-message-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    .ai-message-content li { margin-bottom: 0.25rem; }
+    .ai-message-content code { 
+      background-color: #f3f4f6; 
+      padding: 0.125rem 0.25rem; 
+      border-radius: 0.25rem; 
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; 
+      font-size: 0.875rem; 
+    }
+    .ai-message-content pre { 
+      background-color: #f3f4f6; 
+      padding: 0.75rem; 
+      border-radius: 0.5rem; 
+      overflow-x: auto; 
+      margin: 0.5rem 0; 
+    }
+    .ai-message-content blockquote { 
+      border-left: 4px solid #d1d5db; 
+      padding-left: 1rem; 
+      font-style: italic; 
+      margin: 0.5rem 0; 
+    }
+  `;
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,6 +215,7 @@ export const AIChatPopup: React.FC = () => {
         style={{ top: 20 }}
         closeIcon={<CloseOutlined style={{ color: '#ff4d4f' }} />}
       >
+        <style>{aiMessageStyles}</style>
         <div className="flex flex-col h-[500px]">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
@@ -207,7 +240,40 @@ export const AIChatPopup: React.FC = () => {
                         : 'bg-white text-gray-800 border border-gray-200'
                     }`}
                   >
-                    <div className="whitespace-pre-wrap">{message.text}</div>
+                    {message.sender === 'ai' ? (
+                      <div className="ai-message-content">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({ children }: any) => <p className="mb-2 last:mb-0">{children}</p>,
+                            strong: ({ children }: any) => <strong className="font-bold text-gray-900">{children}</strong>,
+                            em: ({ children }: any) => <em className="italic">{children}</em>,
+                            ul: ({ children }: any) => <ul className="list-disc list-inside ml-4 mb-2">{children}</ul>,
+                            ol: ({ children }: any) => <ol className="list-decimal list-inside ml-4 mb-2">{children}</ol>,
+                            li: ({ children }: any) => <li className="mb-1">{children}</li>,
+                            code: ({ children }: any) => (
+                              <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
+                                {children}
+                              </code>
+                            ),
+                            pre: ({ children }: any) => (
+                              <pre className="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-2">
+                                {children}
+                              </pre>
+                            ),
+                            blockquote: ({ children }: any) => (
+                              <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-2">
+                                {children}
+                              </blockquote>
+                            )
+                          }}
+                        >
+                          {message.text}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <div className="whitespace-pre-wrap">{message.text}</div>
+                    )}
                   </div>
                   {message.sender === 'user' && (
                     <Avatar 

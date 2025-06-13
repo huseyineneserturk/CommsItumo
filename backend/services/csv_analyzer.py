@@ -76,6 +76,11 @@ class CSVAnalyzer:
             
             # Tema analizi
             theme_analysis = self.sentiment_service.get_theme_analysis(analyzed_comments)
+            
+            # sentiment_stats'e tema verilerini de ekle (backward compatibility için)
+            sentiment_stats['themes'] = {}
+            for theme_item in theme_analysis:
+                sentiment_stats['themes'][theme_item['theme']] = theme_item['count']
 
             result = {
                 'comments': analyzed_comments,

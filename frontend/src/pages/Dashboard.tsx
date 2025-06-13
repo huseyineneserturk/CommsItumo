@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, MessageSquare, Upload, Zap, Play, ChevronLeft, ChevronRight, Star, Users, TrendingUp, Shield } from 'lucide-react';
+import { BarChart3, MessageSquare, Upload, Zap, Star, Users, TrendingUp, Shield, ChevronRight } from 'lucide-react';
 
 const videos = [
   {
@@ -22,25 +22,14 @@ const videos = [
 
 export function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isPlaying) return;
-    
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % videos.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % videos.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + videos.length) % videos.length);
-  };
+  }, []);
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
@@ -151,41 +140,17 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Slider Controls */}
+        {/* Auto-sliding indicators */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={prevSlide}
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all"
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-            
-            <div className="flex space-x-2">
-              {videos.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentSlide ? 'bg-red-400' : 'bg-white/40'
-                  }`}
-                />
-              ))}
-            </div>
-            
-            <button
-              onClick={nextSlide}
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all"
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
-            
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all ml-4"
-            >
-              <Play className={`w-6 h-6 text-white ${isPlaying ? 'opacity-50' : 'opacity-100'}`} />
-            </button>
+          <div className="flex space-x-2">
+            {videos.map((_, index) => (
+              <div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-red-400' : 'bg-white/40'
+                }`}
+              />
+            ))}
           </div>
         </div>
 

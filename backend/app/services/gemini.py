@@ -64,6 +64,13 @@ async def chat_with_ai(message: str, comments: Optional[List[Comment]] = None) -
         - Teknik sorulara yanıt vermek
         - Genel sorulara samimi bir şekilde cevap vermek
         
+        ÖNEMLI FORMATLLAMA KURALLARI:
+        - Cevaplarında **bold text** kullan (önemli noktalar için)
+        - Listeler için - veya 1. kullan
+        - `kod` blokları için backtick kullan
+        - *italik* metinler için tek yıldız kullan
+        - Markdown formatlaması kullan, kullanıcı bunu düzgün görebilecek
+        
         Tatlı emojiler kullan ve samimi ol. Türkçe konuş.
         """
         

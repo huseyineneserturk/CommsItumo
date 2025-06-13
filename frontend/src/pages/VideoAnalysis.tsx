@@ -25,14 +25,12 @@ interface WordCloudProps {
 const VideoAnalysis: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [videoInfo, setVideoInfo] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('input');
   const [isFromCache, setIsFromCache] = useState(false);
-  const [useAsync, setUseAsync] = useState(true);
   const [isAsyncAnalyzing, setIsAsyncAnalyzing] = useState(false);
   const [currentVideoId, setCurrentVideoId] = useState<string>('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState<string>('');
@@ -210,56 +208,17 @@ const VideoAnalysis: React.FC = () => {
       const title = videoData.items?.[0]?.snippet?.title || 'Bilinmeyen Video';
       setCurrentVideoTitle(title);
 
-      if (useAsync) {
-        // Async analiz
-        console.log(`🚀 Async video analizi başlatılıyor:`, videoId);
-        setIsAsyncAnalyzing(true);
-        setActiveTab('async-progress');
-      } else {
-        // Sync analiz (eski yöntem)
-        setAnalyzing(true);
-        console.log(`🌐 API'den fresh video analizi yapılıyor:`, videoId);
-        
-        const result = await analysisService.analyzeVideo(videoId, 100);
-        
-        setAnalysisResult(result);
-        setVideoInfo(result.video_info);
-        setActiveTab('results');
-        
-        // Cache'e kaydet
-        setVideoAnalysis(videoId, result);
-        
-        // AI Context'e yorumları gönder
-        if (result.comments) {
-          const aiComments = result.comments.map((comment: any) => ({
-            id: comment.id || Math.random().toString(),
-            text: comment.text,
-            author: comment.author,
-            date: comment.date,
-            language: comment.sentiment?.language || 'tr',
-            video_title: result.video_info?.title || 'Video',
-            sentiment: {
-              polarity: comment.sentiment?.polarity || comment.sentiment?.score || 0,
-              subjectivity: 0.5,
-              confidence: Math.abs(comment.sentiment?.polarity || comment.sentiment?.score || 0)
-            }
-          }));
-          setAIComments(aiComments);
-        }
-        
-        message.success(`Video analizi tamamlandı! ${result.total_comments} yorum analiz edildi.`);
-        
-        // Analiz geçmişini yenile
-        await fetchAnalysisHistory();
-      }
-      
+      // Async analiz başlat
+      console.log(`🚀 Async video analizi başlatılıyor:`, videoId);
+      setIsAsyncAnalyzing(true);
+      setActiveTab('async-progress');
     } catch (error) {
       console.error('Video analizi hatası:', error);
       const errorMessage = error instanceof Error ? error.message : 'Video analizi sırasında bir hata oluştu.';
       setError(errorMessage);
       message.error(errorMessage);
     } finally {
-      setAnalyzing(false);
+      setLoading(false);
     }
   };
 
@@ -283,54 +242,82 @@ const VideoAnalysis: React.FC = () => {
 
     if (!words || words.length === 0) {
       return (
-        <Card title="Kelime Bulutu" className="shadow-lg border-0 hover:shadow-xl transition-shadow">
-          <div className="text-center py-12">
+        <Card 
+          title={
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+                <FileTextOutlined className="text-white" />
+              </div>
+              <span className="text-lg font-semibold">Kelime Bulutu</span>
+            </div>
+          }
+          className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+        >
+          <div className="text-center py-16">
             <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
             <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
-            <Text className="text-gray-400">Kelime bulutu için yeterli veri yok</Text>
+            <Text className="text-gray-400">Analiz edilecek yeterli kelime bulunamadı</Text>
           </div>
         </Card>
       );
     }
 
-    const data = words.map(word => ({
+    const data = words.slice(0, 50).map(word => ({
       text: word.text,
       value: word.value
     }));
 
     const colorScale = scaleOrdinal({
       domain: data.map(d => d.text),
-      range: ['#ff8080', '#ff4d4d', '#ff1a1a', '#ff6666', '#ff3333']
+      range: [
+        '#ff4757', '#3742fa', '#2ed573', '#ffa502', '#ff6348',
+        '#1e90ff', '#ff1493', '#32cd32', '#ff8c00', '#9370db',
+        '#20b2aa', '#ff69b4', '#00ced1', '#ffd700', '#dc143c'
+      ]
     });
 
-    const fontScale = (value: number) => Math.max(12, Math.min(60, value * 2));
+    const fontScale = (value: number) => Math.max(10, Math.min(32, value * 1.5));
 
     return (
       <Card 
-        title="Kelime Bulutu" 
-        className="shadow-lg border-0 hover:shadow-xl transition-shadow"
+        title={
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+              <FileTextOutlined className="text-white" />
+            </div>
+            <span className="text-lg font-semibold">Kelime Bulutu</span>
+          </div>
+        }
+        className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
         extra={
-          selectedWord && (
-            <Button 
-              type="link" 
-              onClick={() => setSelectedWord(null)}
-              icon={<ReloadOutlined />}
-            >
-              Seçimi Temizle
-            </Button>
-          )
+          <div className="flex items-center space-x-2">
+            <Tag color="purple" className="font-medium">
+              {words.length} Kelime
+            </Tag>
+            {selectedWord && (
+              <Button 
+                type="link" 
+                onClick={() => setSelectedWord(null)}
+                icon={<ReloadOutlined />}
+                size="small"
+              >
+                Temizle
+              </Button>
+            )}
+          </div>
         }
       >
         <div className="relative">
-          <div className="h-[400px] w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-red-50 rounded-xl">
-            <svg width={600} height={400}>
+          {/* Kompakt Word Cloud */}
+          <div className="h-80 w-full flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl border border-purple-100 shadow-inner">
+            <svg width="100%" height="100%" viewBox="0 0 600 320" className="max-w-full">
               <Wordcloud
                 words={data}
                 width={600}
-                height={400}
+                height={320}
                 fontSize={(datum) => fontScale(datum.value)}
-                font="Arial"
-                padding={2}
+                font="Inter, system-ui, sans-serif"
+                padding={1}
                 spiral="archimedean"
                 rotate={0}
                 random={() => 0.5}
@@ -341,11 +328,17 @@ const VideoAnalysis: React.FC = () => {
                       key={w.text}
                       fill={colorScale(w.text || '')}
                       textAnchor="middle"
-                      transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+                      transform={`translate(${w.x}, ${w.y})`}
                       fontSize={w.size}
                       fontFamily={w.font}
+                      fontWeight="600"
                       onClick={() => setSelectedWord(w.text || '')}
-                      style={{ cursor: 'pointer' }}
+                      style={{ 
+                        cursor: 'pointer',
+                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+                        transition: 'all 0.2s ease'
+                      }}
+                      className="hover:opacity-80"
                     >
                       {w.text}
                     </VisxText>
@@ -353,18 +346,35 @@ const VideoAnalysis: React.FC = () => {
                 }
               </Wordcloud>
             </svg>
-          </div>
-          
-          {selectedWord && (
-            <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow-xl max-w-xs border border-gray-200">
-              <Text strong className="text-lg">{selectedWord}</Text>
-              <div className="mt-2">
-                <Text type="secondary">
-                  Kullanım Sayısı: {words.find(w => w.text === selectedWord)?.value || 0}
+            
+            {/* Selected Word Tooltip */}
+            {selectedWord && (
+              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg border max-w-48">
+                <Text strong className="text-sm text-gray-800 block">{selectedWord}</Text>
+                <Text type="secondary" className="text-xs">
+                  {words.find(w => w.text === selectedWord)?.value || 0} kullanım
                 </Text>
               </div>
+            )}
+          </div>
+          
+          {/* Kompakt İstatistikler */}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <div className="text-lg font-bold text-blue-600">{words.length}</div>
+              <div className="text-xs text-blue-500">Toplam</div>
             </div>
-          )}
+            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <div className="text-lg font-bold text-green-600 truncate" title={words[0]?.text || '-'}>
+                {words[0]?.text?.slice(0, 8) || '-'}
+              </div>
+              <div className="text-xs text-green-500">En Sık</div>
+            </div>
+            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
+              <div className="text-lg font-bold text-red-600">{words[0]?.value || 0}</div>
+              <div className="text-xs text-red-500">Sayısı</div>
+            </div>
+          </div>
         </div>
       </Card>
     );
@@ -1027,21 +1037,6 @@ const VideoAnalysis: React.FC = () => {
                     </Text>
                   </div>
 
-                  {/* Async Mode Toggle */}
-                  <div className="flex justify-center items-center mb-6 p-4 bg-gray-50 rounded-xl">
-                    <ThunderboltOutlined className={useAsync ? 'text-blue-500 mr-3' : 'text-gray-400 mr-3'} />
-                    <Switch
-                      checked={useAsync}
-                      onChange={setUseAsync}
-                      checkedChildren="Async"
-                      unCheckedChildren="Sync"
-                      disabled={analyzing || isAsyncAnalyzing}
-                    />
-                    <Text type="secondary" className="ml-3 text-sm">
-                      {useAsync ? 'Real-time progress tracking' : 'Geleneksel analiz'}
-                    </Text>
-                  </div>
-
                   <Form
                     form={form}
                     onFinish={handleAnalyze}
@@ -1068,7 +1063,6 @@ const VideoAnalysis: React.FC = () => {
                         placeholder="https://www.youtube.com/watch?v=..."
                         prefix={<YoutubeOutlined className="text-red-500" />}
                         className="rounded-xl"
-                        disabled={analyzing || isAsyncAnalyzing}
                       />
                     </Form.Item>
 
@@ -1082,12 +1076,8 @@ const VideoAnalysis: React.FC = () => {
                         <li>• Pozitif, negatif ve nötr yorumlar kategorize edilir</li>
                         <li>• Kelime bulutu ve tema analizi yapılır</li>
                         <li>• Analiz sonuçları görsel grafiklerle sunulur</li>
-                        {useAsync && (
-                          <>
-                            <li>• Real-time progress tracking ile anlık güncelleme</li>
-                            <li>• WebSocket bağlantısı ile hızlı iletişim</li>
-                          </>
-                        )}
+                        <li>• Real-time progress tracking ile anlık güncelleme</li>
+                        <li>• WebSocket bağlantısı ile hızlı iletişim</li>
                       </ul>
                     </div>
 
@@ -1106,15 +1096,12 @@ const VideoAnalysis: React.FC = () => {
                         type="primary"
                         htmlType="submit"
                         size="large"
-                        loading={analyzing || isAsyncAnalyzing}
-                        disabled={analyzing || isAsyncAnalyzing}
+                        loading={isAsyncAnalyzing}
+                        disabled={isAsyncAnalyzing}
                         className="bg-red-600 border-red-600 hover:bg-red-700 px-12 py-3 h-auto rounded-xl font-semibold"
-                        icon={useAsync ? <ThunderboltOutlined /> : <BarChartOutlined />}
+                        icon={<BarChartOutlined />}
                       >
-                        {analyzing || isAsyncAnalyzing ? 
-                          (useAsync ? 'Async Analiz Ediliyor...' : 'Analiz Ediliyor...') : 
-                          (useAsync ? 'Async Analizi Başlat' : 'Analizi Başlat')
-                        }
+                        {isAsyncAnalyzing ? 'Analiz Ediliyor...' : 'Analizi Başlat'}
                       </Button>
                     </div>
                   </Form>
@@ -1221,7 +1208,7 @@ const VideoAnalysis: React.FC = () => {
               tab={
                 <span className="flex items-center">
                   <ThunderboltOutlined className="mr-2" />
-                  Async Analiz
+                  Analiz
                 </span>
               } 
               key="async-progress"

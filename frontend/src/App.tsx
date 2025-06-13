@@ -13,6 +13,7 @@ import { AuthProvider } from './lib/AuthContext';
 import { AIProvider } from './contexts/AIContext';
 import { YouTubeAuth } from './pages/YouTubeAuth';
 import { Profile } from './pages/Profile';
+import { Pricing } from './pages/Pricing';
 import Callback from './pages/Callback';
 import { CacheProvider } from './contexts/CacheContext';
 
@@ -32,6 +33,7 @@ export function App() {
                   <Route path="/video-analysis" element={<VideoAnalysis />} />
                   <Route path="/youtube-auth" element={<YouTubeAuth />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/pricing" element={<Pricing />} />
                   <Route path="/callback" element={<Callback />} />
                 </Routes>
               </Layout>

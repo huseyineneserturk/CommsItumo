@@ -13,7 +13,8 @@ export function Header() {
     { name: 'Yorumlarım', path: '/my-comments' },
     { name: 'CSV Yükle', path: '/upload-csv' },
     { name: 'Kanal Analizi', path: '/youtube-analysis' },
-    { name: 'Video Analizi', path: '/video-analysis' }
+    { name: 'Video Analizi', path: '/video-analysis' },
+    { name: 'Fiyatlandırma', path: '/pricing' }
   ];
 
   const isActive = (path: string) => {

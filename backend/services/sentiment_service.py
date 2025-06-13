@@ -96,7 +96,7 @@ class SentimentService:
             nltk.download('punkt')
             nltk.download('stopwords')
         
-        # Tema kategorileri
+        # Gelişmiş tema kategorileri
         self.theme_categories = [
             "içerik kalitesi",
             "sunum tarzı",
@@ -107,8 +107,42 @@ class SentimentService:
             "öğreticilik",
             "eğlence",
             "güncellik",
-            "topluluk"
+            "topluluk",
+            "teknik sorunlar",
+            "yaratıcılık",
+            "özgünlük",
+            "samimilik",
+            "profesyonellik",
+            "faydalılık",
+            "motivasyon",
+            "komedi",
+            "bilgi vericilik",
+            "güvenilirlik"
         ]
+        
+        # Tema anahtar kelimeleri (Türkçe ve İngilizce)
+        self.theme_keywords = {
+            "içerik kalitesi": ["kalite", "güzel", "harika", "mükemmel", "kötü", "berbat", "quality", "great", "awesome", "terrible", "bad"],
+            "sunum tarzı": ["sunum", "anlatım", "stil", "presentation", "style", "delivery", "speaking"],
+            "video düzeni": ["montaj", "düzen", "editing", "layout", "structure", "organization"],
+            "ses ve görüntü": ["ses", "görüntü", "audio", "video", "sound", "visual", "mikrofon", "microphone"],
+            "konu seçimi": ["konu", "konu", "topic", "subject", "theme", "idea"],
+            "etkileşim": ["etkileşim", "soru", "cevap", "interaction", "question", "answer", "response"],
+            "öğreticilik": ["öğren", "öğret", "ders", "learn", "teach", "tutorial", "lesson", "education"],
+            "eğlence": ["eğlen", "komik", "gül", "fun", "funny", "entertaining", "laugh", "humor"],
+            "güncellik": ["güncel", "yeni", "fresh", "new", "current", "update", "recent"],
+            "topluluk": ["abone", "takip", "community", "subscriber", "follower", "fan"],
+            "teknik sorunlar": ["sorun", "hata", "bug", "problem", "issue", "error", "glitch"],
+            "yaratıcılık": ["yaratıcı", "kreatif", "özgün", "creative", "original", "innovative"],
+            "özgünlük": ["özgün", "farklı", "unique", "different", "original", "special"],
+            "samimilik": ["samimi", "doğal", "genuine", "authentic", "natural", "sincere"],
+            "profesyonellik": ["profesyonel", "kaliteli", "professional", "polished", "refined"],
+            "faydalılık": ["faydalı", "yararlı", "useful", "helpful", "beneficial", "valuable"],
+            "motivasyon": ["motive", "ilham", "motivation", "inspiration", "encouraging"],
+            "komedi": ["komik", "espri", "funny", "comedy", "joke", "hilarious"],
+            "bilgi vericilik": ["bilgi", "info", "information", "educational", "informative"],
+            "güvenilirlik": ["güvenilir", "doğru", "reliable", "trustworthy", "accurate", "credible"]
+        }
         
         # Stopwords listesi
         self.stop_words = set(stopwords.words('turkish') + stopwords.words('english'))
@@ -135,41 +169,100 @@ class SentimentService:
             
             # Cümlelere ayır
             sentences = sent_tokenize(text)
+            if not sentences:
+                sentences = [text]
             
             # Her cümle için analiz yap
             sentence_analyses = []
+            total_positive_score = 0
+            total_negative_score = 0
+            total_neutral_score = 0
+            
             for sentence in sentences:
                 if lang == 'tr':
                     result = self.tr_sentiment(sentence)[0]
                 else:
                     result = self.en_sentiment(sentence)[0]
                 
+                # Label normalizasyonu
+                normalized_label = result["label"].lower()
+                if normalized_label in ["positive", "pos"]:
+                    normalized_label = "positive"
+                elif normalized_label in ["negative", "neg"]:
+                    normalized_label = "negative"
+                else:
+                    normalized_label = "neutral"
+                
                 sentence_analyses.append({
                     "text": sentence,
-                    "sentiment": result["label"],
+                    "sentiment": normalized_label,
                     "score": result["score"]
                 })
+                
+                # Skorları topla
+                if normalized_label == "positive":
+                    total_positive_score += result["score"]
+                elif normalized_label == "negative":
+                    total_negative_score += result["score"]
+                else:
+                    total_neutral_score += result["score"]
             
             # Tema analizi
             theme_result = self.analyze_theme(text)
             
-            # Genel duygu skoru hesapla
-            sentiment_scores = {
-                "positive": sum(1 for s in sentence_analyses if s["sentiment"] in ["positive", "POSITIVE"]),
-                "negative": sum(1 for s in sentence_analyses if s["sentiment"] in ["negative", "NEGATIVE"]),
-                "neutral": sum(1 for s in sentence_analyses if s["sentiment"] in ["neutral", "NEUTRAL"])
-            }
+            # Gelişmiş duygu hesaplama
+            total_sentences = len(sentences)
             
-            # Ana duygu kategorisini belirle
-            max_category = max(sentiment_scores, key=sentiment_scores.get)
+            # Sayısal skorlar
+            positive_count = sum(1 for s in sentence_analyses if s["sentiment"] == "positive")
+            negative_count = sum(1 for s in sentence_analyses if s["sentiment"] == "negative")
+            neutral_count = sum(1 for s in sentence_analyses if s["sentiment"] == "neutral")
+            
+            # Ağırlıklı skorlar (confidence skorlarını dikkate al)
+            weighted_positive = total_positive_score / total_sentences if total_sentences > 0 else 0
+            weighted_negative = total_negative_score / total_sentences if total_sentences > 0 else 0
+            weighted_neutral = total_neutral_score / total_sentences if total_sentences > 0 else 0
+            
+            # Polarite hesaplama (daha gelişmiş)
+            # Negatif skorları negatif yapmak için -1 ile çarp
+            polarity = (weighted_positive - weighted_negative)
+            
+            # Nötr durumları da dikkate al (nötr yüksekse polarite 0'a yaklaşsın)
+            if weighted_neutral > 0.6:  # %60'dan fazla nötr ise
+                polarity = polarity * (1 - weighted_neutral * 0.5)
+            
+            # Ana kategoriyi belirle - hem sayı hem de confidence'ı dikkate al
+            if positive_count > negative_count and positive_count > neutral_count and weighted_positive > 0.5:
+                main_category = "positive"
+                confidence = weighted_positive
+            elif negative_count > positive_count and negative_count > neutral_count and weighted_negative > 0.5:
+                main_category = "negative" 
+                confidence = weighted_negative
+            else:
+                main_category = "neutral"
+                confidence = max(weighted_neutral, 0.5)  # En az %50 confidence
+            
+            # Eğer tüm skorlar düşükse, nötr kabul et
+            if max(weighted_positive, weighted_negative, weighted_neutral) < 0.3:
+                main_category = "neutral"
+                polarity = 0
+                confidence = 0.6
             
             return {
-                "polarity": (sentiment_scores["positive"] - sentiment_scores["negative"]) / len(sentences),
-                "category": max_category,
-                "confidence": max(sentiment_scores.values()) / len(sentences),
+                "polarity": round(polarity, 4),
+                "category": main_category,
+                "confidence": round(confidence, 4),
                 "language": lang,
                 "sentence_analyses": sentence_analyses,
-                "theme": theme_result
+                "theme": theme_result,
+                "detailed_scores": {
+                    "positive_score": round(weighted_positive, 4),
+                    "negative_score": round(weighted_negative, 4),
+                    "neutral_score": round(weighted_neutral, 4),
+                    "positive_count": positive_count,
+                    "negative_count": negative_count,
+                    "neutral_count": neutral_count
+                }
             }
                 
         except Exception as e:
@@ -177,9 +270,17 @@ class SentimentService:
             return {
                 "polarity": 0,
                 "category": "neutral",
-                "confidence": 0,
+                "confidence": 0.6,
                 "language": "en",
-                "error": str(e)
+                "error": str(e),
+                "detailed_scores": {
+                    "positive_score": 0,
+                    "negative_score": 0,
+                    "neutral_score": 0.6,
+                    "positive_count": 0,
+                    "negative_count": 0,
+                    "neutral_count": 1
+                }
             }
 
     def analyze_comments(self, comments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -222,7 +323,19 @@ class SentimentService:
                 },
                 "average_polarity": 0,
                 "language_distribution": {"tr": 0, "en": 0},
-                "themes": {}
+                "themes": {},
+                "confidence_distribution": {
+                    "high": 0,    # >0.8
+                    "medium": 0,  # 0.5-0.8
+                    "low": 0      # <0.5
+                },
+                "polarity_distribution": {
+                    "strongly_positive": 0,  # >0.5
+                    "moderately_positive": 0, # 0.1-0.5
+                    "neutral": 0,            # -0.1-0.1
+                    "moderately_negative": 0, # -0.5-(-0.1)
+                    "strongly_negative": 0   # <-0.5
+                }
             }
 
         sentiment_counts = {
@@ -234,82 +347,248 @@ class SentimentService:
         theme_counts = {}
         language_counts = {"tr": 0, "en": 0}
         total_polarity = 0
+        
+        # Yeni metriklerin sayaçları
+        confidence_counts = {"high": 0, "medium": 0, "low": 0}
+        polarity_counts = {
+            "strongly_positive": 0,
+            "moderately_positive": 0,
+            "neutral": 0,
+            "moderately_negative": 0,
+            "strongly_negative": 0
+        }
+        
+        total_positive_score = 0
+        total_negative_score = 0
+        total_neutral_score = 0
 
         for comment in comments:
             sentiment = comment.get('sentiment', {})
             category = sentiment.get('category', 'neutral')
+            polarity = sentiment.get('polarity', 0)
+            confidence = sentiment.get('confidence', 0)
             themes = sentiment.get('theme', {})
+            detailed_scores = sentiment.get('detailed_scores', {})
             
             # Duygu sayılarını güncelle
             sentiment_counts[category] += 1
             
-            # Tema sayılarını güncelle
+            # Detaylı skorları topla
+            total_positive_score += detailed_scores.get('positive_score', 0)
+            total_negative_score += detailed_scores.get('negative_score', 0) 
+            total_neutral_score += detailed_scores.get('neutral_score', 0)
+            
+            # Confidence dağılımı
+            if confidence > 0.8:
+                confidence_counts["high"] += 1
+            elif confidence > 0.5:
+                confidence_counts["medium"] += 1
+            else:
+                confidence_counts["low"] += 1
+                
+            # Polarite dağılımı
+            if polarity > 0.5:
+                polarity_counts["strongly_positive"] += 1
+            elif polarity > 0.1:
+                polarity_counts["moderately_positive"] += 1
+            elif polarity > -0.1:
+                polarity_counts["neutral"] += 1
+            elif polarity > -0.5:
+                polarity_counts["moderately_negative"] += 1
+            else:
+                polarity_counts["strongly_negative"] += 1
+            
+            # Tema sayılarını güncelle (daha düşük threshold)
             for theme, score in themes.items():
-                if score > 0.1:  # Eşik değeri
+                if score > 0.05:  # Düşürülmüş eşik değeri
                     theme_counts[theme] = theme_counts.get(theme, 0) + 1
             
             # Dil dağılımını güncelle
             language = sentiment.get('language', 'en')
-            language_counts[language] += 1
+            if language in language_counts:
+                language_counts[language] += 1
+            else:
+                language_counts[language] = 1
             
-            total_polarity += sentiment.get('polarity', 0)
+            total_polarity += polarity
+
+        # Ortalama skorları hesapla
+        avg_polarity = total_polarity / total_comments if total_comments > 0 else 0
+        avg_positive_score = total_positive_score / total_comments if total_comments > 0 else 0
+        avg_negative_score = total_negative_score / total_comments if total_comments > 0 else 0
+        avg_neutral_score = total_neutral_score / total_comments if total_comments > 0 else 0
 
         return {
             "total": total_comments,
             "categories": sentiment_counts,
-            "average_polarity": total_polarity / total_comments if total_comments > 0 else 0,
+            "average_polarity": round(avg_polarity, 4),
             "language_distribution": language_counts,
-            "themes": theme_counts
+            "themes": dict(sorted(theme_counts.items(), key=lambda x: x[1], reverse=True)),  # Temaları büyükten küçüğe sırala
+            "confidence_distribution": confidence_counts,
+            "polarity_distribution": polarity_counts,
+            "detailed_averages": {
+                "positive_score": round(avg_positive_score, 4),
+                "negative_score": round(avg_negative_score, 4),
+                "neutral_score": round(avg_neutral_score, 4)
+            },
+            "sentiment_ratios": {
+                "positive_ratio": round(sentiment_counts["positive"] / total_comments, 4) if total_comments > 0 else 0,
+                "negative_ratio": round(sentiment_counts["negative"] / total_comments, 4) if total_comments > 0 else 0,
+                "neutral_ratio": round(sentiment_counts["neutral"] / total_comments, 4) if total_comments > 0 else 0
+            }
         }
 
     def get_word_cloud(self, comments: List[Dict[str, Any]], max_words: int = 50) -> List[Dict[str, Any]]:
-        """Kelime bulutu için sık kullanılan kelimeleri hesaplar"""
+        """Gelişmiş kelime bulutu için sık kullanılan kelimeleri hesaplar"""
         try:
-            all_text = ' '.join(comment['text'] for comment in comments)
+            if not comments:
+                return []
+                
+            # Pozitif ve negatif yorumları ayır
+            positive_texts = []
+            negative_texts = []
+            neutral_texts = []
             
-            # Noktalama işaretlerini kaldır
-            all_text = re.sub(r'[^\w\s]', '', all_text)
+            for comment in comments:
+                text = comment.get('text', '')
+                sentiment = comment.get('sentiment', {})
+                category = sentiment.get('category', 'neutral')
+                
+                if category == 'positive':
+                    positive_texts.append(text)
+                elif category == 'negative':
+                    negative_texts.append(text)
+                else:
+                    neutral_texts.append(text)
+            
+            # Tüm metinleri birleştir
+            all_text = ' '.join(comment.get('text', '') for comment in comments)
+            
+            # Metni temizle
+            cleaned_text = self.clean_text(all_text)
             
             # Kelimelere ayır
-            words = all_text.lower().split()
+            words = cleaned_text.split()
             
-            # Stop words'leri kaldır
-            words = [word for word in words if word not in self.stop_words and len(word) > 2]
+            # Stop words'leri ve kısa kelimeleri kaldır
+            filtered_words = []
+            for word in words:
+                if (word not in self.stop_words and 
+                    len(word) > 2 and 
+                    len(word) < 20 and  # Çok uzun kelimeleri filtrele
+                    not word.isdigit()):  # Sayıları filtrele
+                    filtered_words.append(word)
             
             # Kelime frekanslarını hesapla
-            word_freq = Counter(words)
+            word_freq = Counter(filtered_words)
+            
+            # Çok sık kullanılan genel kelimeleri filtrele
+            common_words = {'video', 'çok', 'güzel', 'iyi', 'kötü', 'var', 'yok', 'bu', 'şu', 'o', 'bir', 've', 'de', 'da', 'ki', 'için', 'ile', 'olan', 'olur', 'gibi', 'kadar', 'daha', 'en', 'çok', 'az', 'tüm', 'hep', 'her', 'hiç', 'şey', 'kez', 'defa'}
+            
+            # Filtrelenmiş kelime listesi
+            final_words = {}
+            for word, count in word_freq.items():
+                if word.lower() not in common_words and count >= 2:  # En az 2 kez geçmeli
+                    # Tema ve duygu ağırlığı ekle
+                    weight = count
+                    
+                    # Pozitif/negatif yorumlarda geçen kelimeler daha önemli
+                    positive_count = sum(1 for text in positive_texts if word.lower() in text.lower())
+                    negative_count = sum(1 for text in negative_texts if word.lower() in text.lower())
+                    
+                    if positive_count > 0 or negative_count > 0:
+                        weight += (positive_count + negative_count) * 0.5
+                    
+                    final_words[word] = int(weight)
             
             # En sık kullanılan kelimeleri döndür
+            sorted_words = sorted(final_words.items(), key=lambda x: x[1], reverse=True)
+            
             return [{"text": word, "value": count} 
-                    for word, count in word_freq.most_common(max_words)]
+                    for word, count in sorted_words[:max_words]]
+                    
         except Exception as e:
             self.logger.error(f"Kelime bulutu oluşturma hatası: {str(e)}")
             return []
 
     def analyze_theme(self, text: str) -> Dict[str, float]:
-        """Metin için tema analizi yapar"""
+        """Metin için gelişmiş tema analizi yapar"""
         try:
             if not text or len(text.strip()) == 0:
                 return {theme: 0.0 for theme in self.theme_categories}
 
             # Metni temizle
             cleaned_text = self.clean_text(text)
+            original_text = text.lower()
             
-            # Tema analizi yap
-            result = self.theme_classifier(
-                sequences=[cleaned_text],
-                candidate_labels=self.theme_categories,
-                multi_label=True
-            )
+            # Anahtar kelime bazlı tema skoru hesaplama
+            keyword_scores = {}
+            for theme, keywords in self.theme_keywords.items():
+                score = 0.0
+                word_count = 0
+                
+                for keyword in keywords:
+                    # Anahtar kelimenin metinde geçme sıklığı
+                    keyword_count = original_text.count(keyword.lower())
+                    if keyword_count > 0:
+                        # Kelime uzunluğuna göre ağırlık (daha uzun kelimeler daha önemli)
+                        weight = len(keyword) / 10.0
+                        score += keyword_count * weight
+                        word_count += keyword_count
+                
+                # Normalize et (0-1 arası)
+                if word_count > 0:
+                    keyword_scores[theme] = min(score / 5.0, 1.0)  # Max 1.0
+                else:
+                    keyword_scores[theme] = 0.0
             
-            # Sonuçları sözlük olarak döndür
-            if isinstance(result, list) and len(result) > 0:
-                first_result = result[0]
-                if isinstance(first_result, dict) and 'labels' in first_result and 'scores' in first_result:
-                    return dict(zip(first_result['labels'], first_result['scores']))
+            # ML tabanlı tema analizi (sadece anlamlı temalar için)
+            ml_scores = {}
+            try:
+                # Sadece yüksek keyword skoru olan temaları ML ile kontrol et
+                relevant_themes = [theme for theme, score in keyword_scores.items() if score > 0.1]
+                
+                if relevant_themes and len(cleaned_text) > 10:
+                    # ML analizi yap
+                    result = self.theme_classifier(
+                        sequences=[cleaned_text],
+                        candidate_labels=relevant_themes,
+                        multi_label=True
+                    )
+                    
+                    # Sonuçları parse et
+                    if isinstance(result, list) and len(result) > 0:
+                        first_result = result[0]
+                        if isinstance(first_result, dict) and 'labels' in first_result and 'scores' in first_result:
+                            ml_scores = dict(zip(first_result['labels'], first_result['scores']))
             
-            self.logger.error(f"Beklenmeyen tema analizi sonucu formatı: {result}")
-            return {theme: 0.0 for theme in self.theme_categories}
+            except Exception as ml_error:
+                self.logger.warning(f"ML tema analizi hatası, anahtar kelime analizi kullanılıyor: {ml_error}")
+            
+            # Hibrit skorlama: Anahtar kelime + ML skorlarını birleştir
+            final_scores = {}
+            for theme in self.theme_categories:
+                keyword_score = keyword_scores.get(theme, 0.0)
+                ml_score = ml_scores.get(theme, 0.0)
+                
+                # Ağırlıklı ortalama (keyword %60, ML %40)
+                if keyword_score > 0 or ml_score > 0:
+                    final_score = (keyword_score * 0.6) + (ml_score * 0.4)
+                    final_scores[theme] = round(final_score, 4)
+                else:
+                    final_scores[theme] = 0.0
+            
+            # En az 0.05 threshold uygula
+            filtered_scores = {theme: score for theme, score in final_scores.items() if score >= 0.05}
+            
+            # Hiç tema bulunamazsa, en yüksek 3 keyword skorunu döndür
+            if not filtered_scores:
+                top_keyword_themes = sorted(keyword_scores.items(), key=lambda x: x[1], reverse=True)[:3]
+                for theme, score in top_keyword_themes:
+                    if score > 0:
+                        filtered_scores[theme] = max(score, 0.1)  # Minimum 0.1 ver
+            
+            return filtered_scores if filtered_scores else {theme: 0.0 for theme in self.theme_categories}
             
         except Exception as e:
             self.logger.error(f"Tema analizi hatası: {str(e)}")
@@ -317,14 +596,26 @@ class SentimentService:
 
     def clean_text(self, text: str) -> str:
         """Metni temizler ve normalize eder."""
+        if not text:
+            return ""
+            
         # Küçük harfe çevir
         text = text.lower()
         
-        # Noktalama işaretlerini kaldır
-        text = re.sub(r'[^\w\s]', ' ', text)
+        # URL'leri kaldır
+        text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', text)
         
-        # Sayıları kaldır
-        text = re.sub(r'\d+', '', text)
+        # Email adreslerini kaldır
+        text = re.sub(r'\S+@\S+', '', text)
+        
+        # Emojileri koruyarak diğer özel karakterleri kaldır
+        text = re.sub(r'[^\w\s\u263a-\U0001f645]', ' ', text)
+        
+        # Sayıları kaldır (ama zamanları koru)
+        text = re.sub(r'\b\d{5,}\b', '', text)  # 5+ haneli sayıları kaldır
+        
+        # Çoklu boşlukları tek boşluğa çevir
+        text = re.sub(r'\s+', ' ', text)
         
         # Stopwords'leri kaldır
         words = text.split()
@@ -348,29 +639,68 @@ class SentimentService:
         """
         try:
             theme_counts = {}
+            theme_scores = {}
             total_comments = len(comments)
             
             # Her yorum için tema skorlarını topla
             for comment in comments:
+                # Hem sentiment altındaki theme hem de doğrudan theme alanını kontrol et
                 themes = comment.get('theme', {})
+                if not themes and 'sentiment' in comment:
+                    themes = comment['sentiment'].get('theme', {})
+                
                 for theme, score in themes.items():
-                    if score > 0.1:  # Eşik değeri
+                    if score > 0.05:  # Düşürülmüş eşik değeri
                         theme_counts[theme] = theme_counts.get(theme, 0) + 1
+                        if theme not in theme_scores:
+                            theme_scores[theme] = []
+                        theme_scores[theme].append(score)
             
             # Tema analizi sonuçlarını oluştur
             theme_analysis = []
             for theme, count in theme_counts.items():
                 percentage = (count / total_comments * 100) if total_comments > 0 else 0
+                avg_score = sum(theme_scores[theme]) / len(theme_scores[theme]) if theme in theme_scores else 0
+                
                 theme_analysis.append({
                     'theme': theme,
                     'count': count,
-                    'percentage': round(percentage, 2)
+                    'percentage': round(percentage, 2),
+                    'avg_score': round(avg_score, 3)
                 })
             
             # Sayıya göre sırala
             theme_analysis.sort(key=lambda x: x['count'], reverse=True)
             
-            return theme_analysis
+            # En az bir tema olması için fallback
+            if not theme_analysis and total_comments > 0:
+                # En yüksek skorlu temaları bul
+                all_themes_scores = {}
+                for comment in comments:
+                    themes = comment.get('theme', {})
+                    if not themes and 'sentiment' in comment:
+                        themes = comment['sentiment'].get('theme', {})
+                    
+                    for theme, score in themes.items():
+                        if theme not in all_themes_scores:
+                            all_themes_scores[theme] = []
+                        all_themes_scores[theme].append(score)
+                
+                # En yüksek ortalama skora sahip temaları ekle
+                for theme, scores in all_themes_scores.items():
+                    if scores:
+                        avg_score = sum(scores) / len(scores)
+                        if avg_score > 0.01:  # Çok düşük eşik
+                            theme_analysis.append({
+                                'theme': theme,
+                                'count': len(scores),
+                                'percentage': round((len(scores) / total_comments * 100), 2),
+                                'avg_score': round(avg_score, 3)
+                            })
+                
+                theme_analysis.sort(key=lambda x: x['avg_score'], reverse=True)
+            
+            return theme_analysis[:15]  # En fazla 15 tema döndür
             
         except Exception as e:
             self.logger.error(f"Tema analizi sonuçları oluşturma hatası: {str(e)}")
@@ -400,12 +730,21 @@ class SentimentService:
             # Kelime bulutu oluştur
             word_cloud = self.get_word_cloud(analyzed_comments)
             
+            # Tema analizi
+            theme_analysis = self.get_theme_analysis(analyzed_comments)
+            
+            # sentiment_stats'e tema verilerini de ekle (backward compatibility için)
+            sentiment_stats['themes'] = {}
+            for theme_item in theme_analysis:
+                sentiment_stats['themes'][theme_item['theme']] = theme_item['count']
+            
             # Analiz sonuçlarını hazırla
             analysis_result = {
                 'video_id': video_id,
                 'video_title': video_title,
                 'sentiment_stats': sentiment_stats,
                 'word_cloud': word_cloud,
+                'theme_analysis': theme_analysis,
                 'comments': analyzed_comments
             }
             
@@ -421,8 +760,12 @@ class SentimentService:
             # Sonuçları döndür
             result = {
                 'analysis_id': analysis_id,
+                'video_id': video_id,
+                'video_title': video_title,
+                'total_comments': len(analyzed_comments),
                 'sentiment_stats': sentiment_stats,
                 'word_cloud': word_cloud,
+                'theme_analysis': theme_analysis,
                 'comments': analyzed_comments,
                 'total_analyzed': len(analyzed_comments)
             }
@@ -525,12 +868,22 @@ class SentimentService:
             # Kelime bulutu oluştur
             word_cloud = self.get_word_cloud(analyzed_comments, max_words=20)
             
+            # Tema analizi
+            theme_analysis = self.get_theme_analysis(analyzed_comments)
+            
+            # sentiment_stats'e tema verilerini de ekle (backward compatibility için)
+            sentiment_stats['themes'] = {}
+            for theme_item in theme_analysis:
+                sentiment_stats['themes'][theme_item['theme']] = theme_item['count']
+            
             return {
                 'video_id': video_id,
                 'video_title': video_title,
+                'total_comments': len(analyzed_comments),
                 'sentiment_stats': sentiment_stats,
                 'word_cloud': word_cloud,
-                'total_comments': len(analyzed_comments),
+                'theme_analysis': theme_analysis,
+                'comments': analyzed_comments,
                 'analysis_date': str(datetime.now())
             }
             
@@ -538,5 +891,8 @@ class SentimentService:
             self.logger.error(f"Analiz özeti oluşturma hatası: {str(e)}")
             return {
                 'error': str(e),
-                'total_comments': 0
+                'total_comments': 0,
+                'sentiment_stats': {},
+                'word_cloud': [],
+                'theme_analysis': []
             } 

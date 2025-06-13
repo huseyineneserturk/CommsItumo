@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert, Tag, Progress, Space, Divider, Switch } from 'antd';
-import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, MessageOutlined, ThunderboltOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Card, Typography, Row, Col, Spin, Statistic, Steps, Alert, Tag, Progress, Space, Divider, List, Avatar, Tooltip, Collapse } from 'antd';
+import { InboxOutlined, CalendarOutlined, FilterOutlined, ReloadOutlined, UploadOutlined, FileTextOutlined, BarChartOutlined, CheckCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, RiseOutlined, MessageOutlined, ThunderboltOutlined, ClockCircleOutlined, UserOutlined, CommentOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Legend, CartesianGrid } from 'recharts';
 import { Wordcloud } from '@visx/wordcloud';
 import { scaleOrdinal } from '@visx/scale';
 import { Text as VisxText } from '@visx/text';
@@ -15,6 +15,7 @@ import { asyncAnalysisService, ProgressUpdate } from '../services/asyncAnalysisS
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
 const { Step } = Steps;
+const { Panel } = Collapse;
 
 interface AnalysisResult {
   comments: Array<{
@@ -61,7 +62,6 @@ export function UploadCSV() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isFromCache, setIsFromCache] = useState(false);
-  const [useAsync, setUseAsync] = useState(true);
   const [asyncProgress, setAsyncProgress] = useState(0);
   const [asyncStatus, setAsyncStatus] = useState<string>('');
   const [asyncMessage, setAsyncMessage] = useState<string>('');
@@ -157,6 +157,8 @@ export function UploadCSV() {
       setIsAsyncActive(false);
 
       const result = response.data.data;
+      console.log('📊 CSV Analiz Sonucu:', result);
+      console.log('📝 İlk yorum örneği:', result.comments?.[0]);
       setAnalysisResult(result);
 
       // Cache'e kaydet
@@ -172,9 +174,9 @@ export function UploadCSV() {
         language: comment.sentiment.language,
         video_title: comment.video_title,
         sentiment: {
-          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
+          polarity: comment.sentiment.score || comment.sentiment.polarity || 0,
           subjectivity: 0.5,
-          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
+          confidence: Math.abs(comment.sentiment.score || comment.sentiment.polarity || 0)
         }
       }));
       setAIComments(aiComments);
@@ -201,6 +203,7 @@ export function UploadCSV() {
     const cachedResult = getCsvAnalysis(fileKey);
     if (cachedResult) {
       console.log('📦 Cache\'den CSV analizi yüklendi:', fileKey);
+      console.log('📝 Cache\'den ilk yorum örneği:', cachedResult.data.comments?.[0]);
       setAnalysisResult(cachedResult.data);
       setCurrentStep(3);
       setIsFromCache(true);
@@ -214,9 +217,9 @@ export function UploadCSV() {
         language: comment.sentiment.language,
         video_title: comment.video_title,
         sentiment: {
-          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
+          polarity: comment.sentiment.score || comment.sentiment.polarity || 0,
           subjectivity: 0.5,
-          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
+          confidence: Math.abs(comment.sentiment.score || comment.sentiment.polarity || 0)
         }
       }));
       setAIComments(aiComments);
@@ -226,66 +229,7 @@ export function UploadCSV() {
     }
 
     // Async veya sync analiz
-    if (useAsync) {
-      await handleAsyncCSVAnalysis(file);
-      return;
-    }
-
-    // Sync analiz (eski yöntem)
-    setLoading(true);
-    setCurrentStep(1);
-    setIsFromCache(false);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      
-      if (!user) {
-        throw new Error('Kullanıcı girişi gerekli');
-      }
-      
-      const token = await user.getIdToken();
-      
-      setCurrentStep(2);
-      console.log('🌐 API\'den fresh CSV analizi yapılıyor...');
-      const response = await axios.post('http://localhost:8000/api/csv/upload', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      setAnalysisResult(response.data.data);
-      setCurrentStep(3);
-      
-      // Cache'e kaydet
-      setCsvAnalysis(fileKey, { data: response.data.data, fileInfo: { name: file.name, size: file.size } });
-      
-      // AI Context'e yorumları gönder
-      const aiComments = response.data.data.comments.map((comment: any) => ({
-        id: Math.random().toString(),
-        text: comment.text,
-        author: comment.author,
-        date: comment.date,
-        language: comment.sentiment.language,
-        video_title: comment.video_title,
-        sentiment: {
-          polarity: comment.sentiment.polarity || comment.sentiment.score || 0,
-          subjectivity: 0.5,
-          confidence: Math.abs(comment.sentiment.polarity || comment.sentiment.score || 0)
-        }
-      }));
-      setAIComments(aiComments);
-      
-      message.success('CSV dosyası başarıyla yüklendi ve analiz edildi');
-    } catch (error) {
-      setCurrentStep(0);
-      message.error(error instanceof Error ? error.message : 'Bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
+    await handleAsyncCSVAnalysis(file);
   };
 
   const uploadProps = {
@@ -342,7 +286,7 @@ export function UploadCSV() {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
+            <RechartsTooltip />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
@@ -353,50 +297,118 @@ export function UploadCSV() {
   const renderWordCloud = () => {
     if (!analysisResult) return null;
 
-    const words = analysisResult.word_cloud.map(item => ({
+    const words = analysisResult.word_cloud.slice(0, 50).map(item => ({
       text: item.text,
       value: item.value
     }));
 
+    if (words.length === 0) {
+      return (
+        <Card 
+          title={
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+                <FileTextOutlined className="text-white" />
+              </div>
+              <span className="text-lg font-semibold">Kelime Bulutu</span>
+            </div>
+          }
+          className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+        >
+          <div className="text-center py-16">
+            <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
+            <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
+            <Text className="text-gray-400">Analiz edilecek yeterli kelime bulunamadı</Text>
+          </div>
+        </Card>
+      );
+    }
+
     const colorScale = scaleOrdinal({
       domain: words.map(d => d.text),
-      range: ['#ff8080', '#ff4d4d', '#ff1a1a', '#ff6666', '#ff3333']
+      range: [
+        '#ff4757', '#3742fa', '#2ed573', '#ffa502', '#ff6348',
+        '#1e90ff', '#ff1493', '#32cd32', '#ff8c00', '#9370db',
+        '#20b2aa', '#ff69b4', '#00ced1', '#ffd700', '#dc143c'
+      ]
     });
 
-    const fontScale = (value: number) => Math.max(12, Math.min(60, value * 2));
+    const fontScale = (value: number) => Math.max(10, Math.min(32, value * 1.5));
 
     return (
-      <Card title="Kelime Bulutu" className="shadow-lg border-0 hover:shadow-xl transition-shadow">
-        <div style={{ height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <svg width={600} height={300}>
-            <Wordcloud
-              words={words}
-              width={600}
-              height={300}
-              fontSize={(datum) => fontScale(datum.value)}
-              font="Arial"
-              padding={2}
-              spiral="archimedean"
-              rotate={0}
-              random={() => 0.5}
-            >
-              {(cloudWords) =>
-                cloudWords.map((w, i) => (
-                  <VisxText
-                    key={w.text}
-                    fill={colorScale(w.text || '')}
-                    textAnchor="middle"
-                    transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
-                    fontSize={w.size}
-                    fontFamily={w.font}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {w.text}
-                  </VisxText>
-                ))
-              }
-            </Wordcloud>
-          </svg>
+      <Card 
+        title={
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
+              <FileTextOutlined className="text-white" />
+            </div>
+            <span className="text-lg font-semibold">Kelime Bulutu</span>
+          </div>
+        }
+        className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+        extra={
+          <Tag color="purple" className="font-medium">
+            {words.length} Kelime
+          </Tag>
+        }
+      >
+        <div className="relative">
+          {/* Kompakt Word Cloud */}
+          <div className="h-80 w-full flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl border border-purple-100 shadow-inner">
+            <svg width="100%" height="100%" viewBox="0 0 600 320" className="max-w-full">
+              <Wordcloud
+                words={words}
+                width={600}
+                height={320}
+                fontSize={(datum) => fontScale(datum.value)}
+                font="Inter, system-ui, sans-serif"
+                padding={1}
+                spiral="archimedean"
+                rotate={0}
+                random={() => 0.5}
+              >
+                {(cloudWords) =>
+                  cloudWords.map((w, i) => (
+                    <VisxText
+                      key={w.text}
+                      fill={colorScale(w.text || '')}
+                      textAnchor="middle"
+                      transform={`translate(${w.x}, ${w.y})`}
+                      fontSize={w.size}
+                      fontFamily={w.font}
+                      fontWeight="600"
+                      style={{ 
+                        cursor: 'pointer',
+                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+                        transition: 'all 0.2s ease'
+                      }}
+                      className="hover:opacity-80"
+                    >
+                      {w.text}
+                    </VisxText>
+                  ))
+                }
+              </Wordcloud>
+            </svg>
+          </div>
+          
+          {/* Kompakt İstatistikler */}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <div className="text-lg font-bold text-blue-600">{words.length}</div>
+              <div className="text-xs text-blue-500">Toplam</div>
+            </div>
+            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <div className="text-lg font-bold text-green-600 truncate" title={words[0]?.text || '-'}>
+                {words[0]?.text?.slice(0, 8) || '-'}
+              </div>
+              <div className="text-xs text-green-500">En Sık</div>
+            </div>
+            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
+              <div className="text-lg font-bold text-red-600">{words[0]?.value || 0}</div>
+              <div className="text-xs text-red-500">Sayısı</div>
+            </div>
+          </div>
         </div>
       </Card>
     );
@@ -417,7 +429,7 @@ export function UploadCSV() {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip />
+            <RechartsTooltip />
             <Legend />
             <Bar dataKey="value" fill="#8884d8" />
           </BarChart>
@@ -426,55 +438,338 @@ export function UploadCSV() {
     );
   };
 
+  // Yorumlar bileşeni
+  const CommentsSection: React.FC<{ comments: any[] }> = ({ comments }) => {
+    const [visibleComments, setVisibleComments] = useState(10);
+    const [filterSentiment, setFilterSentiment] = useState('all');
+
+    const filteredComments = comments.filter(comment => 
+      filterSentiment === 'all' || comment.sentiment.category === filterSentiment
+    );
+
+    const getSentimentIcon = (sentiment: string) => {
+      switch (sentiment) {
+        case 'positive': return <SmileOutlined style={{ color: '#52c41a' }} />;
+        case 'negative': return <FrownOutlined style={{ color: '#ff4d4f' }} />;
+        default: return <MehOutlined style={{ color: '#1890ff' }} />;
+      }
+    };
+
+    const getSentimentColor = (sentiment: string) => {
+      switch (sentiment) {
+        case 'positive': return '#52c41a';
+        case 'negative': return '#ff4d4f';
+        default: return '#1890ff';
+      }
+    };
+
+    if (!comments || comments.length === 0) {
+      return (
+        <Card className="mt-8 shadow-lg border-0">
+          <div className="text-center py-16">
+            <CommentOutlined className="text-6xl text-gray-300 mb-4" />
+            <Title level={4} className="text-gray-500 mb-2">Henüz yorum bulunamadı</Title>
+            <Text className="text-gray-400">CSV dosyasında analiz edilmiş yorum bulunmuyor</Text>
+          </div>
+        </Card>
+      );
+    }
+
+    return (
+      <div className="mt-8">
+        <Collapse 
+          size="large"
+          expandIconPosition="end"
+          className="shadow-lg border-0"
+          style={{ 
+            borderRadius: '12px',
+            overflow: 'hidden'
+          }}
+        >
+          <Panel 
+            header={
+              <div className="flex items-center justify-between w-full pr-4">
+                <div className="flex items-center">
+                  <CommentOutlined className="mr-3 text-blue-600 text-xl" />
+                  <div>
+                    <Title level={5} className="mb-0">CSV Yorumları</Title>
+                    <Text type="secondary" className="text-sm">
+                      {comments.length} yorum • Analiz sonuçları
+                    </Text>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Tag color="blue">{comments.length} Toplam</Tag>
+                  <Tag color="green">{comments.filter(c => c.sentiment.category === 'positive').length} Pozitif</Tag>
+                  <Tag color="orange">{comments.filter(c => c.sentiment.category === 'neutral').length} Nötr</Tag>
+                  <Tag color="red">{comments.filter(c => c.sentiment.category === 'negative').length} Negatif</Tag>
+                </div>
+              </div>
+            } 
+            key="comments"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none'
+            }}
+            className="text-white"
+          >
+            <div className="bg-white p-6 rounded-xl">
+              {/* Yorumlar Listesi */}
+              <List
+                dataSource={filteredComments.slice(0, visibleComments)}
+                renderItem={(comment, index) => (
+                  <List.Item className="hover:bg-gray-50 rounded-xl p-4 transition-all duration-300">
+                    <div className="w-full">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <Avatar 
+                            icon={<UserOutlined />} 
+                            style={{ 
+                              backgroundColor: getSentimentColor(comment.sentiment.category),
+                              border: `2px solid ${getSentimentColor(comment.sentiment.category)}20`
+                            }}
+                          />
+                          <div>
+                            <Text strong className="text-base">{comment.author || 'Anonim Kullanıcı'}</Text>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <ClockCircleOutlined className="text-gray-400 text-xs" />
+                              <Text type="secondary" className="text-xs">
+                                {new Date(comment.date).toLocaleDateString('tr-TR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </Text>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center space-x-2 mb-2">
+                            {getSentimentIcon(comment.sentiment.category)}
+                            <Tag 
+                              color={comment.sentiment.category === 'positive' ? 'green' : 
+                                    comment.sentiment.category === 'negative' ? 'red' : 'blue'}
+                              className="font-medium"
+                            >
+                              {comment.sentiment.category === 'positive' ? 'Pozitif' :
+                               comment.sentiment.category === 'negative' ? 'Negatif' : 'Nötr'}
+                            </Tag>
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Skor: {(comment.sentiment.score || comment.sentiment.polarity || 0).toFixed(3)}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Video Bilgisi */}
+                      <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                        <div className="flex items-center space-x-2">
+                          <FileTextOutlined className="text-red-500" />
+                          <Text className="text-sm font-medium text-gray-700">
+                            {comment.video_title || 'Bilinmeyen Video'}
+                          </Text>
+                        </div>
+                      </div>
+
+                      {/* Yorum Metni */}
+                      <div className="bg-white p-4 border-l-4 border-red-400 rounded-r-lg mb-3">
+                        <Text className="text-gray-700 leading-relaxed">
+                          {comment.text}
+                        </Text>
+                      </div>
+
+                      {/* Analiz Detayları */}
+                      <div className="bg-white border rounded-lg p-4">
+                        <Title level={5} className="mb-3 text-gray-700">Analiz Detayları</Title>
+                        <Row gutter={16}>
+                                                     <Col span={8}>
+                             <div className="text-center">
+                               <div className={`text-2xl font-bold mb-1`} style={{ color: getSentimentColor(comment.sentiment.category) }}>
+                                 {((comment.sentiment.score || comment.sentiment.polarity || 0) * 100).toFixed(1)}%
+                               </div>
+                               <Text type="secondary" className="text-xs">Sentiment Skoru</Text>
+                               <Progress 
+                                 percent={Math.abs((comment.sentiment.score || comment.sentiment.polarity || 0) * 100)} 
+                                 size="small" 
+                                 strokeColor={getSentimentColor(comment.sentiment.category)}
+                                 showInfo={false}
+                                 className="mt-2"
+                               />
+                             </div>
+                           </Col>
+                          <Col span={8}>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold mb-1 text-orange-600">
+                                {comment.sentiment.language?.toUpperCase() || 'TR'}
+                              </div>
+                              <Text type="secondary" className="text-xs">Tespit Edilen Dil</Text>
+                              <div className="mt-2">
+                                <Tag color="orange" className="text-xs">
+                                  {comment.sentiment.language === 'tr' ? 'Türkçe' : 'İngilizce'}
+                                </Tag>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col span={8}>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold mb-1 text-purple-600">
+                                {comment.sentiment.category === 'positive' ? '😊' : 
+                                 comment.sentiment.category === 'negative' ? '😞' : '😐'}
+                              </div>
+                              <Text type="secondary" className="text-xs">Duygu Durumu</Text>
+                              <div className="mt-2">
+                                <Tag color={comment.sentiment.category === 'positive' ? 'green' : 
+                                           comment.sentiment.category === 'negative' ? 'red' : 'blue'} 
+                                     className="text-xs">
+                                  {comment.sentiment.category === 'positive' ? 'Pozitif' :
+                                   comment.sentiment.category === 'negative' ? 'Negatif' : 'Nötr'}
+                                </Tag>
+                              </div>
+                            </div>
+                          </Col>
+                        </Row>
+
+                        {/* Tema Analizi */}
+                        {comment.theme && Object.keys(comment.theme).length > 0 && (
+                          <div className="mt-4 pt-4 border-t">
+                            <Text strong className="text-sm text-gray-600 mb-2 block">Tespit Edilen Temalar:</Text>
+                            <Space wrap>
+                              {Object.entries(comment.theme)
+                                .filter(([_, score]) => (score as number) > 0.1)
+                                .sort(([, a], [, b]) => (b as number) - (a as number))
+                                .map(([theme, score]) => (
+                                  <Tag 
+                                    key={theme} 
+                                    color="blue"
+                                    className="text-xs"
+                                  >
+                                    {theme}: {((score as number) * 100).toFixed(0)}%
+                                  </Tag>
+                                ))}
+                            </Space>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </List.Item>
+                )}
+              />
+
+              {/* Daha Fazla Göster */}
+              {visibleComments < filteredComments.length && (
+                <div className="text-center mt-6">
+                  <Button 
+                    type="primary" 
+                    size="large"
+                    onClick={() => setVisibleComments(prev => prev + 10)}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 rounded-xl px-8 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    Daha Fazla Göster ({filteredComments.length - visibleComments} kaldı)
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Panel>
+        </Collapse>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-8">
+      <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white">
+        <div className="container mx-auto px-6 py-16">
           <div className="text-center">
-            <Title level={2} className="mb-2 text-gray-900">
-              <UploadOutlined className="mr-3 text-red-600" />
-              CSV Dosya Yükleme
+            <div className="mb-6">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                <UploadOutlined className="text-4xl text-white" />
+              </div>
+            </div>
+            <Title level={1} className="mb-4 text-white">
+              CSV Dosya Analizi
             </Title>
-            <Text className="text-gray-600 text-lg">
-              Yorum verilerinizi CSV formatında yükleyerek hızlı analiz yapın
+            <Text className="text-white/90 text-xl leading-relaxed max-w-2xl mx-auto">
+              Yorum verilerinizi CSV formatında yükleyerek kapsamlı sentiment analizi ve tema çıkarımı yapın
             </Text>
+            <div className="mt-8 flex justify-center">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center space-x-4 text-white/80 text-sm">
+                  <div className="flex items-center">
+                    <ThunderboltOutlined className="mr-2" />
+                    <span>Real-time İşlem</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white/30 rounded"></div>
+                  <div className="flex items-center">
+                    <FileTextOutlined className="mr-2" />
+                    <span>AI Analiz</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white/30 rounded"></div>
+                  <div className="flex items-center">
+                    <BarChartOutlined className="mr-2" />
+                    <span>Görsel Raporlar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8">
         {/* Progress Steps */}
-        <Card className="mb-8 shadow-lg border-0">
-          <Steps current={currentStep} className="mb-6">
-            <Step title="Dosya Seçimi" icon={<FileTextOutlined />} />
-            <Step title="Yükleme" icon={<UploadOutlined />} />
-            <Step title="Analiz" icon={<BarChartOutlined />} />
-            <Step title="Sonuçlar" icon={<CheckCircleOutlined />} />
-          </Steps>
+        <Card className="mb-8 shadow-xl border-0 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div className="p-6">
+            <Title level={4} className="text-center mb-6 text-gray-800">
+              <RiseOutlined className="mr-2 text-blue-600" />
+              Analiz Süreci
+            </Title>
+            <Steps 
+              current={currentStep} 
+              className="mb-6"
+              items={[
+                {
+                  title: <span className="font-semibold">Dosya Seçimi</span>,
+                  icon: <FileTextOutlined />,
+                  description: "CSV dosyanızı yükleyin"
+                },
+                {
+                  title: <span className="font-semibold">Yükleme</span>,
+                  icon: <UploadOutlined />,
+                  description: "Dosya sunucuya gönderiliyor"
+                },
+                {
+                  title: <span className="font-semibold">Analiz</span>,
+                  icon: <BarChartOutlined />,
+                  description: "AI ile sentiment analizi"
+                },
+                {
+                  title: <span className="font-semibold">Sonuçlar</span>,
+                  icon: <CheckCircleOutlined />,
+                  description: "Raporlar hazırlandı"
+                }
+              ]}
+            />
+          </div>
         </Card>
 
         {!analysisResult ? (
           <Row gutter={[24, 24]}>
             {/* Upload Section */}
             <Col xs={24} lg={16}>
-              <Card className="shadow-lg border-0 h-full">
-                <div className="flex justify-between items-center mb-6">
-                  <Title level={4}>
+              <Card className="shadow-2xl border-0 h-full bg-gradient-to-br from-white to-gray-50">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <InboxOutlined className="text-3xl text-white" />
+                  </div>
+                  <Title level={3} className="mb-2 text-gray-800">
                     CSV Dosyanızı Yükleyin
                   </Title>
-                  <div className="flex items-center space-x-3">
-                    <ThunderboltOutlined className={useAsync ? 'text-blue-500' : 'text-gray-400'} />
-                    <Switch
-                      checked={useAsync}
-                      onChange={setUseAsync}
-                      checkedChildren="Async"
-                      unCheckedChildren="Sync"
-                    />
-                    <Text type="secondary" className="text-xs">
-                      {useAsync ? 'Async İşlem' : 'Sync İşlem'}
-                    </Text>
-                  </div>
+                  <Text className="text-gray-600">
+                    Analiz için CSV dosyanızı sürükleyin veya seçin
+                  </Text>
                 </div>
                 
                 {/* Async Progress Display */}
@@ -510,24 +805,51 @@ export function UploadCSV() {
                 <form onSubmit={handleSubmit}>
                   <Dragger 
                     {...uploadProps} 
-                    className="mb-6"
+                    className="mb-8"
                     disabled={isAsyncActive}
                     style={{ 
-                      background: isAsyncActive ? '#f5f5f5' : 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
-                      border: '2px dashed #d9d9d9',
-                      borderRadius: '12px',
-                      opacity: isAsyncActive ? 0.6 : 1
+                      background: isAsyncActive ? 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)' : 'linear-gradient(135deg, #fef7f0 0%, #fff2e8 100%)',
+                      border: isAsyncActive ? '2px dashed #d9d9d9' : '3px dashed #ff7875',
+                      borderRadius: '20px',
+                      opacity: isAsyncActive ? 0.6 : 1,
+                      minHeight: '200px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease'
                     }}
                   >
-                    <p className="ant-upload-drag-icon">
-                      <InboxOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />
-                    </p>
-                    <p className="ant-upload-text text-lg font-semibold">
-                      {isAsyncActive ? 'Dosya işleniyor...' : 'Dosyanızı buraya sürükleyin veya tıklayın'}
-                    </p>
-                    <p className="ant-upload-hint text-gray-500">
-                      Sadece .csv formatındaki dosyalar desteklenmektedir
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="mb-6">
+                        <div className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center shadow-lg transition-all duration-300 ${
+                          isAsyncActive 
+                            ? 'bg-gray-400' 
+                            : 'bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600'
+                        }`}>
+                          <InboxOutlined className="text-4xl text-white" />
+                        </div>
+                      </div>
+                      <Title level={4} className={`mb-3 ${isAsyncActive ? 'text-gray-500' : 'text-gray-800'}`}>
+                        {isAsyncActive ? 'Dosya işleniyor...' : 'CSV Dosyanızı Buraya Bırakın'}
+                      </Title>
+                      <Text className="text-gray-600 text-center max-w-md leading-relaxed">
+                        {isAsyncActive 
+                          ? 'Analiz süreci devam ediyor, lütfen bekleyin...'
+                          : 'Sadece .csv formatındaki dosyalar desteklenmektedir. Dosyanızı sürükleyip bırakın veya tıklayarak seçin.'
+                        }
+                      </Text>
+                      {!isAsyncActive && (
+                        <div className="mt-6">
+                          <Button 
+                            type="primary" 
+                            size="large"
+                            className="bg-gradient-to-r from-red-500 to-pink-600 border-0 hover:from-red-600 hover:to-pink-700 rounded-xl px-8 shadow-lg"
+                          >
+                            Dosya Seç
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </Dragger>
 
                   {file && !isAsyncActive && (
@@ -548,12 +870,9 @@ export function UploadCSV() {
                       loading={loading || isAsyncActive}
                       disabled={!file || isAsyncActive}
                       className="bg-red-600 border-red-600 hover:bg-red-700 px-8"
-                      icon={useAsync ? <ThunderboltOutlined /> : <UploadOutlined />}
+                      icon={<ThunderboltOutlined />}
                     >
-                      {loading || isAsyncActive ? 
-                        (useAsync ? 'Async Analiz Ediliyor...' : 'Analiz Ediliyor...') : 
-                        (useAsync ? 'Async Analizi Başlat' : 'Analizi Başlat')
-                      }
+                      {loading || isAsyncActive ? 'Analiz Ediliyor...' : 'Analizi Başlat'}
                     </Button>
                     
                     {isAsyncActive && (
@@ -576,51 +895,89 @@ export function UploadCSV() {
 
             {/* Instructions */}
             <Col xs={24} lg={8}>
-              <Card className="shadow-lg border-0 h-full">
-                <Title level={4} className="mb-4">
-                  CSV Formatı Hakkında
-                </Title>
+              <Card className="shadow-2xl border-0 h-full bg-gradient-to-br from-white to-blue-50">
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                    <FileTextOutlined className="text-xl text-white" />
+                  </div>
+                  <Title level={4} className="mb-2 text-gray-800">
+                    CSV Format Rehberi
+                  </Title>
+                  <Text className="text-gray-600 text-sm">
+                    Dosyanızın doğru formatda olduğundan emin olun
+                  </Text>
+                </div>
                 
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <Text strong className="text-blue-700">Gerekli Sütunlar:</Text>
-                    <ul className="mt-2 text-sm text-blue-600">
-                      <li>• text (yorum metni)</li>
-                      <li>• author (yorum yazarı)</li>
-                      <li>• date (tarih)</li>
-                      <li>• video_title (video başlığı)</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <Text strong className="text-green-700">Analiz Özellikleri:</Text>
-                    <ul className="mt-2 text-sm text-green-600">
-                      <li>• Sentiment analizi</li>
-                      <li>• Tema çıkarma</li>
-                      <li>• Kelime bulutu</li>
-                      <li>• Dil tespiti</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 bg-yellow-50 rounded-lg">
-                    <Text strong className="text-yellow-700">Desteklenen Diller:</Text>
-                    <ul className="mt-2 text-sm text-yellow-600">
-                      <li>• Türkçe</li>
-                      <li>• İngilizce</li>
-                    </ul>
-                  </div>
-
-                  {useAsync && (
-                    <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-400">
-                      <Text strong className="text-purple-700">Async Mode:</Text>
-                      <ul className="mt-2 text-sm text-purple-600">
-                        <li>• Real-time progress tracking</li>
-                        <li>• WebSocket bağlantısı</li>
-                        <li>• Daha hızlı işlem</li>
-                        <li>• İptal edilebilir</li>
-                      </ul>
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
+                        <FileTextOutlined className="text-white text-sm" />
+                      </div>
+                      <Text strong className="text-blue-800 text-base">Gerekli Sütunlar</Text>
                     </div>
-                  )}
+                    <div className="space-y-2">
+                      <div className="flex items-center text-blue-700">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        <Text className="text-sm">text (yorum metni)</Text>
+                      </div>
+                      <div className="flex items-center text-blue-700">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        <Text className="text-sm">author (yorum yazarı)</Text>
+                      </div>
+                      <div className="flex items-center text-blue-700">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        <Text className="text-sm">date (tarih)</Text>
+                      </div>
+                      <div className="flex items-center text-blue-700">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                        <Text className="text-sm">video_title (video başlığı)</Text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-5 rounded-xl border border-green-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
+                        <BarChartOutlined className="text-white text-sm" />
+                      </div>
+                      <Text strong className="text-green-800 text-base">AI Analiz Özellikleri</Text>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        'Sentiment analizi',
+                        'Tema çıkarma', 
+                        'Kelime bulutu',
+                        'Dil tespiti',
+                        'Real-time tracking',
+                        'WebSocket iletişim'
+                      ].map((feature, index) => (
+                        <div key={index} className="flex items-center text-green-700">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                          <Text className="text-xs">{feature}</Text>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-100 p-5 rounded-xl border border-purple-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
+                        <MessageOutlined className="text-white text-sm" />
+                      </div>
+                      <Text strong className="text-purple-800 text-base">Desteklenen Diller</Text>
+                    </div>
+                    <div className="flex space-x-4">
+                      <div className="flex items-center">
+                        <div className="w-6 h-4 bg-red-500 rounded-sm mr-2"></div>
+                        <Text className="text-sm text-purple-700">Türkçe</Text>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-6 h-4 bg-blue-500 rounded-sm mr-2"></div>
+                        <Text className="text-sm text-purple-700">İngilizce</Text>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </Col>
@@ -948,22 +1305,25 @@ export function UploadCSV() {
               </Col>
             </Row>
 
+            {/* Yorumlar Bölümü */}
+            <CommentsSection comments={analysisResult.comments || []} />
+
             {/* Action Buttons */}
             <div className="text-center mt-8">
-              <Button
-                type="primary"
-                size="large"
-                onClick={() => navigate('/my-comments')}
-                className="bg-red-600 border-red-600 hover:bg-red-700 mr-4"
-              >
-                Yorumları Görüntüle
-              </Button>
               <Button
                 type="default"
                 size="large"
                 onClick={() => navigate('/youtube-analysis')}
+                className="mr-4"
               >
-                Detaylı Analiz
+                YouTube Analizi
+              </Button>
+              <Button
+                type="default"
+                size="large"
+                onClick={() => navigate('/my-comments')}
+              >
+                Tüm Yorumlarım
               </Button>
             </div>
           </div>

@@ -320,10 +320,12 @@ class YouTubeService:
                 'total_comments': result['total_analyzed'],
                 'sentiment_stats': result['sentiment_stats'],
                 'word_cloud': result['word_cloud'][:10],  # İlk 10 kelime
+                'theme_analysis': result.get('theme_analysis', []),
                 'analysis_summary': {
                     'dominant_sentiment': self._get_dominant_sentiment(result['sentiment_stats']['categories']),
                     'average_polarity': result['sentiment_stats']['average_polarity'],
-                    'language_distribution': result['sentiment_stats']['language_distribution']
+                    'language_distribution': result['sentiment_stats']['language_distribution'],
+                    'top_themes': [theme['theme'] for theme in result.get('theme_analysis', [])[:3]]
                 }
             }
             
