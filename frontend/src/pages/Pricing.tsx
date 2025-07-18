@@ -168,38 +168,38 @@ export function Pricing() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50">
-      <div className="px-6 lg:px-8 py-12">
+      <div className="px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="text-center py-12 mb-16">
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-2xl border border-white/20">
-              <DollarSign className="w-8 h-8 text-purple-600" />
+        <div className="text-center py-8 mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-12 h-12 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-xl border border-white/20">
+              <DollarSign className="w-6 h-6 text-purple-600" />
             </div>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-bold text-slate-800 mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Fiyatlandırma
           </h1>
-          <p className="text-xl lg:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg lg:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
             Kanal büyüklüğünüze uygun AI destekli yorum analizi paketlerini keşfedin
           </p>
           
           {channelStats && (
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-lg mx-auto mt-12 border border-white/20">
-              <div className="flex items-center justify-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mr-6">
-                  <Users className="w-8 h-8 text-white" />
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl p-6 max-w-md mx-auto mt-8 border border-white/20">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-4">
+                  <Users className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-left">
-                  <p className="text-lg text-slate-500 mb-1">Kanalınızın Abone Sayısı</p>
-                  <p className="text-3xl font-bold text-slate-800">
+                  <p className="text-sm text-slate-500 mb-1">Kanalınızın Abone Sayısı</p>
+                  <p className="text-2xl font-bold text-slate-800">
                     {formatSubscriberCount(channelStats.subscribers)}
                   </p>
                 </div>
               </div>
               {recommendedTier && (
-                <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-4 border border-purple-300/30">
-                  <p className="text-lg text-purple-800 flex items-center justify-center">
-                    <Star className="w-5 h-5 mr-2 text-yellow-500" />
+                <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-xl p-3 border border-purple-300/30">
+                  <p className="text-sm text-purple-800 flex items-center justify-center">
+                    <Star className="w-4 h-4 mr-2 text-yellow-500" />
                     Size <span className="font-bold mx-1">{recommendedTier.name}</span> paketi öneriyoruz
                   </p>
                 </div>
@@ -209,7 +209,7 @@ export function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-12">
           {pricingTiers.map((tier) => {
             const isRecommended = recommendedTier?.id === tier.id;
             
@@ -221,49 +221,49 @@ export function Pricing() {
                 }`}
               >
                 {isRecommended && (
-                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-center py-3 font-bold text-lg">
-                    <Star className="w-5 h-5 inline mr-2" />
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-center py-2 font-bold text-sm">
+                    <Star className="w-4 h-4 inline mr-1" />
                     ÖNERİLEN
                   </div>
                 )}
                 
-                <div className={`p-6 ${isRecommended ? 'pt-16' : 'pt-6'}`}>
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl lg:text-2xl font-bold text-slate-800 mb-2">
+                <div className={`p-4 ${isRecommended ? 'pt-12' : 'pt-4'}`}>
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg lg:text-xl font-bold text-slate-800 mb-1">
                       {tier.name}
                     </h3>
-                    <p className="text-slate-500 text-sm mb-4">
+                    <p className="text-slate-500 text-xs mb-3">
                       {tier.subscriberRange} abone
                     </p>
-                    <div className="mb-4">
-                      <span className="text-3xl lg:text-4xl font-bold text-slate-800">
+                    <div className="mb-3">
+                      <span className="text-2xl lg:text-3xl font-bold text-slate-800">
                         ${tier.price}
                       </span>
-                      <span className="text-lg text-slate-500">/ay</span>
+                      <span className="text-sm text-slate-500">/ay</span>
                     </div>
-                    <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-xl p-3 mb-6 border border-purple-300/30">
+                    <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-lg p-2 mb-4 border border-purple-300/30">
                       <div className="flex items-center justify-center">
-                        <Zap className="w-6 h-6 text-yellow-500 mr-2" />
-                        <span className="font-bold text-lg text-slate-800">
+                        <Zap className="w-4 h-4 text-yellow-500 mr-1" />
+                        <span className="font-bold text-sm text-slate-800">
                           {tier.requests.toLocaleString()} İstek
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <ul className="space-y-3 mb-8">
+                  <ul className="space-y-2 mb-6">
                     {tier.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                          <Check className="w-3 h-3 text-white" />
+                        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                          <Check className="w-2.5 h-2.5 text-white" />
                         </div>
-                        <span className="text-slate-700 text-base leading-relaxed">{feature}</span>
+                        <span className="text-slate-700 text-sm leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
                   <button
-                    className={`w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center shadow-lg ${
+                    className={`w-full py-2 px-3 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center shadow-lg ${
                       isRecommended
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:-translate-y-1'
                         : 'bg-white/20 backdrop-blur-xl text-slate-700 hover:bg-white/30 hover:-translate-y-1 border border-white/30'
@@ -271,7 +271,7 @@ export function Pricing() {
                     disabled
                   >
                     Yakında Aktif
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-3 h-3 ml-1" />
                   </button>
                 </div>
               </div>
@@ -280,49 +280,49 @@ export function Pricing() {
         </div>
 
         {/* Features Section */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 lg:p-16 border border-white/20">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-800 mb-6">
+        <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl p-6 lg:p-8 border border-white/20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">
               Tüm Paketlerde Standart Özellikler
             </h2>
-            <p className="text-xl lg:text-2xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
               CommsItumo ile YouTube kanalınızı profesyonel düzeyde analiz edin
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            <div className="text-center p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Users className="w-10 h-10 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="text-center p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">
                 Yorum Analizi
               </h3>
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed">
                 Videolarınızdaki yorumları detaylı olarak analiz edin
               </p>
             </div>
 
-            <div className="text-center p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Zap className="w-10 h-10 text-white" />
+            <div className="text-center p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Zap className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">
                 AI Destekli
               </h3>
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed">
                 Yapay zeka ile güçlendirilmiş sentiment analizi
               </p>
             </div>
 
-            <div className="text-center p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Shield className="w-10 h-10 text-white" />
+            <div className="text-center p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Shield className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+              <h3 className="text-xl font-bold text-slate-800 mb-3">
                 Güvenli & Hızlı
               </h3>
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed">
                 Verileriniz güvende, analizler hızla tamamlanır
               </p>
             </div>
@@ -330,11 +330,11 @@ export function Pricing() {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center mt-16 p-8 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10">
-          <p className="text-xl text-slate-600 mb-6">
+        <div className="text-center mt-12 p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+          <p className="text-lg text-slate-600 mb-4">
             Sorularınız mı var? Yardım için iletişime geçin.
           </p>
-          <p className="text-lg text-slate-500">
+          <p className="text-base text-slate-500">
             * Satın alma özelliği yakında aktif edilecektir
           </p>
         </div>

@@ -143,7 +143,7 @@ export const AIChatPopup: React.FC = () => {
             }
           }}
         />
-      </div>
+             </div>
 
       {/* Modern Chat Modal */}
       {isVisible && (
@@ -160,25 +160,25 @@ export const AIChatPopup: React.FC = () => {
             <div className="flex items-center justify-between p-6 border-b border-white/20 bg-gradient-to-r from-purple-500/20 to-pink-500/20">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <img 
-                    src="/Resources/Pop_Up_Logo.png" 
-                    alt="AI Logo" 
+            <img 
+              src="/Resources/Pop_Up_Logo.png" 
+              alt="AI Logo" 
                     className="w-8 h-8 object-contain"
-                    onError={(e) => {
+              onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       const parent = target.parentElement;
                       if (parent) {
                         parent.innerHTML = '<div class="text-2xl text-white">🤖</div>';
                       }
-                    }}
-                  />
+              }}
+            />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-800">CommsItumo AI</h3>
                   <p className="text-slate-600">Akıllı Asistanınız</p>
                 </div>
-              </div>
+          </div>
               <button
                 onClick={handleClose}
                 className="w-10 h-10 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:-translate-y-1 shadow-lg"
@@ -188,60 +188,60 @@ export const AIChatPopup: React.FC = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex flex-col h-[500px]">
+        <div className="flex flex-col h-[500px]">
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {messages.map(message => (
-                  <div
-                    key={message.id}
+            {messages.map(message => (
+              <div
+                key={message.id}
                     className={`flex items-start gap-3 ${
-                      message.sender === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
-                    {message.sender === 'ai' && (
+                  message.sender === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                  {message.sender === 'ai' && (
                       <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                         <Bot className="w-5 h-5 text-white" />
                       </div>
                     )}
                     
-                    <div
+                  <div
                       className={`max-w-[80%] p-4 rounded-2xl shadow-lg ${
-                        message.sender === 'user'
+                      message.sender === 'user'
                           ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
                           : 'bg-white/20 backdrop-blur-xl text-slate-800 border border-white/30'
-                      }`}
-                    >
-                      {message.sender === 'ai' ? (
+                    }`}
+                  >
+                    {message.sender === 'ai' ? (
                         <div className="prose prose-sm max-w-none">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            components={{
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
                               p: ({ children }: any) => <p className="mb-2 last:mb-0 text-slate-800">{children}</p>,
                               strong: ({ children }: any) => <strong className="font-bold text-slate-900">{children}</strong>,
                               em: ({ children }: any) => <em className="italic text-slate-700">{children}</em>,
                               ul: ({ children }: any) => <ul className="list-disc list-inside ml-2 mb-2 text-slate-800">{children}</ul>,
                               ol: ({ children }: any) => <ol className="list-decimal list-inside ml-2 mb-2 text-slate-800">{children}</ol>,
                               li: ({ children }: any) => <li className="mb-1 text-slate-800">{children}</li>,
-                              code: ({ children }: any) => (
+                            code: ({ children }: any) => (
                                 <code className="bg-slate-100/50 px-2 py-1 rounded text-sm font-mono text-slate-900 border border-slate-200/50">
-                                  {children}
-                                </code>
-                              ),
-                              pre: ({ children }: any) => (
+                                {children}
+                              </code>
+                            ),
+                            pre: ({ children }: any) => (
                                 <pre className="bg-slate-100/50 p-3 rounded-xl overflow-x-auto mb-2 border border-slate-200/50">
-                                  {children}
-                                </pre>
-                              ),
-                              blockquote: ({ children }: any) => (
+                                {children}
+                              </pre>
+                            ),
+                            blockquote: ({ children }: any) => (
                                 <blockquote className="border-l-4 border-purple-400 pl-4 italic mb-2 text-slate-700">
-                                  {children}
-                                </blockquote>
-                              )
-                            }}
-                          >
-                            {message.text}
-                          </ReactMarkdown>
-                        </div>
-                      ) : (
+                                {children}
+                              </blockquote>
+                            )
+                          }}
+                        >
+                          {message.text}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
                         <div className="whitespace-pre-wrap text-white font-medium">{message.text}</div>
                       )}
                     </div>
@@ -264,28 +264,28 @@ export const AIChatPopup: React.FC = () => {
                         <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
                         <span className="text-slate-700 font-medium">AI düşünüyor...</span>
                       </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
                 )}
                 <div ref={messagesEndRef} />
-              </div>
+          </div>
 
-              {/* Input Area */}
+          {/* Input Area */}
               <div className="p-6 border-t border-white/20 bg-white/5">
                 <form onSubmit={handleSendMessage} className="flex gap-3">
                   <textarea
                     ref={inputRef}
-                    value={input}
+              value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Sorunuzu yazın..."
+              placeholder="Sorunuzu yazın..."
                     className="flex-1 bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl px-4 py-3 text-slate-800 placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent min-h-[50px] max-h-[120px]"
                     rows={1}
                     style={{ 
                       height: 'auto',
                       minHeight: '50px'
-                    }}
-                  />
+              }}
+            />
                   <button
                     type="submit"
                     disabled={!input.trim() || loading}
@@ -293,12 +293,12 @@ export const AIChatPopup: React.FC = () => {
                   >
                     <Send className="w-5 h-5 text-white" />
                   </button>
-                </form>
-                
-                {/* Info Text */}
+          </form>
+
+          {/* Info Text */}
                 <div className="mt-4 text-center">
                   <p className="text-sm text-slate-600">
-                    YouTube içerik üretimi, kanal büyütme ve genel sorularınız için buradayım! 🚀
+            YouTube içerik üretimi, kanal büyütme ve genel sorularınız için buradayım! 🚀
                   </p>
                 </div>
               </div>

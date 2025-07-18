@@ -561,34 +561,34 @@ export function UploadCSV() {
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-600 shadow-lg">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-6 py-8">
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
-                <UploadOutlined className="text-3xl text-white" />
+            <div className="flex justify-center mb-3">
+              <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <UploadOutlined className="text-2xl text-white" />
               </div>
             </div>
-            <Title level={1} className="mb-4 text-white text-4xl font-bold">
+            <Title level={1} className="mb-3 text-white text-3xl font-bold">
               CSV Dosya Analizi
             </Title>
-            <Text className="text-white text-opacity-90 text-xl font-medium">
+            <Text className="text-white text-opacity-90 text-lg font-medium">
               Yorum verilerinizi CSV formatında yükleyerek kapsamlı sentiment analizi yapın
             </Text>
-            <div className="flex justify-center mt-6">
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-6 border border-white border-opacity-20">
-                <div className="flex items-center space-x-6 text-white text-opacity-80 text-sm">
+            <div className="flex justify-center mt-4">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 border border-white border-opacity-20">
+                <div className="flex items-center space-x-4 text-white text-opacity-80 text-sm">
                   <div className="flex items-center">
-                    <ThunderboltOutlined className="mr-2 text-lg" />
+                    <ThunderboltOutlined className="mr-2 text-base" />
                     <span className="font-medium">Real-time İşlem</span>
                   </div>
-                  <div className="w-1 h-6 bg-white bg-opacity-30 rounded"></div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
                   <div className="flex items-center">
-                    <FileTextOutlined className="mr-2 text-lg" />
+                    <FileTextOutlined className="mr-2 text-base" />
                     <span className="font-medium">AI Analiz</span>
                   </div>
-                  <div className="w-1 h-6 bg-white bg-opacity-30 rounded"></div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
                   <div className="flex items-center">
-                    <BarChartOutlined className="mr-2 text-lg" />
+                    <BarChartOutlined className="mr-2 text-base" />
                     <span className="font-medium">Görsel Raporlar</span>
                   </div>
                 </div>
@@ -884,23 +884,23 @@ export function UploadCSV() {
             </div>
 
             {/* Statistics */}
-            <Row gutter={[24, 24]} className="mb-10">
+            <Row gutter={[16, 16]} className="mb-8">
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
-                  <div className="mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
-                      <FileTextOutlined className="text-3xl text-white" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                      <FileTextOutlined className="text-2xl text-white" />
                     </div>
                   </div>
                   <Statistic
                     title={
                       <span>
-                        <span className="text-slate-700 font-semibold text-lg">Toplam Yorum</span>
-                        {isFromCache && <div className="text-xs text-blue-500 mt-2">📦 Önbellekten</div>}
+                        <span className="text-slate-700 font-semibold text-base">Toplam Yorum</span>
+                        {isFromCache && <div className="text-xs text-blue-500 mt-1">📦 Önbellekten</div>}
                       </span>
                     }
                     value={analysisResult.sentiment_stats.total}
-                    valueStyle={{ color: '#1890ff', fontSize: '3rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#1890ff', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
                   <div className="mt-4">
                     <Progress 
@@ -917,16 +917,16 @@ export function UploadCSV() {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
-                  <div className="mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
-                      <SmileOutlined className="text-3xl text-white" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                      <SmileOutlined className="text-2xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-slate-700 font-semibold text-lg">Pozitif Yorumlar</span>}
+                    title={<span className="text-slate-700 font-semibold text-base">Pozitif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.positive}
-                    valueStyle={{ color: '#52c41a', fontSize: '3rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#52c41a', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
                   <div className="mt-4">
                     <Progress 
@@ -943,16 +943,16 @@ export function UploadCSV() {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
-                  <div className="mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
-                      <FrownOutlined className="text-3xl text-white" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                      <FrownOutlined className="text-2xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-slate-700 font-semibold text-lg">Negatif Yorumlar</span>}
+                    title={<span className="text-slate-700 font-semibold text-base">Negatif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.negative}
-                    valueStyle={{ color: '#ff4d4f', fontSize: '3rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#ff4d4f', fontSize: '2.5rem', fontWeight: 'bold' }}
                   />
                   <div className="mt-4">
                     <Progress 
@@ -969,19 +969,19 @@ export function UploadCSV() {
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
-                  <div className="mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
-                      <BarChartOutlined className="text-3xl text-white" />
+                <Card className="text-center shadow-lg hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                      <BarChartOutlined className="text-2xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-slate-700 font-semibold text-lg">Ortalama Polarite</span>}
+                    title={<span className="text-slate-700 font-semibold text-base">Ortalama Polarite</span>}
                     value={analysisResult.sentiment_stats.average_polarity}
                     precision={3}
                     valueStyle={{ 
                       color: analysisResult.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f',
-                      fontSize: '3rem', 
+                      fontSize: '2.5rem', 
                       fontWeight: 'bold' 
                     }}
                   />

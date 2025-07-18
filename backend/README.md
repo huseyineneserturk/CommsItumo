@@ -480,9 +480,9 @@ backend/
    ```
 
 4. **Dependency'leri Install Et**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
 5. **Environment Configuration**
    ```bash

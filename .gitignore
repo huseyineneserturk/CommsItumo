@@ -164,7 +164,7 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Linux
-*~
+*~ 
 
 # Project specific files to exclude
 start.bat

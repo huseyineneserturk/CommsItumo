@@ -71,8 +71,8 @@ export interface SentimentStats {
 }
 
 export interface WordCloudItem {
-  text: string;
-  value: number;
+    text: string;
+    value: number;
   sentiment?: 'positive' | 'negative' | 'neutral';
   sentiment_distribution?: Record<string, number>;
 }

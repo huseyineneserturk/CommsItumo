@@ -458,14 +458,6 @@ export const AsyncAnalysisProgress: React.FC<AsyncAnalysisProgressProps> = ({
             icon={<CheckCircleOutlined />}
           />
         )}
-
-        {/* Debug Info (Development) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div style={{ marginTop: 16, padding: 12, background: '#f5f5f5', fontSize: '12px' }}>
-            <strong>Debug:</strong> Task ID: {taskId} | WebSocket: {asyncAnalysisService.isConnected() ? '✅' : '❌'} | 
-            Progress: {progress}% | Status: {status} | Elapsed: {formatTime(elapsedTime)}
-          </div>
-        )}
       </Card>
     </div>
   );

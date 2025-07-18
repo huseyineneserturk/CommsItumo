@@ -7,7 +7,7 @@ import { asyncAnalysisService } from '../services/asyncAnalysisService';
 import { AsyncAnalysisProgress } from '../components/AsyncAnalysisProgress';
 import { analysisCache, videoCache } from '../services/intelligentCache';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, Area, AreaChart, CartesianGrid } from 'recharts';
-import { CalendarOutlined, FilterOutlined, ReloadOutlined, FileTextOutlined, YoutubeOutlined, BarChartOutlined, RiseOutlined, MessageOutlined, UserOutlined, ClockCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, CommentOutlined, PlayCircleOutlined, EyeOutlined, LikeOutlined, SearchOutlined, ThunderboltOutlined, SettingOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { CalendarOutlined, FilterOutlined, ReloadOutlined, FileTextOutlined, YoutubeOutlined, BarChartOutlined, RiseOutlined, MessageOutlined, UserOutlined, ClockCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, CommentOutlined, PlayCircleOutlined, EyeOutlined, LikeOutlined, SearchOutlined, ThunderboltOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { EnhancedWordCloud } from '../components/EnhancedWordCloud';
 import { getAuth } from 'firebase/auth';
 import { useCache } from '../contexts/CacheContext';
@@ -87,59 +87,97 @@ const VideoSelection: React.FC<{
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Header */}
+            {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-6 py-8">
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
-                <YoutubeOutlined className="text-3xl text-white" />
+            <div className="flex justify-center mb-3">
+              <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <YoutubeOutlined className="text-2xl text-white" />
               </div>
             </div>
-            <Title level={1} className="mb-4 text-white text-4xl font-bold">
+            <Title level={1} className="mb-3 text-white text-3xl font-bold">
               Video Seçimi
             </Title>
-            <Text className="text-white text-opacity-90 text-xl font-medium">
+            <Text className="text-white text-opacity-90 text-lg font-medium">
               Analiz etmek istediğiniz YouTube videosunu seçin ve detaylı analiz başlatın
             </Text>
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={fetchVideos}
-                className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl hover:bg-opacity-30 transition-all duration-300 flex items-center space-x-3 font-medium border border-white border-opacity-20 shadow-xl"
-              >
-                <ReloadOutlined className="text-xl" />
-                <span className="text-lg">Videoları Yenile</span>
-              </button>
+            <div className="flex justify-center mt-4">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 border border-white border-opacity-20">
+                <div className="flex items-center space-x-4 text-white text-opacity-80 text-sm">
+                  <div className="flex items-center">
+                    <ThunderboltOutlined className="mr-2 text-base" />
+                    <span className="font-medium">Real-time İşlem</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
+                  <div className="flex items-center">
+                    <FileTextOutlined className="mr-2 text-base" />
+                    <span className="font-medium">AI Analiz</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
+                  <div className="flex items-center">
+                    <BarChartOutlined className="mr-2 text-base" />
+                    <span className="font-medium">Görsel Raporlar</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 lg:px-8 py-8">
+        {/* Video Yönetimi */}
+        <div className="mb-6 flex justify-center">
+          <Card className="shadow-md border-0 bg-white/10 backdrop-blur-xl rounded-xl">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <YoutubeOutlined className="text-white text-xs" />
+                </div>
+                <Text className="text-slate-700 font-medium text-sm">Video Yönetimi:</Text>
+                <Tag color="red" className="font-medium px-2 py-1 rounded-lg text-xs">
+                  {videos.length} video
+                </Tag>
+              </div>
+              <Button 
+                onClick={fetchVideos}
+                icon={<ReloadOutlined />}
+                type="primary"
+                size="small"
+                className="bg-gradient-to-r from-red-500 to-pink-600 border-0 hover:from-red-600 hover:to-pink-700 rounded-lg font-medium shadow-md"
+              >
+                Videoları Yenile
+              </Button>
+            </div>
+          </Card>
+        </div>
+
         {/* Arama ve İstatistikler */}
-        <Row gutter={[32, 32]} className="mb-10">
+        <Row gutter={[24, 24]} className="mb-8">
           <Col xs={24} lg={16}>
-            <Card className="shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+            <Card className="shadow-lg border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
               <Search
                 placeholder="Video ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                size="large"
+                size="middle"
                 prefix={<SearchOutlined className="text-slate-400" />}
-                className="mb-6"
+                className="mb-4"
                 style={{
-                  borderRadius: '16px'
+                  borderRadius: '12px'
                 }}
               />
               <div className="flex items-center justify-between">
-                <Text type="secondary" className="text-lg">
+                <Text type="secondary" className="text-base">
                   {filteredVideos.length} video gösteriliyor
                 </Text>
                 {searchQuery && (
                   <Button 
                     type="link" 
                     onClick={() => setSearchQuery('')}
-                    className="text-red-600 font-medium rounded-xl"
+                    size="small"
+                    className="text-red-600 font-medium rounded-lg"
                   >
                     Filtreyi Temizle
                   </Button>
@@ -148,29 +186,29 @@ const VideoSelection: React.FC<{
             </Card>
           </Col>
           <Col xs={24} lg={8}>
-            <Card className="shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
-              <Row gutter={24}>
+            <Card className="shadow-lg border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+              <Row gutter={16}>
                 <Col span={12}>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
-                      <YoutubeOutlined className="text-2xl text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl mx-auto mb-3 flex items-center justify-center shadow-lg">
+                      <YoutubeOutlined className="text-xl text-white" />
                     </div>
                     <Statistic
-                      title={<span className="text-slate-700 font-semibold">Toplam Video</span>}
+                      title={<span className="text-slate-700 font-semibold text-sm">Toplam Video</span>}
                       value={videos.length}
-                      valueStyle={{ color: '#d32f2f', fontSize: '2.5rem', fontWeight: 'bold' }}
+                      valueStyle={{ color: '#d32f2f', fontSize: '2rem', fontWeight: 'bold' }}
                     />
                   </div>
                 </Col>
                 <Col span={12}>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
-                      <EyeOutlined className="text-2xl text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl mx-auto mb-3 flex items-center justify-center shadow-lg">
+                      <EyeOutlined className="text-xl text-white" />
                     </div>
                     <Statistic
-                      title={<span className="text-slate-700 font-semibold">Toplam Görüntülenme</span>}
+                      title={<span className="text-slate-700 font-semibold text-sm">Toplam Görüntülenme</span>}
                       value={formatNumber(videos.reduce((acc, video) => acc + parseInt(video.view_count || '0'), 0))}
-                      valueStyle={{ color: '#1565c0', fontSize: '2.5rem', fontWeight: 'bold' }}
+                      valueStyle={{ color: '#1565c0', fontSize: '2rem', fontWeight: 'bold' }}
                     />
                   </div>
                 </Col>
@@ -190,11 +228,11 @@ const VideoSelection: React.FC<{
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredVideos.map((video) => (
               <Card
                 key={video.id}
-                className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-4 bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden"
+                className="shadow-lg border-0 hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2 bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden"
                 onClick={() => onVideoSelect(video)}
                 cover={
                   <div className="relative overflow-hidden rounded-t-3xl">
@@ -818,43 +856,6 @@ export const YouTubeAnalysis: React.FC = () => {
   if (!selectedVideo) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50 p-6">
-        {/* Settings Panel */}
-        <Card 
-          size="small" 
-          className="mb-4 max-w-4xl mx-auto"
-          title={
-            <Space>
-              <SettingOutlined />
-              <span>Analiz Ayarları</span>
-            </Space>
-          }
-        >
-          <Row gutter={16} align="middle">
-            <Col span={12}>
-              <Space>
-                <ThunderboltOutlined className="text-blue-500" />
-                <span>Real-time Async Analiz:</span>
-                <Tag color="green">Aktif</Tag>
-                <span className="text-gray-500">WebSocket bağlantısı ile</span>
-              </Space>
-            </Col>
-            <Col span={12}>
-              <Space>
-                <Button 
-                  size="small" 
-                  onClick={clearCache}
-                  icon={<ReloadOutlined />}
-                >
-                  Cache Temizle
-                </Button>
-                <Tag color="blue">
-                  Cache: {analysisCache.getStats().size} analiz
-                </Tag>
-              </Space>
-            </Col>
-          </Row>
-        </Card>
-        
         <VideoSelection onVideoSelect={analyzeSelectedVideo} />
       </div>
     );
@@ -919,42 +920,89 @@ export const YouTubeAnalysis: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Header Section */}
+            {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-6 py-8">
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
-                <PlayCircleOutlined className="text-3xl text-white" />
+            <div className="flex justify-center mb-3">
+              <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <PlayCircleOutlined className="text-2xl text-white" />
               </div>
             </div>
-            <Title level={1} className="mb-4 text-white text-4xl font-bold">
+            <Title level={1} className="mb-3 text-white text-3xl font-bold">
               Video Analizi
             </Title>
-            <Text className="text-white text-opacity-90 text-xl font-medium">
+            <Text className="text-white text-opacity-90 text-lg font-medium">
               "{selectedVideo.title}" videosunun yorum sentiment analizi sonuçları
             </Text>
-            <div className="flex justify-center gap-6 mt-6">
-              <button
-                onClick={goBackToVideoSelection}
-                className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl hover:bg-opacity-30 transition-all duration-300 flex items-center space-x-3 font-medium border border-white border-opacity-20 shadow-xl"
-              >
-                <YoutubeOutlined className="text-xl" />
-                <span className="text-lg">Video Seç</span>
-              </button>
-              <button
-                onClick={() => analyzeSelectedVideo(selectedVideo)}
-                className="bg-white text-blue-600 px-8 py-4 rounded-2xl hover:bg-opacity-90 transition-all duration-300 flex items-center space-x-3 font-medium shadow-2xl"
-              >
-                <ReloadOutlined className="text-xl" />
-                <span className="text-lg">Yeniden Analiz Et</span>
-              </button>
+            <div className="flex justify-center mt-4">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 border border-white border-opacity-20">
+                <div className="flex items-center space-x-4 text-white text-opacity-80 text-sm">
+                  <div className="flex items-center">
+                    <ThunderboltOutlined className="mr-2 text-base" />
+                    <span className="font-medium">Real-time İşlem</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
+                  <div className="flex items-center">
+                    <FileTextOutlined className="mr-2 text-base" />
+                    <span className="font-medium">AI Analiz</span>
+                  </div>
+                  <div className="w-1 h-4 bg-white bg-opacity-30 rounded"></div>
+                  <div className="flex items-center">
+                    <BarChartOutlined className="mr-2 text-base" />
+                    <span className="font-medium">Görsel Raporlar</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 lg:px-8 py-8">
+        {/* Navigasyon ve Önbellek Yönetimi */}
+        <div className="mb-8 flex justify-center">
+          <Card className="shadow-lg border-0 bg-white/10 backdrop-blur-xl rounded-2xl">
+            <div className="flex items-center justify-between space-x-6">
+              <div className="flex items-center space-x-4">
+                <Button
+                  onClick={goBackToVideoSelection}
+                  icon={<YoutubeOutlined />}
+                  className="rounded-xl font-medium"
+                >
+                  Video Seç
+                </Button>
+                <Button
+                  onClick={() => analyzeSelectedVideo(selectedVideo)}
+                  icon={<ReloadOutlined />}
+                  className="rounded-xl font-medium"
+                >
+                  Yeniden Analiz Et
+                </Button>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <ThunderboltOutlined className="text-white text-sm" />
+                  </div>
+                  <Text className="text-slate-700 font-medium">Önbellek:</Text>
+                  <Tag color="blue" className="font-medium px-3 py-1 rounded-xl">
+                    {analysisCache.getStats().size} analiz
+                  </Tag>
+                </div>
+                <Button 
+                  onClick={clearCache}
+                  icon={<ReloadOutlined />}
+                  type="primary"
+                  className="bg-gradient-to-r from-red-500 to-pink-600 border-0 hover:from-red-600 hover:to-pink-700 rounded-xl font-medium shadow-lg"
+                >
+                  Temizle
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {/* Video Bilgi Kartı */}
         <Card className="mb-10 shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
           <Row gutter={32} align="middle">

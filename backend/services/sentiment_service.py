@@ -503,7 +503,7 @@ class SentimentService:
                 # Duygu bazlı ağırlık
                 for sentiment, texts in sentiment_texts.items():
                     sentiment_count = sum(1 for text in texts if word.lower() in text.lower())
-                    
+            
                     # Pozitif ve negatif kelimelere daha fazla ağırlık ver
                     if sentiment in ['positive', 'negative']:
                         base_weight += sentiment_count * 1.5
@@ -976,7 +976,7 @@ class SentimentService:
                 'sentiment_stats': {},
                 'word_cloud': [],
                 'theme_analysis': []
-            }
+            } 
 
 # Global singleton instance - diğer servisler bunu import edebilir
 sentiment_service = SentimentService() 
