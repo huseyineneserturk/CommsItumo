@@ -4,8 +4,8 @@
 
 ![CommsItumo Logo](frontend/public/Resources/Logo.png)
 
-**AI-powered YouTube comment analysis platform with sentiment analysis and modern glassmorphism UI**  
-**AI destekli YouTube yorum analizi platformu ile sentiment analysis ve modern glassmorphism UI**
+**AI-powered YouTube comment analysis platform with sentiment analysis.**  
+**AI destekli YouTube yorum analizi platformu ile duygu analizi.**
 
 [![GitHub Stars](https://img.shields.io/github/stars/huseyineneserturk/CommsItumo?style=for-the-badge)](https://github.com/huseyineneserturk/CommsItumo/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/huseyineneserturk/CommsItumo?style=for-the-badge)](https://github.com/huseyineneserturk/CommsItumo/network)
@@ -464,7 +464,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/) specification
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+This project is licensed under the [GNU General Public License v3.0](LICENSE) - see the LICENSE file for details.
 
 ---
 
@@ -789,7 +789,7 @@ Katkılarınızı memnuniyetle karşılıyoruz! Ayrıntılar için [Katkı Rehbe
 
 ## 📄 Lisans
 
-Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+Bu proje [GNU General Public License v3.0](LICENSE) altında lisanslanmıştır.
 
 ---
 
@@ -828,8 +828,8 @@ Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
 
 ---
 
-*Türkiye'de ❤️ ile yapıldı 🇹🇷*  
-*Son Güncelleme: Haziran 2025*  
-*Versiyon: 2.1.0*
+*Türkiye'de yapıldı 🇹🇷*  
+*Son Güncelleme: Temmuz 2025*  
+*Versiyon: 3.0.0*
 
 </div> 
