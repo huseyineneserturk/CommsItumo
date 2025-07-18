@@ -8,9 +8,7 @@ import { AsyncAnalysisProgress } from '../components/AsyncAnalysisProgress';
 import { analysisCache, videoCache } from '../services/intelligentCache';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, Area, AreaChart, CartesianGrid } from 'recharts';
 import { CalendarOutlined, FilterOutlined, ReloadOutlined, FileTextOutlined, YoutubeOutlined, BarChartOutlined, RiseOutlined, MessageOutlined, UserOutlined, ClockCircleOutlined, SmileOutlined, MehOutlined, FrownOutlined, CommentOutlined, PlayCircleOutlined, EyeOutlined, LikeOutlined, SearchOutlined, ThunderboltOutlined, SettingOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { Wordcloud } from '@visx/wordcloud';
-import { scaleOrdinal } from '@visx/scale';
-import { Text as VisxText } from '@visx/text';
+import { EnhancedWordCloud } from '../components/EnhancedWordCloud';
 import { getAuth } from 'firebase/auth';
 import { useCache } from '../contexts/CacheContext';
 import { useAI } from '../contexts/AIContext';
@@ -31,9 +29,7 @@ const SENTIMENT_COLORS = {
   negative: '#ff4d4f'
 };
 
-interface WordCloudProps {
-  words: { text: string; value: number }[];
-}
+// WordCloudProps artık kullanılmıyor - EnhancedWordCloud ile değiştirildi
 
 // Video Seçimi Bileşeni
 const VideoSelection: React.FC<{
@@ -90,55 +86,60 @@ const VideoSelection: React.FC<{
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <Title level={2} className="mb-2 text-gray-900">
-                <YoutubeOutlined className="mr-3 text-red-600" />
-                Video Seçimi
-              </Title>
-              <Text className="text-gray-600 text-lg">
-                Analiz etmek istediğiniz videoyu seçin
-              </Text>
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
+        <div className="container mx-auto px-6 py-12">
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <YoutubeOutlined className="text-3xl text-white" />
+              </div>
             </div>
-            <Button
-              type="primary"
-              icon={<ReloadOutlined />}
-              onClick={fetchVideos}
-              size="large"
-              className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
-            >
-              Videoları Yenile
-            </Button>
+            <Title level={1} className="mb-4 text-white text-4xl font-bold">
+              Video Seçimi
+            </Title>
+            <Text className="text-white text-opacity-90 text-xl font-medium">
+              Analiz etmek istediğiniz YouTube videosunu seçin ve detaylı analiz başlatın
+            </Text>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={fetchVideos}
+                className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl hover:bg-opacity-30 transition-all duration-300 flex items-center space-x-3 font-medium border border-white border-opacity-20 shadow-xl"
+              >
+                <ReloadOutlined className="text-xl" />
+                <span className="text-lg">Videoları Yenile</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 lg:px-8 py-8">
         {/* Arama ve İstatistikler */}
-        <Row gutter={[24, 24]} className="mb-8">
+        <Row gutter={[32, 32]} className="mb-10">
           <Col xs={24} lg={16}>
-            <Card className="shadow-lg border-0">
+            <Card className="shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
               <Search
                 placeholder="Video ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 size="large"
-                prefix={<SearchOutlined className="text-gray-400" />}
-                className="mb-4"
+                prefix={<SearchOutlined className="text-slate-400" />}
+                className="mb-6"
+                style={{
+                  borderRadius: '16px'
+                }}
               />
               <div className="flex items-center justify-between">
-                <Text type="secondary">
+                <Text type="secondary" className="text-lg">
                   {filteredVideos.length} video gösteriliyor
                 </Text>
                 {searchQuery && (
                   <Button 
                     type="link" 
                     onClick={() => setSearchQuery('')}
-                    className="text-red-600"
+                    className="text-red-600 font-medium rounded-xl"
                   >
                     Filtreyi Temizle
                   </Button>
@@ -147,21 +148,31 @@ const VideoSelection: React.FC<{
             </Card>
           </Col>
           <Col xs={24} lg={8}>
-            <Card className="shadow-lg border-0 bg-gradient-to-r from-red-50 to-pink-50">
-              <Row gutter={16}>
+            <Card className="shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <Row gutter={24}>
                 <Col span={12}>
-                  <Statistic
-                    title="Toplam Video"
-                    value={videos.length}
-                    valueStyle={{ color: '#d32f2f', fontSize: '2rem' }}
-                  />
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
+                      <YoutubeOutlined className="text-2xl text-white" />
+                    </div>
+                    <Statistic
+                      title={<span className="text-slate-700 font-semibold">Toplam Video</span>}
+                      value={videos.length}
+                      valueStyle={{ color: '#d32f2f', fontSize: '2.5rem', fontWeight: 'bold' }}
+                    />
+                  </div>
                 </Col>
                 <Col span={12}>
-                  <Statistic
-                    title="Toplam Görüntülenme"
-                    value={formatNumber(videos.reduce((acc, video) => acc + parseInt(video.view_count || '0'), 0))}
-                    valueStyle={{ color: '#d32f2f', fontSize: '2rem' }}
-                  />
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
+                      <EyeOutlined className="text-2xl text-white" />
+                    </div>
+                    <Statistic
+                      title={<span className="text-slate-700 font-semibold">Toplam Görüntülenme</span>}
+                      value={formatNumber(videos.reduce((acc, video) => acc + parseInt(video.view_count || '0'), 0))}
+                      valueStyle={{ color: '#1565c0', fontSize: '2.5rem', fontWeight: 'bold' }}
+                    />
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -170,70 +181,76 @@ const VideoSelection: React.FC<{
 
         {/* Video Listesi */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Spin size="large" />
+          <div className="flex justify-center items-center h-80">
+            <div className="text-center">
+              <Spin size="large" />
+              <div className="mt-4">
+                <Text className="text-lg text-slate-600">Videolar yükleniyor...</Text>
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredVideos.map((video) => (
               <Card
                 key={video.id}
-                className="shadow-lg border-0 hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2"
+                className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-4 bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden"
                 onClick={() => onVideoSelect(video)}
                 cover={
-                  <div className="relative overflow-hidden">
+                  <div className="relative overflow-hidden rounded-t-3xl">
                     <Image
                       alt={video.title}
                       src={video.thumbnail}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-56 object-cover"
                       preview={false}
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <PlayCircleOutlined className="text-white text-6xl opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                      <PlayCircleOutlined className="text-white text-8xl opacity-0 hover:opacity-100 transition-opacity duration-300 drop-shadow-2xl" />
                     </div>
-                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
-                      <ClockCircleOutlined className="mr-1" />
+                    <div className="absolute bottom-3 right-3 bg-black bg-opacity-80 text-white px-3 py-2 rounded-xl text-sm font-medium backdrop-blur-sm">
+                      <ClockCircleOutlined className="mr-2" />
                       {formatDate(video.published_at)}
                     </div>
                   </div>
                 }
                 actions={[
-                  <div key="views" className="flex items-center justify-center text-blue-600">
-                    <EyeOutlined className="mr-1" />
-                    <span className="text-xs">{formatNumber(video.view_count)}</span>
+                  <div key="views" className="flex items-center justify-center text-blue-600 py-2">
+                    <EyeOutlined className="mr-2 text-lg" />
+                    <span className="text-sm font-medium">{formatNumber(video.view_count)}</span>
                   </div>,
-                  <div key="likes" className="flex items-center justify-center text-green-600">
-                    <LikeOutlined className="mr-1" />
-                    <span className="text-xs">{formatNumber(video.like_count)}</span>
+                  <div key="likes" className="flex items-center justify-center text-green-600 py-2">
+                    <LikeOutlined className="mr-2 text-lg" />
+                    <span className="text-sm font-medium">{formatNumber(video.like_count)}</span>
                   </div>,
-                  <div key="comments" className="flex items-center justify-center text-purple-600">
-                    <CommentOutlined className="mr-1" />
-                    <span className="text-xs">{formatNumber(video.comment_count)}</span>
+                  <div key="comments" className="flex items-center justify-center text-purple-600 py-2">
+                    <CommentOutlined className="mr-2 text-lg" />
+                    <span className="text-sm font-medium">{formatNumber(video.comment_count)}</span>
                   </div>
                 ]}
+                bodyStyle={{ padding: '24px' }}
               >
                 <Card.Meta
                   title={
-                    <div className="line-clamp-2 h-12 overflow-hidden">
-                      <Text strong className="text-sm leading-tight">
+                    <div className="line-clamp-2 h-16 overflow-hidden">
+                      <Text strong className="text-base leading-tight text-slate-800">
                         {video.title}
                       </Text>
                     </div>
                   }
                   description={
-                    <div className="mt-2">
-                      <Text type="secondary" className="text-xs line-clamp-3">
+                    <div className="mt-4">
+                      <Text type="secondary" className="text-sm line-clamp-3 text-slate-600">
                         {video.description || 'Açıklama bulunmuyor'}
                       </Text>
-                      <div className="mt-3 pt-2 border-t border-gray-100">
+                      <div className="mt-4 pt-4 border-t border-slate-200">
                         <div className="flex justify-between items-center">
-                          <Tag color="blue" className="text-xs">
+                          <Tag color="blue" className="text-sm px-3 py-1 rounded-xl">
                             {formatNumber(video.comment_count)} yorum
                           </Tag>
                           <Button 
                             type="primary" 
                             size="small"
-                            className="bg-red-600 border-red-600 hover:bg-red-700"
+                            className="bg-gradient-to-r from-red-500 to-pink-600 border-0 hover:from-red-600 hover:to-pink-700 rounded-xl font-medium"
                           >
                             Analiz Et
                           </Button>
@@ -248,17 +265,21 @@ const VideoSelection: React.FC<{
         )}
 
         {filteredVideos.length === 0 && !loading && (
-          <div className="text-center py-16">
-            <YoutubeOutlined className="text-6xl text-gray-300 mb-4" />
-            <Title level={4} className="text-gray-500 mb-2">
-              {searchQuery ? 'Arama sonucu bulunamadı' : 'Video bulunamadı'}
-            </Title>
-            <Text type="secondary">
-              {searchQuery 
-                ? 'Farklı arama terimleri deneyin'
-                : 'Kanal videolarını yüklemek için yenile butonuna tıklayın'
-              }
-            </Text>
+          <div className="text-center py-20">
+            <Card className="max-w-2xl mx-auto shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <div className="py-16">
+                <YoutubeOutlined className="text-8xl text-slate-300 mb-6" />
+                <Title level={3} className="text-slate-600 mb-4">
+                  {searchQuery ? 'Arama sonucu bulunamadı' : 'Video bulunamadı'}
+                </Title>
+                <Text type="secondary" className="text-lg text-slate-500">
+                  {searchQuery 
+                    ? 'Farklı arama terimleri deneyin'
+                    : 'Kanal videolarını yüklemek için yenile butonuna tıklayın'
+                  }
+                </Text>
+              </div>
+            </Card>
           </div>
         )}
       </div>
@@ -894,234 +915,102 @@ export const YouTubeAnalysis: React.FC = () => {
     { name: 'İngilizce', value: filteredAnalysis.sentiment_stats.language_distribution.en }
   ];
 
-  const WordCloudChart: React.FC<WordCloudProps> = ({ words }) => {
-    const [selectedWord, setSelectedWord] = useState<string | null>(null);
-
-    if (!words || words.length === 0) {
-      return (
-        <Card 
-          title={
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
-                <FileTextOutlined className="text-white" />
-              </div>
-              <span className="text-lg font-semibold">Kelime Bulutu</span>
-            </div>
-          }
-          className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
-        >
-          <div className="text-center py-16">
-            <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
-            <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
-            <Text className="text-gray-400">Analiz edilecek yeterli kelime bulunamadı</Text>
-          </div>
-        </Card>
-      );
-    }
-
-    const data = words.slice(0, 50).map(word => ({
-      text: word.text,
-      value: word.value
-    }));
-
-    const colorScale = scaleOrdinal({
-      domain: data.map(d => d.text),
-      range: [
-        '#ff4757', '#3742fa', '#2ed573', '#ffa502', '#ff6348',
-        '#1e90ff', '#ff1493', '#32cd32', '#ff8c00', '#9370db',
-        '#20b2aa', '#ff69b4', '#00ced1', '#ffd700', '#dc143c'
-      ]
-    });
-
-    const fontScale = (value: number) => Math.max(10, Math.min(32, value * 1.5));
-
-    return (
-      <Card 
-        title={
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
-              <FileTextOutlined className="text-white" />
-            </div>
-            <span className="text-lg font-semibold">Kelime Bulutu</span>
-          </div>
-        }
-        className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
-        extra={
-          <div className="flex items-center space-x-2">
-            <Tag color="purple" className="font-medium">
-              {words.length} Kelime
-            </Tag>
-            {selectedWord && (
-              <Button 
-                type="link" 
-                onClick={() => setSelectedWord(null)}
-                icon={<ReloadOutlined />}
-                size="small"
-              >
-                Temizle
-              </Button>
-            )}
-          </div>
-        }
-      >
-        <div className="relative">
-          {/* Kompakt Word Cloud */}
-          <div className="h-80 w-full flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl border border-purple-100 shadow-inner">
-            <svg width="100%" height="100%" viewBox="0 0 600 320" className="max-w-full">
-              <Wordcloud
-                words={data}
-                width={600}
-                height={320}
-                fontSize={(datum) => fontScale(datum.value)}
-                font="Inter, system-ui, sans-serif"
-                padding={1}
-                spiral="archimedean"
-                rotate={0}
-                random={() => 0.5}
-              >
-                {(cloudWords) =>
-                  cloudWords.map((w, i) => (
-                    <VisxText
-                      key={w.text}
-                      fill={colorScale(w.text || '')}
-                      textAnchor="middle"
-                      transform={`translate(${w.x}, ${w.y})`}
-                      fontSize={w.size}
-                      fontFamily={w.font}
-                      fontWeight="600"
-                      onClick={() => setSelectedWord(w.text || '')}
-                      style={{ 
-                        cursor: 'pointer',
-                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
-                        transition: 'all 0.2s ease'
-                      }}
-                      className="hover:opacity-80"
-                    >
-                      {w.text}
-                    </VisxText>
-                  ))
-                }
-              </Wordcloud>
-            </svg>
-            
-            {/* Selected Word Tooltip */}
-            {selectedWord && (
-              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg border max-w-48">
-                <Text strong className="text-sm text-gray-800 block">{selectedWord}</Text>
-                <Text type="secondary" className="text-xs">
-                  {words.find(w => w.text === selectedWord)?.value || 0} kullanım
-                </Text>
-              </div>
-            )}
-          </div>
-          
-          {/* Kompakt İstatistikler */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-              <div className="text-lg font-bold text-blue-600">{words.length}</div>
-              <div className="text-xs text-blue-500">Toplam</div>
-            </div>
-            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-              <div className="text-lg font-bold text-green-600 truncate" title={words[0]?.text || '-'}>
-                {words[0]?.text?.slice(0, 8) || '-'}
-              </div>
-              <div className="text-xs text-green-500">En Sık</div>
-            </div>
-            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
-              <div className="text-lg font-bold text-red-600">{words[0]?.value || 0}</div>
-              <div className="text-xs text-red-500">Sayısı</div>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  };
+  // WordCloudChart artık EnhancedWordCloud bileşeni ile değiştirildi
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header Section */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center space-x-4">
-              <Button
-                type="default"
-                icon={<YoutubeOutlined />}
-                onClick={goBackToVideoSelection}
-                size="large"
-                className="rounded-xl"
-              >
-                Video Seç
-              </Button>
-              <div>
-                <Title level={2} className="mb-2 text-gray-900">
-                  <PlayCircleOutlined className="mr-3 text-red-600" />
-                  Video Analizi
-                </Title>
-                <Text className="text-gray-600 text-lg">
-                  "{selectedVideo.title}" - Yorum Sentiment Analizi
-                </Text>
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
+        <div className="container mx-auto px-6 py-12">
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <PlayCircleOutlined className="text-3xl text-white" />
               </div>
             </div>
-            <Button
-              type="primary"
-              icon={<ReloadOutlined />}
-              onClick={() => analyzeSelectedVideo(selectedVideo)}
-              size="large"
-              className="bg-red-600 border-red-600 hover:bg-red-700 rounded-xl"
-            >
-              Yeniden Analiz Et
-            </Button>
+            <Title level={1} className="mb-4 text-white text-4xl font-bold">
+              Video Analizi
+            </Title>
+            <Text className="text-white text-opacity-90 text-xl font-medium">
+              "{selectedVideo.title}" videosunun yorum sentiment analizi sonuçları
+            </Text>
+            <div className="flex justify-center gap-6 mt-6">
+              <button
+                onClick={goBackToVideoSelection}
+                className="bg-white bg-opacity-20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl hover:bg-opacity-30 transition-all duration-300 flex items-center space-x-3 font-medium border border-white border-opacity-20 shadow-xl"
+              >
+                <YoutubeOutlined className="text-xl" />
+                <span className="text-lg">Video Seç</span>
+              </button>
+              <button
+                onClick={() => analyzeSelectedVideo(selectedVideo)}
+                className="bg-white text-blue-600 px-8 py-4 rounded-2xl hover:bg-opacity-90 transition-all duration-300 flex items-center space-x-3 font-medium shadow-2xl"
+              >
+                <ReloadOutlined className="text-xl" />
+                <span className="text-lg">Yeniden Analiz Et</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 lg:px-8 py-8">
         {/* Video Bilgi Kartı */}
-        <Card className="mb-8 shadow-lg border-0">
-          <Row gutter={24} align="middle">
+        <Card className="mb-10 shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+          <Row gutter={32} align="middle">
             <Col xs={24} sm={8} md={6}>
               <Image
                 src={selectedVideo.thumbnail}
                 alt={selectedVideo.title}
-                className="w-full rounded-xl shadow-md"
+                className="w-full rounded-2xl shadow-xl"
                 preview={false}
               />
             </Col>
             <Col xs={24} sm={16} md={18}>
-              <div className="space-y-4">
-                <Title level={3} className="mb-2">{selectedVideo.title}</Title>
-                <Text type="secondary" className="text-base line-clamp-3">
+              <div className="space-y-6">
+                <Title level={2} className="mb-4 text-slate-800">{selectedVideo.title}</Title>
+                <Text type="secondary" className="text-lg line-clamp-3 text-slate-600">
                   {selectedVideo.description || 'Açıklama bulunmuyor'}
                 </Text>
-                <Row gutter={16}>
+                <Row gutter={24}>
                   <Col xs={12} sm={6}>
-                    <Statistic
-                      title="Görüntülenme"
-                      value={parseInt(selectedVideo.view_count || '0').toLocaleString('tr-TR')}
-                      prefix={<EyeOutlined />}
-                    />
+                    <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
+                      <EyeOutlined className="text-blue-600 mb-2 text-2xl" />
+                      <div className="text-sm text-blue-600 font-medium">Görüntülenme</div>
+                      <div className="font-bold text-blue-800 text-lg">
+                        {parseInt(selectedVideo.view_count || '0').toLocaleString('tr-TR')}
+                      </div>
+                    </div>
                   </Col>
+                  
                   <Col xs={12} sm={6}>
-                    <Statistic
-                      title="Beğeni"
-                      value={parseInt(selectedVideo.like_count || '0').toLocaleString('tr-TR')}
-                      prefix={<LikeOutlined />}
-                    />
+                    <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl border border-green-200">
+                      <LikeOutlined className="text-green-600 mb-2 text-2xl" />
+                      <div className="text-sm text-green-600 font-medium">Beğeni</div>
+                      <div className="font-bold text-green-800 text-lg">
+                        {parseInt(selectedVideo.like_count || '0').toLocaleString('tr-TR')}
+                      </div>
+                    </div>
                   </Col>
+                  
                   <Col xs={12} sm={6}>
-                    <Statistic
-                      title="Yorum"
-                      value={parseInt(selectedVideo.comment_count || '0').toLocaleString('tr-TR')}
-                      prefix={<CommentOutlined />}
-                    />
+                    <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
+                      <MessageOutlined className="text-purple-600 mb-2 text-2xl" />
+                      <div className="text-sm text-purple-600 font-medium">Yorum</div>
+                      <div className="font-bold text-purple-800 text-lg">
+                        {parseInt(selectedVideo.comment_count || '0').toLocaleString('tr-TR')}
+                      </div>
+                    </div>
                   </Col>
+                  
                   <Col xs={12} sm={6}>
-                    <Statistic
-                      title="Yayın Tarihi"
-                      value={new Date(selectedVideo.published_at).toLocaleDateString('tr-TR')}
-                      prefix={<CalendarOutlined />}
-                    />
+                    <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl border border-orange-200">
+                      <CalendarOutlined className="text-orange-600 mb-2 text-2xl" />
+                      <div className="text-sm text-orange-600 font-medium">Yayın Tarihi</div>
+                      <div className="font-bold text-orange-800 text-lg">
+                        {new Date(selectedVideo.published_at).toLocaleDateString('tr-TR')}
+                      </div>
+                    </div>
                   </Col>
                 </Row>
               </div>
@@ -1130,14 +1019,15 @@ export const YouTubeAnalysis: React.FC = () => {
         </Card>
 
         {/* Filtreler */}
-        <Card className="mb-8 shadow-lg border-0">
-          <Row gutter={16} align="middle">
+        <Card className="mb-10 shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+          <Row gutter={24} align="middle">
             <Col xs={24} sm={12} md={6}>
               <Select
                 className="w-full"
                 value={dateRange}
                 onChange={setDateRange}
                 size="large"
+                style={{ borderRadius: '16px' }}
               >
                 <Option value="last-7">Son 7 Gün</Option>
                 <Option value="last-30">Son 30 Gün</Option>
@@ -1151,6 +1041,7 @@ export const YouTubeAnalysis: React.FC = () => {
                 value={sentimentFilter}
                 onChange={setSentimentFilter}
                 size="large"
+                style={{ borderRadius: '16px' }}
               >
                 <Option value="all">Tüm Duygular</Option>
                 <Option value="positive">Pozitif</Option>
@@ -1164,6 +1055,7 @@ export const YouTubeAnalysis: React.FC = () => {
                 value={themeFilter}
                 onChange={setThemeFilter}
                 size="large"
+                style={{ borderRadius: '16px' }}
               >
                 <Option value="all">Tüm Temalar</Option>
                 {Object.keys(filteredAnalysis.sentiment_stats.themes).map(theme => (
@@ -1178,7 +1070,7 @@ export const YouTubeAnalysis: React.FC = () => {
                 type="primary"
                 icon={<ReloadOutlined />}
                 onClick={() => analyzeSelectedVideo(selectedVideo)}
-                className="w-full bg-red-600 border-red-600 hover:bg-red-700"
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 border-0 hover:from-blue-600 hover:to-indigo-700 rounded-2xl py-6 h-auto font-medium shadow-xl"
                 size="large"
               >
                 Yenile
@@ -1188,114 +1080,118 @@ export const YouTubeAnalysis: React.FC = () => {
         </Card>
 
         {/* Özet Kartı */}
-        <div className="mb-8">
+        <div className="mb-10">
           <SummaryCard comments={filteredAnalysis.comments} />
         </div>
 
         {/* İstatistikler */}
-        <Row gutter={[16, 16]} className="mb-8">
+        <Row gutter={[24, 24]} className="mb-10">
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                  <MessageOutlined className="text-2xl text-white" />
+            <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <MessageOutlined className="text-3xl text-white" />
                 </div>
               </div>
               <Statistic
-                title={<span className="text-blue-700 font-semibold">Toplam Yorum</span>}
+                title={<span className="text-slate-700 font-semibold text-lg">Toplam Yorum</span>}
                 value={filteredAnalysis.sentiment_stats.total}
-                valueStyle={{ color: '#1890ff', fontSize: '2.5rem', fontWeight: 'bold' }}
+                valueStyle={{ color: '#1890ff', fontSize: '3rem', fontWeight: 'bold' }}
               />
-              <div className="mt-3">
+              <div className="mt-4">
                 <Progress 
                   percent={100} 
                   size="small" 
                   strokeColor="#1890ff"
                   showInfo={false}
+                  strokeWidth={6}
                 />
-                <Text type="secondary" className="text-xs mt-1 block">
+                <Text type="secondary" className="text-sm mt-2 block font-medium">
                   {filteredAnalysis.sentiment_stats.total} yorum
                 </Text>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-green-50 to-green-100">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                  <RiseOutlined className="text-2xl text-white" />
+            <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <RiseOutlined className="text-3xl text-white" />
                 </div>
               </div>
               <Statistic
-                title={<span className="text-green-700 font-semibold">Ortalama Duygu</span>}
+                title={<span className="text-slate-700 font-semibold text-lg">Ortalama Duygu</span>}
                 value={filteredAnalysis.sentiment_stats.average_polarity}
                 precision={3}
                 valueStyle={{ 
                   color: filteredAnalysis.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f',
-                  fontSize: '2.5rem', 
+                  fontSize: '3rem', 
                   fontWeight: 'bold' 
                 }}
               />
-              <div className="mt-3">
+              <div className="mt-4">
                 <Progress 
                   percent={Math.abs(filteredAnalysis.sentiment_stats.average_polarity * 100)} 
                   size="small" 
                   strokeColor={filteredAnalysis.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f'}
                   showInfo={false}
+                  strokeWidth={6}
                 />
-                <Text type="secondary" className="text-xs mt-1 block">
+                <Text type="secondary" className="text-sm mt-2 block font-medium">
                   {filteredAnalysis.sentiment_stats.average_polarity > 0 ? '📈 Pozitif trend' : '📉 Negatif trend'}
                 </Text>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                  <BarChartOutlined className="text-2xl text-white" />
+            <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <BarChartOutlined className="text-3xl text-white" />
                 </div>
               </div>
               <Statistic
-                title={<span className="text-purple-700 font-semibold">Pozitiflik Oranı</span>}
+                title={<span className="text-slate-700 font-semibold text-lg">Pozitiflik Oranı</span>}
                 value={((filteredAnalysis.sentiment_stats.categories.positive / filteredAnalysis.sentiment_stats.total) * 100)}
                 precision={1}
                 suffix="%"
-                valueStyle={{ color: '#722ed1', fontSize: '2.5rem', fontWeight: 'bold' }}
+                valueStyle={{ color: '#722ed1', fontSize: '3rem', fontWeight: 'bold' }}
               />
-              <div className="mt-3">
+              <div className="mt-4">
                 <Progress 
                   percent={(filteredAnalysis.sentiment_stats.categories.positive / filteredAnalysis.sentiment_stats.total) * 100} 
                   size="small" 
                   strokeColor="#722ed1"
                   showInfo={false}
+                  strokeWidth={6}
                 />
-                <Text type="secondary" className="text-xs mt-1 block">
+                <Text type="secondary" className="text-sm mt-2 block font-medium">
                   {filteredAnalysis.sentiment_stats.categories.positive} pozitif yorum
                 </Text>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-orange-50 to-orange-100">
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                  <FileTextOutlined className="text-2xl text-white" />
+            <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                  <FileTextOutlined className="text-3xl text-white" />
                 </div>
               </div>
               <Statistic
-                title={<span className="text-orange-700 font-semibold">Aktif Temalar</span>}
+                title={<span className="text-slate-700 font-semibold text-lg">Aktif Temalar</span>}
                 value={Object.keys(filteredAnalysis.sentiment_stats.themes).length}
-                valueStyle={{ color: '#fa8c16', fontSize: '2.5rem', fontWeight: 'bold' }}
+                valueStyle={{ color: '#fa8c16', fontSize: '3rem', fontWeight: 'bold' }}
               />
-              <div className="mt-3">
+              <div className="mt-4">
                 <Progress 
                   percent={(Object.keys(filteredAnalysis.sentiment_stats.themes).length / 10) * 100} 
                   size="small" 
                   strokeColor="#fa8c16"
                   showInfo={false}
+                  strokeWidth={6}
                 />
-                <Text type="secondary" className="text-xs mt-1 block">
+                <Text type="secondary" className="text-sm mt-2 block font-medium">
                   Tespit edilen konu başlıkları
                 </Text>
               </div>
@@ -1304,32 +1200,32 @@ export const YouTubeAnalysis: React.FC = () => {
         </Row>
 
         {/* Detaylı İstatistikler */}
-        <Row gutter={[24, 24]} className="mb-8">
+        <Row gutter={[32, 32]} className="mb-10">
           <Col xs={24} lg={12}>
             <Card 
               title={
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
-                    <BarChartOutlined className="text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mr-4 flex items-center justify-center shadow-lg">
+                    <BarChartOutlined className="text-white text-lg" />
                   </div>
-                  <span className="text-lg font-semibold">Duygu Analizi Özeti</span>
+                  <span className="text-xl font-semibold text-slate-800">Duygu Analizi Özeti</span>
                 </div>
               }
-              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
             >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl border border-green-200">
                   <div className="flex items-center">
-                    <SmileOutlined className="text-2xl text-green-600 mr-3" />
+                    <SmileOutlined className="text-3xl text-green-600 mr-4" />
                     <div>
-                      <Text strong className="text-green-800">Pozitif Yorumlar</Text>
-                      <div className="text-xs text-green-600">
+                      <Text strong className="text-green-800 text-lg">Pozitif Yorumlar</Text>
+                      <div className="text-sm text-green-600 mt-1">
                         {filteredAnalysis.sentiment_stats.categories.positive} yorum
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-3xl font-bold text-green-600 mb-2">
                       {((filteredAnalysis.sentiment_stats.categories.positive / filteredAnalysis.sentiment_stats.total) * 100).toFixed(1)}%
                     </div>
                     <Progress 
@@ -1337,23 +1233,24 @@ export const YouTubeAnalysis: React.FC = () => {
                       size="small"
                       strokeColor="#52c41a"
                       showInfo={false}
-                      className="w-20"
+                      className="w-24"
+                      strokeWidth={6}
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
                   <div className="flex items-center">
-                    <MehOutlined className="text-2xl text-blue-600 mr-3" />
+                    <MehOutlined className="text-3xl text-blue-600 mr-4" />
                     <div>
-                      <Text strong className="text-blue-800">Nötr Yorumlar</Text>
-                      <div className="text-xs text-blue-600">
+                      <Text strong className="text-blue-800 text-lg">Nötr Yorumlar</Text>
+                      <div className="text-sm text-blue-600 mt-1">
                         {filteredAnalysis.sentiment_stats.categories.neutral} yorum
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
                       {((filteredAnalysis.sentiment_stats.categories.neutral / filteredAnalysis.sentiment_stats.total) * 100).toFixed(1)}%
                     </div>
                     <Progress 
@@ -1361,23 +1258,24 @@ export const YouTubeAnalysis: React.FC = () => {
                       size="small"
                       strokeColor="#1890ff"
                       showInfo={false}
-                      className="w-20"
+                      className="w-24"
+                      strokeWidth={6}
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
+                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl border border-red-200">
                   <div className="flex items-center">
-                    <FrownOutlined className="text-2xl text-red-600 mr-3" />
+                    <FrownOutlined className="text-3xl text-red-600 mr-4" />
                     <div>
-                      <Text strong className="text-red-800">Negatif Yorumlar</Text>
-                      <div className="text-xs text-red-600">
+                      <Text strong className="text-red-800 text-lg">Negatif Yorumlar</Text>
+                      <div className="text-sm text-red-600 mt-1">
                         {filteredAnalysis.sentiment_stats.categories.negative} yorum
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-red-600">
+                    <div className="text-3xl font-bold text-red-600 mb-2">
                       {((filteredAnalysis.sentiment_stats.categories.negative / filteredAnalysis.sentiment_stats.total) * 100).toFixed(1)}%
                     </div>
                     <Progress 
@@ -1385,7 +1283,8 @@ export const YouTubeAnalysis: React.FC = () => {
                       size="small"
                       strokeColor="#ff4d4f"
                       showInfo={false}
-                      className="w-20"
+                      className="w-24"
+                      strokeWidth={6}
                     />
                   </div>
                 </div>
@@ -1397,29 +1296,29 @@ export const YouTubeAnalysis: React.FC = () => {
             <Card 
               title={
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg mr-3 flex items-center justify-center">
-                    <FileTextOutlined className="text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl mr-4 flex items-center justify-center shadow-lg">
+                    <FileTextOutlined className="text-white text-lg" />
                   </div>
-                  <span className="text-lg font-semibold">Dil ve Tema Dağılımı</span>
+                  <span className="text-xl font-semibold text-slate-800">Dil ve Tema Dağılımı</span>
                 </div>
               }
-              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
             >
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <Text strong className="text-gray-700">Dil Dağılımı</Text>
-                    <Text type="secondary">{filteredAnalysis.sentiment_stats.total} toplam</Text>
+                  <div className="flex items-center justify-between mb-4">
+                    <Text strong className="text-slate-700 text-lg">Dil Dağılımı</Text>
+                    <Text type="secondary" className="text-base">{filteredAnalysis.sentiment_stats.total} toplam</Text>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                        <Text>Türkçe</Text>
+                        <div className="w-5 h-5 bg-blue-500 rounded mr-3 shadow"></div>
+                        <Text className="text-base font-medium">Türkçe</Text>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Text strong>{filteredAnalysis.sentiment_stats.language_distribution.tr}</Text>
-                        <Text type="secondary">
+                      <div className="flex items-center space-x-3">
+                        <Text strong className="text-lg">{filteredAnalysis.sentiment_stats.language_distribution.tr}</Text>
+                        <Text type="secondary" className="text-base">
                           ({((filteredAnalysis.sentiment_stats.language_distribution.tr / filteredAnalysis.sentiment_stats.total) * 100).toFixed(1)}%)
                         </Text>
                       </div>
@@ -1428,16 +1327,17 @@ export const YouTubeAnalysis: React.FC = () => {
                       percent={(filteredAnalysis.sentiment_stats.language_distribution.tr / filteredAnalysis.sentiment_stats.total) * 100}
                       strokeColor="#1890ff"
                       showInfo={false}
+                      strokeWidth={8}
                     />
                     
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
-                        <Text>İngilizce</Text>
+                        <div className="w-5 h-5 bg-purple-500 rounded mr-3 shadow"></div>
+                        <Text className="text-base font-medium">İngilizce</Text>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Text strong>{filteredAnalysis.sentiment_stats.language_distribution.en}</Text>
-                        <Text type="secondary">
+                      <div className="flex items-center space-x-3">
+                        <Text strong className="text-lg">{filteredAnalysis.sentiment_stats.language_distribution.en}</Text>
+                        <Text type="secondary" className="text-base">
                           ({((filteredAnalysis.sentiment_stats.language_distribution.en / filteredAnalysis.sentiment_stats.total) * 100).toFixed(1)}%)
                         </Text>
                       </div>
@@ -1446,6 +1346,7 @@ export const YouTubeAnalysis: React.FC = () => {
                       percent={(filteredAnalysis.sentiment_stats.language_distribution.en / filteredAnalysis.sentiment_stats.total) * 100}
                       strokeColor="#722ed1"
                       showInfo={false}
+                      strokeWidth={8}
                     />
                   </div>
                 </div>
@@ -1453,7 +1354,7 @@ export const YouTubeAnalysis: React.FC = () => {
                 <Divider />
 
                 <div>
-                  <Text strong className="text-gray-700 mb-3 block">En Popüler Temalar</Text>
+                  <Text strong className="text-slate-700 mb-4 block text-lg">En Popüler Temalar</Text>
                   <Space wrap>
                     {Object.entries(filteredAnalysis.sentiment_stats.themes)
                       .sort(([, a], [, b]) => (b as number) - (a as number))
@@ -1462,7 +1363,7 @@ export const YouTubeAnalysis: React.FC = () => {
                         <Tag 
                           key={theme} 
                           color="blue"
-                          className="mb-2 px-3 py-1 text-sm"
+                          className="mb-3 px-4 py-2 text-base font-medium rounded-xl"
                         >
                           {theme.charAt(0).toUpperCase() + theme.slice(1)}: {count}
                         </Tag>
@@ -1475,20 +1376,20 @@ export const YouTubeAnalysis: React.FC = () => {
         </Row>
 
         {/* Grafikler */}
-        <Row gutter={[24, 24]} className="mb-8">
+        <Row gutter={[32, 32]} className="mb-10">
           <Col xs={24} lg={8}>
             <Card 
               title={
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg mr-3 flex items-center justify-center">
-                    <SmileOutlined className="text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl mr-3 flex items-center justify-center shadow-lg">
+                    <SmileOutlined className="text-white text-lg" />
                   </div>
-                  <span className="text-lg font-semibold">Duygu Dağılımı</span>
+                  <span className="text-xl font-semibold text-slate-800">Duygu Dağılımı</span>
                 </div>
               }
-              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
               extra={
-                <Tag color="blue" className="font-medium">
+                <Tag color="blue" className="font-medium px-3 py-1 rounded-xl">
                   {filteredAnalysis.sentiment_stats.total} Toplam
                 </Tag>
               }
@@ -1542,15 +1443,15 @@ export const YouTubeAnalysis: React.FC = () => {
             <Card 
               title={
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
-                    <FileTextOutlined className="text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl mr-3 flex items-center justify-center shadow-lg">
+                    <FileTextOutlined className="text-white text-lg" />
                   </div>
-                  <span className="text-lg font-semibold">Tema Dağılımı</span>
+                  <span className="text-xl font-semibold text-slate-800">Tema Dağılımı</span>
                 </div>
               }
-              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
               extra={
-                <Tag color="purple" className="font-medium">
+                <Tag color="purple" className="font-medium px-3 py-1 rounded-xl">
                   Top {Math.min(themeData.length, 8)}
                 </Tag>
               }
@@ -1594,15 +1495,15 @@ export const YouTubeAnalysis: React.FC = () => {
             <Card 
               title={
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-600 rounded-lg mr-3 flex items-center justify-center">
-                    <BarChartOutlined className="text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-600 rounded-xl mr-3 flex items-center justify-center shadow-lg">
+                    <BarChartOutlined className="text-white text-lg" />
                   </div>
-                  <span className="text-lg font-semibold">Dil Dağılımı</span>
+                  <span className="text-xl font-semibold text-slate-800">Dil Dağılımı</span>
                 </div>
               }
-              className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+              className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
               extra={
-                <Tag color="orange" className="font-medium">
+                <Tag color="orange" className="font-medium px-3 py-1 rounded-xl">
                   2 Dil
                 </Tag>
               }
@@ -1656,11 +1557,25 @@ export const YouTubeAnalysis: React.FC = () => {
 
         {/* Kelime Bulutu */}
         {filteredAnalysis.word_cloud && filteredAnalysis.word_cloud.length > 0 && (
-          <WordCloudChart words={filteredAnalysis.word_cloud} />
+          <div className="mb-10">
+            <EnhancedWordCloud 
+              words={filteredAnalysis.word_cloud.map((w: any) => ({
+                text: w.text,
+                value: w.value
+              }))}
+              title="Video Yorumları Kelime Bulutu"
+              theme="blue"
+              height={600}
+              interactive={true}
+              showStats={true}
+              downloadable={true}
+              maxWords={50}
+            />
+          </div>
         )}
 
         {/* Yorumlar Listesi */}
-        <div className="mt-8">
+        <div className="mt-10">
           <CommentsSection comments={filteredAnalysis.comments || []} />
         </div>
       </div>

@@ -13,10 +13,10 @@ class YouTubeService:
         self.youtube = build('youtube', 'v3', credentials=credentials)
         self.logger = logging.getLogger(__name__)
         
-        # SentimentService entegrasyonu
+        # SentimentService global instance'ını kullan
         try:
-            from services.sentiment_service import SentimentService
-            self.sentiment_service = SentimentService()
+            from services.sentiment_service import sentiment_service
+            self.sentiment_service = sentiment_service
             self.sentiment_enabled = True
             print("SentimentService entegrasyonu aktif!")
         except Exception as e:

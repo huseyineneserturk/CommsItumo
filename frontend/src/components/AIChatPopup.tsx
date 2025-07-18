@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
-import { Modal, Input, Button, message, Spin, Avatar } from 'antd';
-import { SendOutlined, UserOutlined, RobotOutlined, CloseOutlined } from '@ant-design/icons';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { getAuth } from 'firebase/auth';
 import axios, { AxiosResponse } from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-const { TextArea } = Input;
 
 interface Message {
   id: string;
@@ -26,36 +23,16 @@ export const AIChatPopup: React.FC = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // AI mesaj stillerini ekle
-  const aiMessageStyles = `
-    .ai-message-content p { margin-bottom: 0.5rem; }
-    .ai-message-content p:last-child { margin-bottom: 0; }
-    .ai-message-content strong { font-weight: 700; color: #111827; }
-    .ai-message-content em { font-style: italic; }
-    .ai-message-content ul, .ai-message-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
-    .ai-message-content li { margin-bottom: 0.25rem; }
-    .ai-message-content code { 
-      background-color: #f3f4f6; 
-      padding: 0.125rem 0.25rem; 
-      border-radius: 0.25rem; 
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; 
-      font-size: 0.875rem; 
-    }
-    .ai-message-content pre { 
-      background-color: #f3f4f6; 
-      padding: 0.75rem; 
-      border-radius: 0.5rem; 
-      overflow-x: auto; 
-      margin: 0.5rem 0; 
-    }
-    .ai-message-content blockquote { 
-      border-left: 4px solid #d1d5db; 
-      padding-left: 1rem; 
-      font-style: italic; 
-      margin: 0.5rem 0; 
-    }
-  `;
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +82,14 @@ export const AIChatPopup: React.FC = () => {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Mesaj gönderilirken hata oluştu:', error);
-      message.error('Bir hata oluştu, lütfen tekrar deneyin');
+      
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        text: 'Bir hata oluştu, lütfen tekrar deneyin. 😔',
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
@@ -131,205 +115,197 @@ export const AIChatPopup: React.FC = () => {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
   return (
     <>
-      {/* Custom Floating Button */}
+      {/* Modern Floating Button */}
       <div
         onClick={handleOpen}
-        style={{
-          position: 'fixed',
-          right: 24,
-          bottom: 24,
-          width: '80px',
-          height: '80px',
-          cursor: 'pointer',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+        className="fixed right-6 bottom-6 w-20 h-20 cursor-pointer z-50 group"
         title="AI Asistanı"
       >
         <img 
           src="/Resources/Pop_Up_Logo.png" 
           alt="AI Chat" 
-          style={{ 
-            width: '70px', 
-            height: '70px',
-            objectFit: 'contain',
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-            transition: 'transform 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
+          className="w-full h-full object-contain filter drop-shadow-2xl transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_20px_rgba(147,51,234,0.6)]"
           onError={(e) => {
-            // Fallback to emoji if image fails to load
-            e.currentTarget.style.display = 'none';
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.innerHTML = '🤖';
-            fallbackDiv.style.fontSize = '40px';
-            fallbackDiv.style.display = 'flex';
-            fallbackDiv.style.alignItems = 'center';
-            fallbackDiv.style.justifyContent = 'center';
-            e.currentTarget.parentNode?.appendChild(fallbackDiv);
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = '<div class="text-5xl filter drop-shadow-2xl transition-all duration-300 hover:scale-110">🤖</div>';
+            }
           }}
         />
-             </div>
+      </div>
 
-      {/* Chat Modal */}
-      <Modal
-        title={
-          <div className="flex items-center space-x-3">
-            <img 
-              src="/Resources/Pop_Up_Logo.png" 
-              alt="AI Logo" 
-              style={{ 
-                width: '56px', 
-                height: '56px',
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 4px 8px rgba(255, 77, 79, 0.3))'
-              }}
-              onError={(e) => {
-                // Fallback to a simple robot icon if image fails
-                e.currentTarget.style.display = 'none';
-                const fallbackDiv = document.createElement('div');
-                fallbackDiv.innerHTML = '🤖';
-                fallbackDiv.style.fontSize = '32px';
-                fallbackDiv.style.display = 'flex';
-                fallbackDiv.style.alignItems = 'center';
-                fallbackDiv.style.justifyContent = 'center';
-                e.currentTarget.parentNode?.appendChild(fallbackDiv);
-              }}
-            />
-            <span style={{ color: '#ff4d4f', fontWeight: 'bold', fontSize: '18px' }}>CommsItumo AI Asistanı</span>
-          </div>
-        }
-        open={isVisible}
-        onCancel={handleClose}
-        footer={null}
-        width={600}
-        style={{ top: 20 }}
-        closeIcon={<CloseOutlined style={{ color: '#ff4d4f' }} />}
-      >
-        <style>{aiMessageStyles}</style>
-        <div className="flex flex-col h-[500px]">
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-50 rounded-lg">
-            {messages.map(message => (
-              <div
-                key={message.id}
-                className={`mb-4 flex items-start ${
-                  message.sender === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
-                <div className="flex items-start gap-2 max-w-[80%]">
-                  {message.sender === 'ai' && (
-                    <Avatar 
-                      icon={<RobotOutlined />} 
-                      style={{ backgroundColor: '#ff4d4f' }}
-                    />
-                  )}
-                  <div
-                    className={`p-3 rounded-lg ${
-                      message.sender === 'user'
-                        ? 'bg-[#ff4d4f] text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
-                    }`}
-                  >
-                    {message.sender === 'ai' ? (
-                      <div className="ai-message-content">
-                        <ReactMarkdown 
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            p: ({ children }: any) => <p className="mb-2 last:mb-0">{children}</p>,
-                            strong: ({ children }: any) => <strong className="font-bold text-gray-900">{children}</strong>,
-                            em: ({ children }: any) => <em className="italic">{children}</em>,
-                            ul: ({ children }: any) => <ul className="list-disc list-inside ml-4 mb-2">{children}</ul>,
-                            ol: ({ children }: any) => <ol className="list-decimal list-inside ml-4 mb-2">{children}</ol>,
-                            li: ({ children }: any) => <li className="mb-1">{children}</li>,
-                            code: ({ children }: any) => (
-                              <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
-                                {children}
-                              </code>
-                            ),
-                            pre: ({ children }: any) => (
-                              <pre className="bg-gray-100 p-3 rounded-lg overflow-x-auto mb-2">
-                                {children}
-                              </pre>
-                            ),
-                            blockquote: ({ children }: any) => (
-                              <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-2">
-                                {children}
-                              </blockquote>
-                            )
-                          }}
-                        >
-                          {message.text}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="whitespace-pre-wrap">{message.text}</div>
-                    )}
-                  </div>
-                  {message.sender === 'user' && (
-                    <Avatar 
-                      icon={<UserOutlined />} 
-                      style={{ backgroundColor: '#ff4d4f' }}
-                    />
-                  )}
+      {/* Modern Chat Modal */}
+      {isVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            onClick={handleClose}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative w-full max-w-2xl max-h-[90vh] bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/20 bg-gradient-to-r from-purple-500/20 to-pink-500/20">
+              <div className="flex items-center space-x-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <img 
+                    src="/Resources/Pop_Up_Logo.png" 
+                    alt="AI Logo" 
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div class="text-2xl text-white">🤖</div>';
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">CommsItumo AI</h3>
+                  <p className="text-slate-600">Akıllı Asistanınız</p>
                 </div>
               </div>
-            ))}
-            {loading && (
-              <div className="text-center">
-                <Spin size="large" style={{ color: '#ff4d4f' }} />
-                <div className="mt-2 text-gray-500">AI düşünüyor...</div>
+              <button
+                onClick={handleClose}
+                className="w-10 h-10 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:-translate-y-1 shadow-lg"
+              >
+                <X className="w-5 h-5 text-slate-700" />
+              </button>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex flex-col h-[500px]">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {messages.map(message => (
+                  <div
+                    key={message.id}
+                    className={`flex items-start gap-3 ${
+                      message.sender === 'user' ? 'justify-end' : 'justify-start'
+                    }`}
+                  >
+                    {message.sender === 'ai' && (
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                    
+                    <div
+                      className={`max-w-[80%] p-4 rounded-2xl shadow-lg ${
+                        message.sender === 'user'
+                          ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
+                          : 'bg-white/20 backdrop-blur-xl text-slate-800 border border-white/30'
+                      }`}
+                    >
+                      {message.sender === 'ai' ? (
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              p: ({ children }: any) => <p className="mb-2 last:mb-0 text-slate-800">{children}</p>,
+                              strong: ({ children }: any) => <strong className="font-bold text-slate-900">{children}</strong>,
+                              em: ({ children }: any) => <em className="italic text-slate-700">{children}</em>,
+                              ul: ({ children }: any) => <ul className="list-disc list-inside ml-2 mb-2 text-slate-800">{children}</ul>,
+                              ol: ({ children }: any) => <ol className="list-decimal list-inside ml-2 mb-2 text-slate-800">{children}</ol>,
+                              li: ({ children }: any) => <li className="mb-1 text-slate-800">{children}</li>,
+                              code: ({ children }: any) => (
+                                <code className="bg-slate-100/50 px-2 py-1 rounded text-sm font-mono text-slate-900 border border-slate-200/50">
+                                  {children}
+                                </code>
+                              ),
+                              pre: ({ children }: any) => (
+                                <pre className="bg-slate-100/50 p-3 rounded-xl overflow-x-auto mb-2 border border-slate-200/50">
+                                  {children}
+                                </pre>
+                              ),
+                              blockquote: ({ children }: any) => (
+                                <blockquote className="border-l-4 border-purple-400 pl-4 italic mb-2 text-slate-700">
+                                  {children}
+                                </blockquote>
+                              )
+                            }}
+                          >
+                            {message.text}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <div className="whitespace-pre-wrap text-white font-medium">{message.text}</div>
+                      )}
+                    </div>
+
+                    {message.sender === 'user' && (
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {loading && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 shadow-lg border border-white/30">
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                        <span className="text-slate-700 font-medium">AI düşünüyor...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
               </div>
-            )}
-          </div>
 
-          {/* Input Area */}
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <TextArea
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              placeholder="Sorunuzu yazın..."
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              className="flex-1"
-              style={{ borderRadius: '8px' }}
-              onPressEnter={(e) => {
-                if (!e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage(e);
-                }
-              }}
-            />
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<SendOutlined />}
-              loading={loading}
-              disabled={!input.trim()}
-              style={{ 
-                backgroundColor: '#ff4d4f',
-                borderColor: '#ff4d4f',
-                borderRadius: '8px'
-              }}
-            >
-              Gönder
-            </Button>
-          </form>
-
-          {/* Info Text */}
-          <div className="mt-2 text-xs text-gray-500 text-center">
-            YouTube içerik üretimi, kanal büyütme ve genel sorularınız için buradayım! 🚀
+              {/* Input Area */}
+              <div className="p-6 border-t border-white/20 bg-white/5">
+                <form onSubmit={handleSendMessage} className="flex gap-3">
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Sorunuzu yazın..."
+                    className="flex-1 bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl px-4 py-3 text-slate-800 placeholder-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent min-h-[50px] max-h-[120px]"
+                    rows={1}
+                    style={{ 
+                      height: 'auto',
+                      minHeight: '50px'
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || loading}
+                    className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
+                    <Send className="w-5 h-5 text-white" />
+                  </button>
+                </form>
+                
+                {/* Info Text */}
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-slate-600">
+                    YouTube içerik üretimi, kanal büyütme ve genel sorularınız için buradayım! 🚀
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </>
   );
 }; 

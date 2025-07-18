@@ -12,7 +12,20 @@ import asyncio
 from datetime import datetime
 
 class SentimentService:
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SentimentService, cls).__new__(cls)
+        return cls._instance
+    
     def __init__(self):
+        # Singleton pattern için - sadece bir kez initialize et
+        if SentimentService._initialized:
+            return
+        
+        SentimentService._initialized = True
         self.logger = logging.getLogger(__name__)
         
         # Firestore servisi entegrasyonu
@@ -26,7 +39,7 @@ class SentimentService:
             self.firestore_service = None
             self.firestore_enabled = False
         
-        # Model dosyalarının yolu
+        # Model dosyalarının yolu - kök dizindeki models klasörünü kullan
         self.models_dir = "models"
         os.makedirs(self.models_dir, exist_ok=True)
         
@@ -438,28 +451,22 @@ class SentimentService:
             }
         }
 
-    def get_word_cloud(self, comments: List[Dict[str, Any]], max_words: int = 50) -> List[Dict[str, Any]]:
+    def get_word_cloud(self, comments: List[Dict[str, Any]], max_words: int = 100) -> List[Dict[str, Any]]:
         """Gelişmiş kelime bulutu için sık kullanılan kelimeleri hesaplar"""
         try:
             if not comments:
                 return []
                 
-            # Pozitif ve negatif yorumları ayır
-            positive_texts = []
-            negative_texts = []
-            neutral_texts = []
+            # Duygu bazlı yorumları ayır
+            sentiment_texts = {'positive': [], 'negative': [], 'neutral': []}
             
             for comment in comments:
                 text = comment.get('text', '')
                 sentiment = comment.get('sentiment', {})
                 category = sentiment.get('category', 'neutral')
                 
-                if category == 'positive':
-                    positive_texts.append(text)
-                elif category == 'negative':
-                    negative_texts.append(text)
-                else:
-                    neutral_texts.append(text)
+                if category in sentiment_texts:
+                    sentiment_texts[category].append(text)
             
             # Tüm metinleri birleştir
             all_text = ' '.join(comment.get('text', '') for comment in comments)
@@ -467,49 +474,123 @@ class SentimentService:
             # Metni temizle
             cleaned_text = self.clean_text(all_text)
             
-            # Kelimelere ayır
+            # Kelimelere ayır ve N-gram'ları dahil et
             words = cleaned_text.split()
             
-            # Stop words'leri ve kısa kelimeleri kaldır
-            filtered_words = []
+            # Gelişmiş stop words listesi
+            extended_stop_words = self.stop_words.union({
+                'video', 'çok', 'güzel', 'iyi', 'kötü', 'var', 'yok', 'bu', 'şu', 'o', 'bir', 've', 'de', 'da', 
+                'ki', 'için', 'ile', 'olan', 'olur', 'gibi', 'kadar', 'daha', 'en', 'az', 'tüm', 'hep', 'her', 
+                'hiç', 'şey', 'kez', 'defa', 'youtube', 'like', 'subscribe', 'comment', 'bence', 'sanki', 
+                'gerçekten', 'kesinlikle', 'muhtemelen', 'belki', 'acaba', 'zaten', 'artık', 'sadece', 'bile',
+                'öyle', 'böyle', 'şöyle', 'nasıl', 'neden', 'niçin', 'nereye', 'nereden', 'kim', 'ne', 'hangi'
+            })
+            
+            # Kelime filtreleme ve ağırlık hesaplama
+            word_weights = {}
+            
             for word in words:
-                if (word not in self.stop_words and 
-                    len(word) > 2 and 
-                    len(word) < 20 and  # Çok uzun kelimeleri filtrele
-                    not word.isdigit()):  # Sayıları filtrele
-                    filtered_words.append(word)
-            
-            # Kelime frekanslarını hesapla
-            word_freq = Counter(filtered_words)
-            
-            # Çok sık kullanılan genel kelimeleri filtrele
-            common_words = {'video', 'çok', 'güzel', 'iyi', 'kötü', 'var', 'yok', 'bu', 'şu', 'o', 'bir', 've', 'de', 'da', 'ki', 'için', 'ile', 'olan', 'olur', 'gibi', 'kadar', 'daha', 'en', 'çok', 'az', 'tüm', 'hep', 'her', 'hiç', 'şey', 'kez', 'defa'}
-            
-            # Filtrelenmiş kelime listesi
-            final_words = {}
-            for word, count in word_freq.items():
-                if word.lower() not in common_words and count >= 2:  # En az 2 kez geçmeli
-                    # Tema ve duygu ağırlığı ekle
-                    weight = count
+                # Temel filtreler
+                if (len(word) < 3 or len(word) > 25 or 
+                    word.lower() in extended_stop_words or 
+                    word.isdigit() or 
+                    not word.replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ç', 'c').replace('ö', 'o').replace('ı', 'i').isalpha()):
+                    continue
+                
+                # Kelime ağırlığını hesapla
+                base_weight = 1
+                
+                # Duygu bazlı ağırlık
+                for sentiment, texts in sentiment_texts.items():
+                    sentiment_count = sum(1 for text in texts if word.lower() in text.lower())
                     
-                    # Pozitif/negatif yorumlarda geçen kelimeler daha önemli
-                    positive_count = sum(1 for text in positive_texts if word.lower() in text.lower())
-                    negative_count = sum(1 for text in negative_texts if word.lower() in text.lower())
-                    
-                    if positive_count > 0 or negative_count > 0:
-                        weight += (positive_count + negative_count) * 0.5
-                    
-                    final_words[word] = int(weight)
+                    # Pozitif ve negatif kelimelere daha fazla ağırlık ver
+                    if sentiment in ['positive', 'negative']:
+                        base_weight += sentiment_count * 1.5
+                    else:
+                        base_weight += sentiment_count * 0.8
+                
+                # Büyük harf kontrolü (önemli kelimeler genellikle büyük harfle başlar)
+                if word[0].isupper() and len(word) > 4:
+                    base_weight *= 1.3
+                
+                # Uzunluk bazlı ağırlık (orta uzunlukta kelimeler daha anlamlı)
+                if 4 <= len(word) <= 8:
+                    base_weight *= 1.2
+                elif 9 <= len(word) <= 12:
+                    base_weight *= 1.1
+                
+                word_weights[word.lower()] = word_weights.get(word.lower(), 0) + base_weight
             
-            # En sık kullanılan kelimeleri döndür
-            sorted_words = sorted(final_words.items(), key=lambda x: x[1], reverse=True)
+            # Minimum frekans filtresi (daha esnek)
+            min_frequency = max(1, len(comments) // 100)  # Yorum sayısına göre dinamik
+            filtered_words = {word: weight for word, weight in word_weights.items() 
+                            if weight >= min_frequency}
             
-            return [{"text": word, "value": count} 
-                    for word, count in sorted_words[:max_words]]
+            # N-gram'lar ekle (2-kelimeli anlamlı kombinasyonlar)
+            bigrams = self._extract_meaningful_bigrams(comments, extended_stop_words)
+            filtered_words.update(bigrams)
+            
+            # Sırala ve döndür
+            sorted_words = sorted(filtered_words.items(), key=lambda x: x[1], reverse=True)
+            
+            # Sentiment bilgisi ekle
+            result = []
+            for word, weight in sorted_words[:max_words]:
+                # Bu kelimenin hangi duyguda daha çok geçtiğini bul
+                sentiment_counts = {}
+                for sentiment, texts in sentiment_texts.items():
+                    count = sum(1 for text in texts if word.lower() in text.lower())
+                    if count > 0:
+                        sentiment_counts[sentiment] = count
+                
+                # Dominant duyguyu belirle
+                dominant_sentiment = 'neutral'
+                if sentiment_counts:
+                    dominant_sentiment = max(sentiment_counts.items(), key=lambda x: x[1])[0]
+                
+                result.append({
+                    "text": word.title() if word.islower() else word,
+                    "value": int(weight),
+                    "sentiment": dominant_sentiment,
+                    "sentiment_distribution": sentiment_counts
+                })
+            
+            return result
                     
         except Exception as e:
             self.logger.error(f"Kelime bulutu oluşturma hatası: {str(e)}")
             return []
+
+    def _extract_meaningful_bigrams(self, comments: List[Dict[str, Any]], stop_words: set, min_freq: int = 2) -> Dict[str, float]:
+        """Anlamlı 2-kelimeli kombinasyonları çıkarır"""
+        try:
+            bigram_weights = {}
+            
+            for comment in comments:
+                text = comment.get('text', '')
+                cleaned_text = self.clean_text(text)
+                words = cleaned_text.split()
+                
+                # 2-gram'ları oluştur
+                for i in range(len(words) - 1):
+                    word1, word2 = words[i].lower(), words[i + 1].lower()
+                    
+                    # Filtrele
+                    if (len(word1) >= 3 and len(word2) >= 3 and 
+                        word1 not in stop_words and word2 not in stop_words and
+                        not word1.isdigit() and not word2.isdigit()):
+                        
+                        bigram = f"{word1} {word2}"
+                        bigram_weights[bigram] = bigram_weights.get(bigram, 0) + 1.5
+            
+            # Minimum frekans filtresi
+            return {bigram: weight for bigram, weight in bigram_weights.items() 
+                   if weight >= min_freq}
+                   
+        except Exception as e:
+            self.logger.error(f"Bigram çıkarma hatası: {str(e)}")
+            return {}
 
     def analyze_theme(self, text: str) -> Dict[str, float]:
         """Metin için gelişmiş tema analizi yapar"""
@@ -895,4 +976,7 @@ class SentimentService:
                 'sentiment_stats': {},
                 'word_cloud': [],
                 'theme_analysis': []
-            } 
+            }
+
+# Global singleton instance - diğer servisler bunu import edebilir
+sentiment_service = SentimentService() 

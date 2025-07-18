@@ -5,9 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import axios from 'axios';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Legend, CartesianGrid } from 'recharts';
-import { Wordcloud } from '@visx/wordcloud';
-import { scaleOrdinal } from '@visx/scale';
-import { Text as VisxText } from '@visx/text';
+import { EnhancedWordCloud } from '../components/EnhancedWordCloud';
 import { useAI } from '../contexts/AIContext';
 import { useCache } from '../contexts/CacheContext';
 import { asyncAnalysisService, ProgressUpdate } from '../services/asyncAnalysisService';
@@ -294,125 +292,7 @@ export function UploadCSV() {
     );
   };
 
-  const renderWordCloud = () => {
-    if (!analysisResult) return null;
-
-    const words = analysisResult.word_cloud.slice(0, 50).map(item => ({
-      text: item.text,
-      value: item.value
-    }));
-
-    if (words.length === 0) {
-      return (
-        <Card 
-          title={
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
-                <FileTextOutlined className="text-white" />
-              </div>
-              <span className="text-lg font-semibold">Kelime Bulutu</span>
-            </div>
-          }
-          className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
-        >
-          <div className="text-center py-16">
-            <FileTextOutlined className="text-6xl text-gray-300 mb-4" />
-            <Title level={4} className="text-gray-500 mb-2">Kelime bulutu için yeterli veri yok</Title>
-            <Text className="text-gray-400">Analiz edilecek yeterli kelime bulunamadı</Text>
-          </div>
-        </Card>
-      );
-    }
-
-    const colorScale = scaleOrdinal({
-      domain: words.map(d => d.text),
-      range: [
-        '#ff4757', '#3742fa', '#2ed573', '#ffa502', '#ff6348',
-        '#1e90ff', '#ff1493', '#32cd32', '#ff8c00', '#9370db',
-        '#20b2aa', '#ff69b4', '#00ced1', '#ffd700', '#dc143c'
-      ]
-    });
-
-    const fontScale = (value: number) => Math.max(10, Math.min(32, value * 1.5));
-
-    return (
-      <Card 
-        title={
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg mr-3 flex items-center justify-center">
-              <FileTextOutlined className="text-white" />
-            </div>
-            <span className="text-lg font-semibold">Kelime Bulutu</span>
-          </div>
-        }
-        className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
-        extra={
-          <Tag color="purple" className="font-medium">
-            {words.length} Kelime
-          </Tag>
-        }
-      >
-        <div className="relative">
-          {/* Kompakt Word Cloud */}
-          <div className="h-80 w-full flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl border border-purple-100 shadow-inner">
-            <svg width="100%" height="100%" viewBox="0 0 600 320" className="max-w-full">
-              <Wordcloud
-                words={words}
-                width={600}
-                height={320}
-                fontSize={(datum) => fontScale(datum.value)}
-                font="Inter, system-ui, sans-serif"
-                padding={1}
-                spiral="archimedean"
-                rotate={0}
-                random={() => 0.5}
-              >
-                {(cloudWords) =>
-                  cloudWords.map((w, i) => (
-                    <VisxText
-                      key={w.text}
-                      fill={colorScale(w.text || '')}
-                      textAnchor="middle"
-                      transform={`translate(${w.x}, ${w.y})`}
-                      fontSize={w.size}
-                      fontFamily={w.font}
-                      fontWeight="600"
-                      style={{ 
-                        cursor: 'pointer',
-                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
-                        transition: 'all 0.2s ease'
-                      }}
-                      className="hover:opacity-80"
-                    >
-                      {w.text}
-                    </VisxText>
-                  ))
-                }
-              </Wordcloud>
-            </svg>
-          </div>
-          
-          {/* Kompakt İstatistikler */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-              <div className="text-lg font-bold text-blue-600">{words.length}</div>
-              <div className="text-xs text-blue-500">Toplam</div>
-            </div>
-            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-              <div className="text-lg font-bold text-green-600 truncate" title={words[0]?.text || '-'}>
-                {words[0]?.text?.slice(0, 8) || '-'}
-              </div>
-              <div className="text-xs text-green-500">En Sık</div>
-            </div>
-            <div className="text-center p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
-              <div className="text-lg font-bold text-red-600">{words[0]?.value || 0}</div>
-              <div className="text-xs text-red-500">Sayısı</div>
-            </div>
-          </div>
-        </div>
-      </Card>
-    );
-  };
+  // renderWordCloud artık EnhancedWordCloud bileşeni ile değiştirildi
 
   const renderThemeChart = () => {
     if (!analysisResult) return null;
@@ -678,38 +558,38 @@ export function UploadCSV() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white">
-        <div className="container mx-auto px-6 py-16">
+      <div className="bg-gradient-to-r from-orange-500 to-amber-600 shadow-lg">
+        <div className="container mx-auto px-6 py-12">
           <div className="text-center">
-            <div className="mb-6">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl">
-                <UploadOutlined className="text-4xl text-white" />
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl">
+                <UploadOutlined className="text-3xl text-white" />
               </div>
             </div>
-            <Title level={1} className="mb-4 text-white">
+            <Title level={1} className="mb-4 text-white text-4xl font-bold">
               CSV Dosya Analizi
             </Title>
-            <Text className="text-white/90 text-xl leading-relaxed max-w-2xl mx-auto">
-              Yorum verilerinizi CSV formatında yükleyerek kapsamlı sentiment analizi ve tema çıkarımı yapın
+            <Text className="text-white text-opacity-90 text-xl font-medium">
+              Yorum verilerinizi CSV formatında yükleyerek kapsamlı sentiment analizi yapın
             </Text>
-            <div className="mt-8 flex justify-center">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center space-x-4 text-white/80 text-sm">
+            <div className="flex justify-center mt-6">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-6 border border-white border-opacity-20">
+                <div className="flex items-center space-x-6 text-white text-opacity-80 text-sm">
                   <div className="flex items-center">
-                    <ThunderboltOutlined className="mr-2" />
-                    <span>Real-time İşlem</span>
+                    <ThunderboltOutlined className="mr-2 text-lg" />
+                    <span className="font-medium">Real-time İşlem</span>
                   </div>
-                  <div className="w-1 h-4 bg-white/30 rounded"></div>
+                  <div className="w-1 h-6 bg-white bg-opacity-30 rounded"></div>
                   <div className="flex items-center">
-                    <FileTextOutlined className="mr-2" />
-                    <span>AI Analiz</span>
+                    <FileTextOutlined className="mr-2 text-lg" />
+                    <span className="font-medium">AI Analiz</span>
                   </div>
-                  <div className="w-1 h-4 bg-white/30 rounded"></div>
+                  <div className="w-1 h-6 bg-white bg-opacity-30 rounded"></div>
                   <div className="flex items-center">
-                    <BarChartOutlined className="mr-2" />
-                    <span>Görsel Raporlar</span>
+                    <BarChartOutlined className="mr-2 text-lg" />
+                    <span className="font-medium">Görsel Raporlar</span>
                   </div>
                 </div>
               </div>
@@ -718,12 +598,12 @@ export function UploadCSV() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 lg:px-8 py-8">
         {/* Progress Steps */}
-        <Card className="mb-8 shadow-xl border-0 bg-gradient-to-r from-blue-50 to-purple-50">
-          <div className="p-6">
-            <Title level={4} className="text-center mb-6 text-gray-800">
-              <RiseOutlined className="mr-2 text-blue-600" />
+        <Card className="mb-8 shadow-2xl border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+          <div className="p-8">
+            <Title level={3} className="text-center mb-8 text-slate-800">
+              <RiseOutlined className="mr-3 text-orange-600 text-2xl" />
               Analiz Süreci
             </Title>
             <Steps 
@@ -731,22 +611,22 @@ export function UploadCSV() {
               className="mb-6"
               items={[
                 {
-                  title: <span className="font-semibold">Dosya Seçimi</span>,
+                  title: <span className="font-semibold text-base">Dosya Seçimi</span>,
                   icon: <FileTextOutlined />,
                   description: "CSV dosyanızı yükleyin"
                 },
                 {
-                  title: <span className="font-semibold">Yükleme</span>,
+                  title: <span className="font-semibold text-base">Yükleme</span>,
                   icon: <UploadOutlined />,
                   description: "Dosya sunucuya gönderiliyor"
                 },
                 {
-                  title: <span className="font-semibold">Analiz</span>,
+                  title: <span className="font-semibold text-base">Analiz</span>,
                   icon: <BarChartOutlined />,
                   description: "AI ile sentiment analizi"
                 },
                 {
-                  title: <span className="font-semibold">Sonuçlar</span>,
+                  title: <span className="font-semibold text-base">Sonuçlar</span>,
                   icon: <CheckCircleOutlined />,
                   description: "Raporlar hazırlandı"
                 }
@@ -756,29 +636,29 @@ export function UploadCSV() {
         </Card>
 
         {!analysisResult ? (
-          <Row gutter={[24, 24]}>
+          <Row gutter={[32, 32]}>
             {/* Upload Section */}
             <Col xs={24} lg={16}>
-              <Card className="shadow-2xl border-0 h-full bg-gradient-to-br from-white to-gray-50">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
-                    <InboxOutlined className="text-3xl text-white" />
+              <Card className="shadow-2xl border-0 h-full bg-white/10 backdrop-blur-xl rounded-3xl">
+                <div className="text-center mb-10">
+                  <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                    <InboxOutlined className="text-4xl text-white" />
                   </div>
-                  <Title level={3} className="mb-2 text-gray-800">
+                  <Title level={2} className="mb-4 text-slate-800">
                     CSV Dosyanızı Yükleyin
                   </Title>
-                  <Text className="text-gray-600">
+                  <Text className="text-slate-600 text-lg">
                     Analiz için CSV dosyanızı sürükleyin veya seçin
                   </Text>
                 </div>
                 
                 {/* Async Progress Display */}
                 {isAsyncActive && (
-                  <Card size="small" className="mb-6 bg-blue-50 border-blue-200">
-                    <div className="space-y-4">
+                  <Card size="small" className="mb-8 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-300 rounded-2xl">
+                    <div className="space-y-6">
                       <div className="flex justify-between items-center">
-                        <Text strong>CSV Analizi İşleniyor...</Text>
-                        <Tag color="blue">{asyncStatus}</Tag>
+                        <Text strong className="text-blue-800 text-lg">CSV Analizi İşleniyor...</Text>
+                        <Tag color="blue" className="px-3 py-1 text-sm font-medium">{asyncStatus}</Tag>
                       </div>
                       
                       <Progress 
@@ -789,11 +669,13 @@ export function UploadCSV() {
                           '50%': '#87d068', 
                           '100%': '#52c41a',
                         }}
+                        strokeWidth={8}
+                        className="mb-4"
                       />
                       
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <Text>{asyncMessage}</Text>
-                        <Text>
+                      <div className="flex justify-between text-base text-slate-700">
+                        <Text className="font-medium">{asyncMessage}</Text>
+                        <Text className="font-medium">
                           Geçen Süre: {formatTime(elapsedTime)}
                           {estimatedTime && estimatedTime > 0 && ` | Kalan: ${formatTime(estimatedTime)}`}
                         </Text>
@@ -805,45 +687,45 @@ export function UploadCSV() {
                 <form onSubmit={handleSubmit}>
                   <Dragger 
                     {...uploadProps} 
-                    className="mb-8"
+                    className="mb-10"
                     disabled={isAsyncActive}
                     style={{ 
-                      background: isAsyncActive ? 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)' : 'linear-gradient(135deg, #fef7f0 0%, #fff2e8 100%)',
-                      border: isAsyncActive ? '2px dashed #d9d9d9' : '3px dashed #ff7875',
-                      borderRadius: '20px',
+                      background: isAsyncActive ? 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)',
+                      border: isAsyncActive ? '3px dashed #d9d9d9' : '3px dashed #fb923c',
+                      borderRadius: '24px',
                       opacity: isAsyncActive ? 0.6 : 1,
-                      minHeight: '200px',
+                      minHeight: '240px',
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <div className="mb-6">
-                        <div className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center shadow-lg transition-all duration-300 ${
+                    <div className="flex flex-col items-center justify-center py-16">
+                      <div className="mb-8">
+                        <div className={`w-24 h-24 rounded-3xl mx-auto flex items-center justify-center shadow-2xl transition-all duration-300 ${
                           isAsyncActive 
                             ? 'bg-gray-400' 
-                            : 'bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600'
+                            : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
                         }`}>
-                          <InboxOutlined className="text-4xl text-white" />
+                          <InboxOutlined className="text-5xl text-white" />
                         </div>
                       </div>
-                      <Title level={4} className={`mb-3 ${isAsyncActive ? 'text-gray-500' : 'text-gray-800'}`}>
+                      <Title level={3} className={`mb-4 ${isAsyncActive ? 'text-slate-500' : 'text-slate-800'}`}>
                         {isAsyncActive ? 'Dosya işleniyor...' : 'CSV Dosyanızı Buraya Bırakın'}
                       </Title>
-                      <Text className="text-gray-600 text-center max-w-md leading-relaxed">
+                      <Text className="text-slate-600 text-center max-w-md leading-relaxed text-lg">
                         {isAsyncActive 
                           ? 'Analiz süreci devam ediyor, lütfen bekleyin...'
                           : 'Sadece .csv formatındaki dosyalar desteklenmektedir. Dosyanızı sürükleyip bırakın veya tıklayarak seçin.'
                         }
                       </Text>
                       {!isAsyncActive && (
-                        <div className="mt-6">
+                        <div className="mt-8">
                           <Button 
                             type="primary" 
                             size="large"
-                            className="bg-gradient-to-r from-red-500 to-pink-600 border-0 hover:from-red-600 hover:to-pink-700 rounded-xl px-8 shadow-lg"
+                            className="bg-gradient-to-r from-orange-500 to-amber-600 border-0 hover:from-orange-600 hover:to-amber-700 rounded-2xl px-10 py-6 h-auto font-semibold text-lg shadow-2xl"
                           >
                             Dosya Seç
                           </Button>
@@ -858,7 +740,7 @@ export function UploadCSV() {
                       description={`${file.name} (${(file.size / 1024).toFixed(2)} KB)`}
                       type="success"
                       showIcon
-                      className="mb-6"
+                      className="mb-8 rounded-2xl"
                     />
                   )}
 
@@ -869,7 +751,7 @@ export function UploadCSV() {
                       htmlType="submit"
                       loading={loading || isAsyncActive}
                       disabled={!file || isAsyncActive}
-                      className="bg-red-600 border-red-600 hover:bg-red-700 px-8"
+                      className="bg-gradient-to-r from-orange-500 to-amber-600 border-0 hover:from-orange-600 hover:to-amber-700 rounded-2xl px-12 py-6 h-auto font-semibold text-lg shadow-2xl"
                       icon={<ThunderboltOutlined />}
                     >
                       {loading || isAsyncActive ? 'Analiz Ediliyor...' : 'Analizi Başlat'}
@@ -879,7 +761,7 @@ export function UploadCSV() {
                       <Button
                         type="default"
                         size="large"
-                        className="ml-4"
+                        className="ml-6 rounded-2xl px-8 py-6 h-auto font-medium"
                         onClick={() => {
                           setIsAsyncActive(false);
                           asyncAnalysisService.disconnect();
@@ -895,55 +777,45 @@ export function UploadCSV() {
 
             {/* Instructions */}
             <Col xs={24} lg={8}>
-              <Card className="shadow-2xl border-0 h-full bg-gradient-to-br from-white to-blue-50">
-                <div className="text-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
-                    <FileTextOutlined className="text-xl text-white" />
+              <Card className="shadow-2xl border-0 h-full bg-white/10 backdrop-blur-xl rounded-3xl">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl">
+                    <FileTextOutlined className="text-2xl text-white" />
                   </div>
-                  <Title level={4} className="mb-2 text-gray-800">
+                  <Title level={3} className="mb-4 text-slate-800">
                     CSV Format Rehberi
                   </Title>
-                  <Text className="text-gray-600 text-sm">
+                  <Text className="text-slate-600 text-base">
                     Dosyanızın doğru formatda olduğundan emin olun
                   </Text>
                 </div>
                 
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                        <FileTextOutlined className="text-white text-sm" />
+                <div className="space-y-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <FileTextOutlined className="text-white text-lg" />
                       </div>
-                      <Text strong className="text-blue-800 text-base">Gerekli Sütunlar</Text>
+                      <Text strong className="text-blue-800 text-lg">Gerekli Sütunlar</Text>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-blue-700">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        <Text className="text-sm">text (yorum metni)</Text>
-                      </div>
-                      <div className="flex items-center text-blue-700">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        <Text className="text-sm">author (yorum yazarı)</Text>
-                      </div>
-                      <div className="flex items-center text-blue-700">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        <Text className="text-sm">date (tarih)</Text>
-                      </div>
-                      <div className="flex items-center text-blue-700">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        <Text className="text-sm">video_title (video başlığı)</Text>
-                      </div>
+                    <div className="space-y-3">
+                      {['text (yorum metni)', 'author (yorum yazarı)', 'date (tarih)', 'video_title (video başlığı)'].map((item, index) => (
+                        <div key={index} className="flex items-center text-blue-700">
+                          <div className="w-2.5 h-2.5 bg-blue-500 rounded-full mr-4"></div>
+                          <Text className="text-base">{item}</Text>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-5 rounded-xl border border-green-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                        <BarChartOutlined className="text-white text-sm" />
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 rounded-2xl border border-green-200">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <BarChartOutlined className="text-white text-lg" />
                       </div>
-                      <Text strong className="text-green-800 text-base">AI Analiz Özellikleri</Text>
+                      <Text strong className="text-green-800 text-lg">AI Analiz Özellikleri</Text>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         'Sentiment analizi',
                         'Tema çıkarma', 
@@ -953,28 +825,28 @@ export function UploadCSV() {
                         'WebSocket iletişim'
                       ].map((feature, index) => (
                         <div key={index} className="flex items-center text-green-700">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                          <Text className="text-xs">{feature}</Text>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                          <Text className="text-sm">{feature}</Text>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-100 p-5 rounded-xl border border-purple-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                        <MessageOutlined className="text-white text-sm" />
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-100 p-6 rounded-2xl border border-purple-200">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <MessageOutlined className="text-white text-lg" />
                       </div>
-                      <Text strong className="text-purple-800 text-base">Desteklenen Diller</Text>
+                      <Text strong className="text-purple-800 text-lg">Desteklenen Diller</Text>
                     </div>
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-6">
                       <div className="flex items-center">
-                        <div className="w-6 h-4 bg-red-500 rounded-sm mr-2"></div>
-                        <Text className="text-sm text-purple-700">Türkçe</Text>
+                        <div className="w-8 h-6 bg-red-500 rounded mr-3 shadow"></div>
+                        <Text className="text-base text-purple-700 font-medium">Türkçe</Text>
                       </div>
                       <div className="flex items-center">
-                        <div className="w-6 h-4 bg-blue-500 rounded-sm mr-2"></div>
-                        <Text className="text-sm text-purple-700">İngilizce</Text>
+                        <div className="w-8 h-6 bg-blue-500 rounded mr-3 shadow"></div>
+                        <Text className="text-base text-purple-700 font-medium">İngilizce</Text>
                       </div>
                     </div>
                   </div>
@@ -985,17 +857,17 @@ export function UploadCSV() {
         ) : (
           <div>
             {/* Results Header */}
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-10">
               <div>
-                <Title level={3} className="mb-2">
+                <Title level={2} className="mb-4 text-slate-800">
                   Analiz Sonuçları
                   {isFromCache && (
-                    <Tag color="blue" className="ml-3 text-xs">
+                    <Tag color="blue" className="ml-4 text-sm px-4 py-2 rounded-xl">
                       📦 Önbellekten
                     </Tag>
                   )}
                 </Title>
-                <Text className="text-gray-600">
+                <Text className="text-slate-600 text-lg">
                   {analysisResult.sentiment_stats.total} yorum başarıyla analiz edildi
                   {isFromCache && ' (Önbellekten yüklendi)'}
                 </Text>
@@ -1005,118 +877,123 @@ export function UploadCSV() {
                 size="large"
                 onClick={resetUpload}
                 icon={<ReloadOutlined />}
+                className="rounded-2xl px-8 py-6 h-auto font-medium shadow-lg"
               >
                 Yeni Analiz
               </Button>
             </div>
 
             {/* Statistics */}
-            <Row gutter={[16, 16]} className="mb-8">
+            <Row gutter={[24, 24]} className="mb-10">
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                      <FileTextOutlined className="text-2xl text-white" />
+                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+                  <div className="mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                      <FileTextOutlined className="text-3xl text-white" />
                     </div>
                   </div>
                   <Statistic
                     title={
                       <span>
-                        <span className="text-blue-700 font-semibold">Toplam Yorum</span>
-                        {isFromCache && <div className="text-xs text-blue-500 mt-1">📦 Önbellekten</div>}
+                        <span className="text-slate-700 font-semibold text-lg">Toplam Yorum</span>
+                        {isFromCache && <div className="text-xs text-blue-500 mt-2">📦 Önbellekten</div>}
                       </span>
                     }
                     value={analysisResult.sentiment_stats.total}
-                    valueStyle={{ color: '#1890ff', fontSize: '2.5rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#1890ff', fontSize: '3rem', fontWeight: 'bold' }}
                   />
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Progress 
                       percent={100} 
                       size="small" 
                       strokeColor="#1890ff"
                       showInfo={false}
+                      strokeWidth={6}
                     />
-                    <Text type="secondary" className="text-xs mt-1 block">
+                    <Text type="secondary" className="text-sm mt-2 block font-medium">
                       {isFromCache ? '📦 Önbellekten' : '🌐 Canlı veri'}
                     </Text>
                   </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-green-50 to-green-100">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                      <SmileOutlined className="text-2xl text-white" />
+                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+                  <div className="mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                      <SmileOutlined className="text-3xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-green-700 font-semibold">Pozitif Yorumlar</span>}
+                    title={<span className="text-slate-700 font-semibold text-lg">Pozitif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.positive}
-                    valueStyle={{ color: '#52c41a', fontSize: '2.5rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#52c41a', fontSize: '3rem', fontWeight: 'bold' }}
                   />
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Progress 
                       percent={(analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100}
                       size="small" 
                       strokeColor="#52c41a"
                       showInfo={false}
+                      strokeWidth={6}
                     />
-                    <Text type="secondary" className="text-xs mt-1 block">
+                    <Text type="secondary" className="text-sm mt-2 block font-medium">
                       {((analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100).toFixed(1)}% pozitif
                     </Text>
                   </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-red-50 to-red-100">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                      <FrownOutlined className="text-2xl text-white" />
+                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+                  <div className="mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-red-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                      <FrownOutlined className="text-3xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-red-700 font-semibold">Negatif Yorumlar</span>}
+                    title={<span className="text-slate-700 font-semibold text-lg">Negatif Yorumlar</span>}
                     value={analysisResult.sentiment_stats.categories.negative}
-                    valueStyle={{ color: '#ff4d4f', fontSize: '2.5rem', fontWeight: 'bold' }}
+                    valueStyle={{ color: '#ff4d4f', fontSize: '3rem', fontWeight: 'bold' }}
                   />
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Progress 
                       percent={(analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100}
                       size="small" 
                       strokeColor="#ff4d4f"
                       showInfo={false}
+                      strokeWidth={6}
                     />
-                    <Text type="secondary" className="text-xs mt-1 block">
+                    <Text type="secondary" className="text-sm mt-2 block font-medium">
                       {((analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100).toFixed(1)}% negatif
                     </Text>
                   </div>
                 </Card>
               </Col>
               <Col xs={24} sm={12} lg={6}>
-                <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-                  <div className="mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full mx-auto flex items-center justify-center shadow-lg">
-                      <BarChartOutlined className="text-2xl text-white" />
+                <Card className="text-center shadow-2xl hover:shadow-xl transition-all duration-500 border-0 bg-white/10 backdrop-blur-xl rounded-3xl">
+                  <div className="mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-2xl">
+                      <BarChartOutlined className="text-3xl text-white" />
                     </div>
                   </div>
                   <Statistic
-                    title={<span className="text-purple-700 font-semibold">Ortalama Polarite</span>}
+                    title={<span className="text-slate-700 font-semibold text-lg">Ortalama Polarite</span>}
                     value={analysisResult.sentiment_stats.average_polarity}
                     precision={3}
                     valueStyle={{ 
                       color: analysisResult.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f',
-                      fontSize: '2.5rem', 
+                      fontSize: '3rem', 
                       fontWeight: 'bold' 
                     }}
                   />
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Progress 
                       percent={Math.abs(analysisResult.sentiment_stats.average_polarity * 100)}
                       size="small" 
                       strokeColor={analysisResult.sentiment_stats.average_polarity > 0 ? '#52c41a' : '#ff4d4f'}
                       showInfo={false}
+                      strokeWidth={6}
                     />
-                    <Text type="secondary" className="text-xs mt-1 block">
+                    <Text type="secondary" className="text-sm mt-2 block font-medium">
                       {analysisResult.sentiment_stats.average_polarity > 0 ? '📈 Pozitif trend' : '📉 Negatif trend'}
                     </Text>
                   </div>
@@ -1125,34 +1002,34 @@ export function UploadCSV() {
             </Row>
 
             {/* Detaylı İstatistik Panelleri */}
-            <Row gutter={[24, 24]} className="mb-8">
+            <Row gutter={[32, 32]} className="mb-10">
               <Col xs={24} lg={12}>
                 <Card 
                   title={
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg mr-3 flex items-center justify-center">
-                        <FileTextOutlined className="text-white" />
+                      <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl mr-4 flex items-center justify-center shadow-lg">
+                        <FileTextOutlined className="text-white text-lg" />
                       </div>
-                      <span className="text-lg font-semibold">Dil ve Tema Dağılımı</span>
+                      <span className="text-xl font-semibold text-slate-800">Dil ve Tema Dağılımı</span>
                     </div>
                   }
-                  className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+                  className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
                 >
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <Text strong className="text-gray-700">Dil Dağılımı</Text>
-                        <Text type="secondary">{analysisResult.sentiment_stats.total} toplam</Text>
+                      <div className="flex items-center justify-between mb-4">
+                        <Text strong className="text-slate-700 text-lg">Dil Dağılımı</Text>
+                        <Text type="secondary" className="text-base">{analysisResult.sentiment_stats.total} toplam</Text>
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <div className="w-4 h-4 bg-blue-500 rounded mr-2"></div>
-                            <Text>Türkçe</Text>
+                            <div className="w-5 h-5 bg-blue-500 rounded mr-3 shadow"></div>
+                            <Text className="text-base font-medium">Türkçe</Text>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Text strong>{analysisResult.sentiment_stats.language_distribution.tr}</Text>
-                            <Text type="secondary">
+                          <div className="flex items-center space-x-3">
+                            <Text strong className="text-lg">{analysisResult.sentiment_stats.language_distribution.tr}</Text>
+                            <Text type="secondary" className="text-base">
                               ({((analysisResult.sentiment_stats.language_distribution.tr / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%)
                             </Text>
                           </div>
@@ -1161,16 +1038,17 @@ export function UploadCSV() {
                           percent={(analysisResult.sentiment_stats.language_distribution.tr / analysisResult.sentiment_stats.total) * 100}
                           strokeColor="#1890ff"
                           showInfo={false}
+                          strokeWidth={8}
                         />
                         
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <div className="w-4 h-4 bg-purple-500 rounded mr-2"></div>
-                            <Text>İngilizce</Text>
+                            <div className="w-5 h-5 bg-purple-500 rounded mr-3 shadow"></div>
+                            <Text className="text-base font-medium">İngilizce</Text>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Text strong>{analysisResult.sentiment_stats.language_distribution.en}</Text>
-                            <Text type="secondary">
+                          <div className="flex items-center space-x-3">
+                            <Text strong className="text-lg">{analysisResult.sentiment_stats.language_distribution.en}</Text>
+                            <Text type="secondary" className="text-base">
                               ({((analysisResult.sentiment_stats.language_distribution.en / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%)
                             </Text>
                           </div>
@@ -1179,6 +1057,7 @@ export function UploadCSV() {
                           percent={(analysisResult.sentiment_stats.language_distribution.en / analysisResult.sentiment_stats.total) * 100}
                           strokeColor="#722ed1"
                           showInfo={false}
+                          strokeWidth={8}
                         />
                       </div>
                     </div>
@@ -1186,13 +1065,13 @@ export function UploadCSV() {
                     <Divider />
 
                     <div>
-                      <Text strong className="text-gray-700 mb-3 block">En Popüler Temalar</Text>
+                      <Text strong className="text-slate-700 mb-4 block text-lg">En Popüler Temalar</Text>
                       <Space wrap>
                         {analysisResult.theme_analysis.slice(0, 6).map(theme => (
                           <Tag 
                             key={theme.theme} 
                             color="blue"
-                            className="mb-2 px-3 py-1 text-sm"
+                            className="mb-3 px-4 py-2 text-base font-medium rounded-xl"
                           >
                             {theme.theme.charAt(0).toUpperCase() + theme.theme.slice(1)}: {theme.count}
                           </Tag>
@@ -1207,27 +1086,27 @@ export function UploadCSV() {
                 <Card 
                   title={
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg mr-3 flex items-center justify-center">
-                        <BarChartOutlined className="text-white" />
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl mr-4 flex items-center justify-center shadow-lg">
+                        <BarChartOutlined className="text-white text-lg" />
                       </div>
-                      <span className="text-lg font-semibold">Duygu Analizi Özeti</span>
+                      <span className="text-xl font-semibold text-slate-800">Duygu Analizi Özeti</span>
                     </div>
                   }
-                  className="shadow-xl border-0 hover:shadow-2xl transition-all duration-300"
+                  className="shadow-2xl border-0 hover:shadow-xl transition-all duration-500 bg-white/10 backdrop-blur-xl rounded-3xl"
                 >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl border border-green-200">
                       <div className="flex items-center">
-                        <SmileOutlined className="text-2xl text-green-600 mr-3" />
+                        <SmileOutlined className="text-3xl text-green-600 mr-4" />
                         <div>
-                          <Text strong className="text-green-800">Pozitif Yorumlar</Text>
-                          <div className="text-xs text-green-600">
+                          <Text strong className="text-green-800 text-lg">Pozitif Yorumlar</Text>
+                          <div className="text-sm text-green-600 mt-1">
                             {analysisResult.sentiment_stats.categories.positive} yorum
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-3xl font-bold text-green-600 mb-2">
                           {((analysisResult.sentiment_stats.categories.positive / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
                         </div>
                         <Progress 
@@ -1235,23 +1114,24 @@ export function UploadCSV() {
                           size="small"
                           strokeColor="#52c41a"
                           showInfo={false}
-                          className="w-20"
+                          className="w-24"
+                          strokeWidth={6}
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
                       <div className="flex items-center">
-                        <MehOutlined className="text-2xl text-blue-600 mr-3" />
+                        <MehOutlined className="text-3xl text-blue-600 mr-4" />
                         <div>
-                          <Text strong className="text-blue-800">Nötr Yorumlar</Text>
-                          <div className="text-xs text-blue-600">
+                          <Text strong className="text-blue-800 text-lg">Nötr Yorumlar</Text>
+                          <div className="text-sm text-blue-600 mt-1">
                             {analysisResult.sentiment_stats.categories.neutral} yorum
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-3xl font-bold text-blue-600 mb-2">
                           {((analysisResult.sentiment_stats.categories.neutral / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
                         </div>
                         <Progress 
@@ -1259,23 +1139,24 @@ export function UploadCSV() {
                           size="small"
                           strokeColor="#1890ff"
                           showInfo={false}
-                          className="w-20"
+                          className="w-24"
+                          strokeWidth={6}
                         />
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
+                    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl border border-red-200">
                       <div className="flex items-center">
-                        <FrownOutlined className="text-2xl text-red-600 mr-3" />
+                        <FrownOutlined className="text-3xl text-red-600 mr-4" />
                         <div>
-                          <Text strong className="text-red-800">Negatif Yorumlar</Text>
-                          <div className="text-xs text-red-600">
+                          <Text strong className="text-red-800 text-lg">Negatif Yorumlar</Text>
+                          <div className="text-sm text-red-600 mt-1">
                             {analysisResult.sentiment_stats.categories.negative} yorum
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-red-600">
+                        <div className="text-3xl font-bold text-red-600 mb-2">
                           {((analysisResult.sentiment_stats.categories.negative / analysisResult.sentiment_stats.total) * 100).toFixed(1)}%
                         </div>
                         <Progress 
@@ -1283,7 +1164,8 @@ export function UploadCSV() {
                           size="small"
                           strokeColor="#ff4d4f"
                           showInfo={false}
-                          className="w-20"
+                          className="w-24"
+                          strokeWidth={6}
                         />
                       </div>
                     </div>
@@ -1293,7 +1175,7 @@ export function UploadCSV() {
             </Row>
 
             {/* Charts */}
-            <Row gutter={[24, 24]}>
+            <Row gutter={[32, 32]}>
               <Col xs={24} lg={8}>
                 {renderSentimentChart()}
               </Col>
@@ -1301,7 +1183,21 @@ export function UploadCSV() {
                 {renderThemeChart()}
               </Col>
               <Col xs={24} lg={8}>
-                {renderWordCloud()}
+                {analysisResult && analysisResult.word_cloud && analysisResult.word_cloud.length > 0 && (
+            <EnhancedWordCloud 
+              words={analysisResult.word_cloud.map((w: any) => ({
+                text: w.text,
+                value: w.value
+              }))}
+              title="CSV Analizi Kelime Bulutu"
+              theme="orange"
+              height={600}
+              interactive={true}
+              showStats={true}
+              downloadable={true}
+                             maxWords={50}
+            />
+          )}
               </Col>
             </Row>
 
@@ -1309,22 +1205,25 @@ export function UploadCSV() {
             <CommentsSection comments={analysisResult.comments || []} />
 
             {/* Action Buttons */}
-            <div className="text-center mt-8">
-              <Button
-                type="default"
-                size="large"
-                onClick={() => navigate('/youtube-analysis')}
-                className="mr-4"
-              >
-                YouTube Analizi
-              </Button>
-              <Button
-                type="default"
-                size="large"
-                onClick={() => navigate('/my-comments')}
-              >
-                Tüm Yorumlarım
-              </Button>
+            <div className="text-center mt-12">
+              <Space size="large">
+                <Button
+                  type="default"
+                  size="large"
+                  onClick={() => navigate('/youtube-analysis')}
+                  className="rounded-2xl px-8 py-6 h-auto font-medium shadow-lg"
+                >
+                  YouTube Analizi
+                </Button>
+                <Button
+                  type="default"
+                  size="large"
+                  onClick={() => navigate('/my-comments')}
+                  className="rounded-2xl px-8 py-6 h-auto font-medium shadow-lg"
+                >
+                  Tüm Yorumlarım
+                </Button>
+              </Space>
             </div>
           </div>
         )}

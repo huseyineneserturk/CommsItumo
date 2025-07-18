@@ -4,8 +4,8 @@
 
 ![CommsItumo Logo](frontend/public/Resources/Logo.png)
 
-**AI-powered YouTube comment analysis platform with sentiment analysis and theme detection**  
-**AI destekli YouTube yorum analizi platformu ile sentiment analysis ve tema tespiti**
+**AI-powered YouTube comment analysis platform with sentiment analysis and modern glassmorphism UI**  
+**AI destekli YouTube yorum analizi platformu ile sentiment analysis ve modern glassmorphism UI**
 
 [![GitHub Stars](https://img.shields.io/github/stars/huseyineneserturk/CommsItumo?style=for-the-badge)](https://github.com/huseyineneserturk/CommsItumo/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/huseyineneserturk/CommsItumo?style=for-the-badge)](https://github.com/huseyineneserturk/CommsItumo/network)
@@ -31,6 +31,7 @@
 
 - [🎯 About the Project](#-about-the-project)
 - [✨ Features](#-features)
+- [🎨 Modern UI Design](#-modern-ui-design)
 - [🛠️ Technologies](#️-technologies)
 - [📦 Installation](#-installation)
 - [🚀 Usage](#-usage)
@@ -44,89 +45,120 @@
 
 ## 🎯 About the Project
 
-CommsItumo is a modern web application that analyzes YouTube video comments using AI-powered sentiment analysis and theme detection, providing valuable insights to content creators and marketing specialists.
+CommsItumo is a cutting-edge web application that analyzes YouTube video comments using AI-powered sentiment analysis and theme detection, featuring a modern glassmorphism design system that provides an exceptional user experience for content creators and marketing specialists.
 
 ### 🎯 Target Audience
-- **Content Creators**: YouTube channel owners seeking audience insights
-- **Marketing Specialists**: Social media analysts tracking brand sentiment
-- **Researchers**: Academic and industry professionals studying social media trends
-- **Brands**: Companies analyzing customer feedback and engagement
+- **Content Creators**: YouTube channel owners seeking deep audience insights
+- **Marketing Specialists**: Social media analysts tracking brand sentiment across platforms
+- **Researchers**: Academic and industry professionals studying social media trends and engagement
+- **Brands & Agencies**: Companies analyzing customer feedback and improving engagement strategies
 
 ### 🌟 Why CommsItumo?
-- **⚡ Ultra-Fast Analysis**: Real-time progress tracking with WebSocket technology
-- **🧠 Smart Caching**: 40-50% faster processing with intelligent 3-tier cache system
-- **🔄 Asynchronous Processing**: Background task processing without UI freezing
-- **🌐 Multi-language Support**: Advanced support for Turkish and English comments
-- **📊 Visual Reports**: Interactive charts and comprehensive statistics
-- **🎨 Modern UI/UX**: Intuitive and responsive design with Ant Design
-- **🔒 Secure**: Firebase-powered authentication and data storage
-- **📱 PWA Ready**: Progressive Web App support for mobile experience
+- **⚡ Lightning-Fast Analysis**: Real-time progress tracking with WebSocket technology
+- **🧠 Intelligent Caching**: 40-50% faster processing with smart 3-tier cache system
+- **🔄 Asynchronous Processing**: Non-blocking background analysis with real-time updates
+- **🌐 Multi-language Support**: Advanced Turkish and English comment analysis
+- **📊 Interactive Visualizations**: Dynamic charts with modern design aesthetics
+- **🎨 Modern Glassmorphism UI**: Cutting-edge design with backdrop blur effects
+- **🔒 Enterprise Security**: Firebase-powered authentication and secure data storage
+- **📱 Responsive PWA**: Mobile-first progressive web application
 
 ---
 
 ## ✨ Features
 
-### 🎬 YouTube Video Analysis
-- **Automatic Comment Fetching**: One-click comment collection via YouTube Data API v3
-- **⚡ Asynchronous Analysis**: Real-time progress updates via WebSocket connections
-- **📊 Batch Processing**: Efficient processing with 20-comment batches
-- **🔄 Background Tasks**: Non-blocking analysis with FastAPI background tasks
-- **📈 Time Estimation**: Accurate completion time predictions
-- **🎯 Progressive Loading**: 7-stage analysis progress visualization
-- **📱 Responsive Progress**: Mobile-optimized progress tracking interface
+### 🎬 Advanced YouTube Analysis
+- **One-Click Comment Extraction**: Seamless integration with YouTube Data API v3
+- **⚡ Real-time Processing**: Live progress updates via WebSocket connections
+- **📊 Intelligent Batching**: Optimized processing with smart comment grouping
+- **🔄 Background Tasks**: Non-blocking analysis with FastAPI async capabilities
+- **📈 Predictive Analytics**: Machine learning-powered completion time estimation
+- **🎯 Progressive Loading**: Multi-stage analysis with visual progress indicators
+- **📱 Mobile-Optimized**: Responsive interface for all device sizes
 
-### 📊 Advanced Sentiment Analysis
-- **AI-Powered Analysis**: Transformer-based models with Hugging Face integration
-- **Multi-Category Classification**: Positive, Negative, Neutral sentiment detection
-- **Confidence Scoring**: Reliability metrics for each analysis result
-- **Language Detection**: Automatic language identification and model selection
-- **Trend Analysis**: Time-series sentiment change tracking
-- **Real-time Processing**: Asynchronous model inference for fast results
+### 🧠 AI-Powered Sentiment Analysis
+- **Transformer Models**: State-of-the-art NLP with Hugging Face integration
+- **Multi-Dimensional Classification**: Positive, Negative, Neutral sentiment detection
+- **Confidence Metrics**: Reliability scoring for each analysis result
+- **Auto Language Detection**: Smart model selection based on content language
+- **Temporal Analysis**: Sentiment trend tracking over time periods
+- **Real-time Inference**: Asynchronous model processing for optimal performance
 
-### 🏷️ Intelligent Theme Analysis
-- **Automatic Theme Detection**: NLP-powered topic identification in comments
-- **Keyword Extraction**: Advanced word frequency and importance analysis
-- **Category Classification**: Content quality, presentation style, technical aspects
-- **Trend Visualization**: Theme evolution tracking over time
-- **Word Cloud Generation**: Visual representation with @visx/wordcloud
+### 🏷️ Smart Theme Detection
+- **NLP-Powered Topics**: Automatic theme identification in comment sections
+- **Advanced Keyword Extraction**: Intelligent word frequency and relevance analysis
+- **Content Categorization**: Quality, style, and technical aspect classification
+- **Trend Visualization**: Theme evolution tracking with interactive charts
+- **Word Cloud Generation**: Beautiful visualizations with @visx/wordcloud
 
 ### 📈 Modern Data Visualization
-- **Interactive Charts**: Dynamic visualizations powered by Recharts
-- **Real-time Updates**: Live data binding with React state management
+- **Interactive Charts**: Dynamic visualizations powered by Recharts library
+- **Real-time Data Binding**: Live updates with React state management
 - **Responsive Design**: Mobile-first visualization approach
-- **Export Capabilities**: PNG/PDF export functionality for reports
-- **Custom Animations**: Smooth transitions and hover effects
+- **Export Capabilities**: High-quality PNG/PDF report generation
+- **Smooth Animations**: Fluid transitions and engaging hover effects
 
-### 📁 Flexible CSV Support
-- **Drag & Drop Upload**: Intuitive file upload interface
-- **Format Validation**: Automatic CSV structure detection and validation
-- **Batch Processing**: Handle thousands of comments efficiently
-- **Custom Delimiters**: Support for various CSV formats
-- **Error Handling**: Comprehensive validation with user feedback
+### 📁 Flexible File Processing
+- **Drag & Drop Interface**: Intuitive file upload with visual feedback
+- **Smart Validation**: Automatic CSV structure detection and error handling
+- **Batch Processing**: Efficient handling of large comment datasets
+- **Format Flexibility**: Support for various CSV delimiters and encodings
+- **Error Recovery**: Comprehensive validation with user-friendly feedback
 
-### 💾 Smart Caching System
-- **3-Tier Cache Architecture**:
-  - Analysis Cache: 1 hour TTL, 30MB limit
-  - Video Cache: 30 minutes TTL, 20MB limit
-  - Quick Cache: 5 minutes TTL, 10MB limit
-- **LRU Eviction Policy**: Intelligent memory management
-- **Cache Statistics**: Performance monitoring with hit/miss ratios
-- **Auto Cleanup**: Automatic memory optimization
-- **70-80% Hit Rate**: Optimized for performance
+### 💾 Advanced Caching System
+- **3-Tier Architecture**:
+  - Analysis Cache: 1 hour TTL, 30MB capacity
+  - Video Cache: 30 minutes TTL, 20MB capacity  
+  - Quick Cache: 5 minutes TTL, 10MB capacity
+- **LRU Eviction**: Intelligent memory management algorithms
+- **Performance Monitoring**: Real-time cache hit/miss ratio tracking
+- **Auto-Optimization**: Self-managing memory cleanup
+- **High Efficiency**: 70-80% average hit rate
 
-### 🌐 Real-time WebSocket System
-- **Singleton Connection Manager**: Efficient connection pooling
-- **Heartbeat Monitoring**: Ping-pong based connection health checks
-- **Auto Reconnection**: Robust error recovery mechanisms
-- **User-based Sessions**: Isolated progress tracking per user
-- **Task Queue Management**: Ordered task processing with priority
+### 🌐 Real-time Communication
+- **WebSocket Architecture**: Singleton connection manager for optimal performance
+- **Health Monitoring**: Advanced ping-pong heartbeat system
+- **Auto-Recovery**: Robust reconnection mechanisms with exponential backoff
+- **User Sessions**: Isolated progress tracking per authenticated user
+- **Priority Queuing**: Intelligent task ordering and resource allocation
 
 ### 🤖 AI Chat Assistant
-- **Google Gemini Integration**: Advanced conversational AI capabilities
-- **Context-Aware Responses**: Analysis data-driven intelligent answers
-- **Natural Language Processing**: Intuitive user interaction
-- **Suggestion Engine**: Actionable insights and recommendations
-- **Multi-turn Conversations**: Contextual dialogue management
+- **Google Gemini Integration**: Cutting-edge conversational AI capabilities
+- **Context-Aware Intelligence**: Analysis data-driven intelligent responses
+- **Natural Conversations**: Intuitive multi-turn dialogue management
+- **Actionable Insights**: Smart recommendations and strategy suggestions
+- **Modern Chat UI**: Glassmorphism design with smooth animations
+
+---
+
+## 🎨 Modern UI Design
+
+### ✨ Glassmorphism Design System
+- **Backdrop Blur Effects**: Modern `backdrop-blur-xl` throughout the interface
+- **Transparent Backgrounds**: `bg-white/10` with subtle transparency
+- **Enhanced Shadows**: `shadow-2xl` with custom color glows
+- **Gradient Accents**: Beautiful color gradients for visual hierarchy
+
+### 🎨 Color-Coded Pages
+- **Dashboard**: Elegant slate color scheme
+- **My Comments**: Vibrant red theme with modern cards
+- **YouTube Analysis**: Professional blue theme
+- **Video Analysis**: Fresh green theme  
+- **CSV Upload**: Energetic orange theme
+- **Profile**: Sophisticated purple theme
+- **Pricing**: Premium purple-pink gradients
+
+### 🔄 Smooth Animations
+- **Hover Effects**: `hover:-translate-y-2` lift animations
+- **Transitions**: `transition-all duration-300` for smooth interactions
+- **Scale Effects**: `hover:scale-105` for interactive elements
+- **Glow Effects**: Custom shadow animations on hover
+
+### 📱 Responsive Excellence
+- **Mobile-First**: Optimized for all screen sizes
+- **Flexible Grids**: Adaptive layouts with Tailwind CSS
+- **Touch-Friendly**: Large interactive areas for mobile users
+- **Performance**: Optimized rendering for smooth scrolling
 
 ---
 
@@ -135,33 +167,36 @@ CommsItumo is a modern web application that analyzes YouTube video comments usin
 ### 🎨 Frontend Stack
 | Technology | Version | Purpose |
 |-----------|---------|---------|
-| **React** | 18.2.0 | Component-based UI framework |
-| **TypeScript** | 5.0.2 | Type-safe JavaScript development |
-| **Vite** | 4.4.5 | Fast build tool and dev server |
-| **Ant Design** | 5.8.4 | Enterprise-class UI components |
+| **React** | 18.2.0 | Modern component-based UI framework |
+| **TypeScript** | 5.0.2 | Type-safe development environment |
+| **Vite** | 4.4.5 | Lightning-fast build tool and dev server |
 | **Tailwind CSS** | 3.3.0 | Utility-first CSS framework |
-| **Recharts** | 2.7.2 | Declarative chart library |
-| **@visx/wordcloud** | 3.0.0 | Advanced word cloud visualization |
+| **Lucide React** | Latest | Modern icon library for React |
+| **Recharts** | 2.7.2 | Powerful charting library |
+| **@visx/wordcloud** | 3.0.0 | Advanced data visualization |
 | **Firebase SDK** | 10.1.0 | Authentication and real-time database |
+| **React Markdown** | Latest | Markdown rendering for AI chat |
 
 ### ⚙️ Backend Stack
 | Technology | Version | Purpose |
 |-----------|---------|---------|
 | **FastAPI** | 0.104.1 | High-performance async web framework |
 | **Python** | 3.8+ | Core programming language |
-| **Transformers** | 4.51.3 | Pre-trained NLP models |
-| **NLTK** | 3.8.1 | Natural language toolkit |
+| **Transformers** | 4.51.3 | Pre-trained AI models |
+| **NLTK** | 3.8.1 | Natural language processing toolkit |
 | **Pandas** | 2.2.1 | Data manipulation and analysis |
 | **NumPy** | 1.26.4 | Numerical computing library |
 | **Scikit-learn** | 1.4.1 | Machine learning algorithms |
 | **Uvicorn** | 0.23.2 | ASGI server implementation |
+| **AsyncIO** | Built-in | Asynchronous programming support |
 
 ### 🗄️ Services & APIs
-- **Firebase Firestore**: NoSQL document database
-- **Firebase Authentication**: Google OAuth integration
+- **Firebase Firestore**: Scalable NoSQL document database
+- **Firebase Authentication**: Secure Google OAuth integration
 - **YouTube Data API v3**: Video and comment data access
 - **Google Gemini AI**: Advanced conversational AI
 - **Hugging Face Hub**: Pre-trained model repository
+- **WebSocket**: Real-time bidirectional communication
 
 ---
 
@@ -189,7 +224,7 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
-# Configure .env with your API keys
+# Configure your API keys in .env
 ```
 
 #### 3️⃣ Frontend Setup
@@ -197,44 +232,45 @@ cp .env.example .env
 cd ../frontend
 npm install
 cp .env.example .env
-# Configure .env with Firebase config
+# Configure Firebase settings in .env
 ```
 
 #### 4️⃣ Start Development Servers
 ```bash
 # Terminal 1 - Backend
-cd backend && uvicorn main:app --reload
+cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # Terminal 2 - Frontend  
 cd frontend && npm run dev
 ```
 
 ### 🌐 Access Points
-- **Frontend**: http://localhost:3000
+- **Frontend Application**: http://localhost:3000
 - **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **API Documentation**: http://localhost:8000/docs
+- **Alternative Docs**: http://localhost:8000/redoc
 
 ---
 
 ## 🚀 Usage
 
-### 📊 YouTube Analysis
-1. **Login** with your Google account
-2. **Enter** YouTube video URL
-3. **Configure** analysis parameters (comment limit, language)
-4. **Watch** real-time progress via WebSocket
-5. **Explore** results with interactive visualizations
+### 📊 YouTube Video Analysis
+1. **Authenticate** with your Google account via Firebase
+2. **Input** YouTube video URL in the analysis form
+3. **Configure** analysis parameters (comment limit, language preferences)
+4. **Monitor** real-time progress via WebSocket connection
+5. **Explore** interactive results with modern visualizations
 
-### 📁 CSV Analysis
-1. **Upload** your CSV file via drag-and-drop
-2. **Map** columns to required fields
-3. **Start** batch analysis
-4. **Download** results and visualizations
+### 📁 CSV File Analysis
+1. **Upload** CSV files using the drag-and-drop interface
+2. **Map** your data columns to required analysis fields
+3. **Execute** batch analysis with progress monitoring
+4. **Export** comprehensive results and visualizations
 
-### 🤖 AI Assistant
-1. **Click** chat icon in bottom-right
-2. **Ask** questions about your analysis results
-3. **Get** actionable insights and recommendations
+### 🤖 AI Chat Assistant
+1. **Click** the floating chat icon in the bottom-right corner
+2. **Ask** questions about your analysis results and trends
+3. **Receive** actionable insights and strategic recommendations
 
 ---
 
@@ -242,22 +278,69 @@ cd frontend && npm run dev
 
 ```
 CommsItumo/
-├── frontend/                 # React application
-│   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API integration
-│   │   ├── contexts/       # React contexts
-│   │   └── types/          # TypeScript definitions
-│   └── public/             # Static assets
-├── backend/                 # FastAPI application
-│   ├── app/                # Core application
-│   │   ├── routers/        # API endpoints
-│   │   ├── models/         # Data models
-│   │   └── services/       # Business logic
-│   ├── services/           # External integrations
-│   └── main.py            # Application entry point
-└── docs/                   # Documentation
+├── 📁 frontend/                    # React TypeScript Application
+│   ├── 📁 src/
+│   │   ├── 📁 components/         # Reusable UI Components
+│   │   │   ├── 📄 AIChatPopup.tsx        # Modern AI Chat Interface
+│   │   │   ├── 📄 Layout/               # Layout Components
+│   │   │   └── 📄 ui/                   # Base UI Components
+│   │   ├── 📁 pages/              # Page Components
+│   │   │   ├── 📄 Dashboard.tsx         # Main Dashboard
+│   │   │   ├── 📄 MyComments.tsx        # User Comments Analysis
+│   │   │   ├── 📄 YouTubeAnalysis.tsx   # YouTube Video Analysis
+│   │   │   ├── 📄 VideoAnalysis.tsx     # Video-specific Analysis
+│   │   │   ├── 📄 UploadCSV.tsx         # CSV Upload Interface
+│   │   │   ├── 📄 Profile.tsx           # User Profile
+│   │   │   └── 📄 Pricing.tsx           # Pricing Plans
+│   │   ├── 📁 services/           # API Integration Layer
+│   │   │   ├── 📄 analysisService.ts    # Analysis API calls
+│   │   │   ├── 📄 youtubeService.ts     # YouTube API integration
+│   │   │   ├── 📄 sentimentService.ts   # Sentiment analysis
+│   │   │   └── 📄 intelligentCache.ts   # Caching system
+│   │   ├── 📁 contexts/           # React Context Providers
+│   │   │   ├── 📄 AIContext.tsx         # AI Chat Context
+│   │   │   └── 📄 CacheContext.tsx      # Cache Management
+│   │   ├── 📁 types/              # TypeScript Definitions
+│   │   │   ├── 📄 analysis.ts           # Analysis type definitions
+│   │   │   └── 📄 sentiment.ts          # Sentiment type definitions
+│   │   ├── 📄 App.tsx             # Main Application Component
+│   │   └── 📄 main.tsx            # Application Entry Point
+│   ├── 📁 public/                 # Static Assets
+│   │   └── 📁 Resources/          # Brand Assets
+│   ├── 📄 package.json            # Dependencies & Scripts
+│   ├── 📄 tailwind.config.js      # Tailwind CSS Configuration
+│   ├── 📄 vite.config.ts          # Vite Build Configuration
+│   └── 📄 README.md               # Frontend Documentation
+├── 📁 backend/                     # FastAPI Python Application
+│   ├── 📁 app/                    # Core Application
+│   │   ├── 📁 api/endpoints/      # API Endpoint Definitions
+│   │   ├── 📁 models/             # Pydantic Data Models
+│   │   │   └── 📄 comment.py             # Comment data structures
+│   │   ├── 📁 routers/            # API Route Handlers
+│   │   │   ├── 📄 csv_router.py          # CSV processing routes
+│   │   │   └── 📄 gemini.py              # Gemini AI routes
+│   │   └── 📁 services/           # Business Logic Services
+│   │       └── 📄 gemini.py              # Gemini AI service
+│   ├── 📁 services/               # External Service Integrations
+│   │   ├── 📄 csv_analyzer.py            # CSV analysis service
+│   │   ├── 📄 firestore_service.py      # Firebase integration
+│   │   ├── 📄 sentiment_service.py      # Sentiment analysis
+│   │   └── 📄 youtube_service.py        # YouTube API service
+│   ├── 📄 main.py                 # FastAPI Application Entry
+│   ├── 📄 requirements.txt        # Python Dependencies
+│   └── 📄 README.md               # Backend Documentation
+├── 📁 models/                      # AI Model Files
+│   ├── 📁 en-sentiment/           # English Sentiment Models
+│   ├── 📁 tr-sentiment/           # Turkish Sentiment Models
+│   └── 📁 theme-analysis/         # Theme Analysis Models
+├── 📁 Resources/                   # Project Resources
+│   ├── 📄 Brand.png               # Brand Assets
+│   ├── 📄 Logo.png                # Logo Files
+│   └── 📄 *.pdf                   # Documentation Files
+├── 📄 firebase.json               # Firebase Configuration
+├── 📄 firestore.rules             # Firestore Security Rules
+├── 📄 start.bat                   # Windows Start Script
+└── 📄 README.md                   # Main Project Documentation
 ```
 
 ---
@@ -276,9 +359,11 @@ YOUTUBE_API_KEY=your-youtube-api-key
 GEMINI_API_KEY=your-gemini-api-key
 HUGGINGFACE_TOKEN=your-hf-token
 
-# Application
+# Application Settings
 DEBUG=False
-CORS_ORIGINS=http://localhost:3000
+CORS_ORIGINS=http://localhost:3000,https://your-domain.com
+MAX_COMMENTS_PER_REQUEST=100
+CACHE_TTL_HOURS=1
 ```
 
 ### Frontend Environment (.env)
@@ -293,13 +378,17 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
+
+# Feature Flags
+VITE_ENABLE_AI_CHAT=true
+VITE_ENABLE_ANALYTICS=true
 ```
 
 ---
 
 ## 📊 API Documentation
 
-### WebSocket Connection
+### WebSocket Real-time Connection
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws/{user_id}');
 
@@ -307,45 +396,75 @@ ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
   console.log(`Progress: ${update.progress}%`);
   console.log(`Status: ${update.status}`);
+  console.log(`ETA: ${update.estimated_completion}`);
 };
+
+ws.onopen = () => console.log('Connected to analysis updates');
+ws.onerror = (error) => console.error('WebSocket error:', error);
 ```
 
-### REST Endpoints
-- `POST /api/youtube/analyze-video-async` - Start async video analysis
-- `GET /api/youtube/analysis-status/{task_id}` - Check analysis status
-- `POST /api/csv/upload` - Upload and analyze CSV
-- `POST /api/gemini/chat` - AI chat interaction
+### REST API Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/youtube/analyze-video-async` | Start asynchronous video analysis |
+| GET | `/api/youtube/analysis-status/{task_id}` | Check analysis progress |
+| GET | `/api/youtube/analysis-result/{task_id}` | Retrieve analysis results |
+| POST | `/api/csv/upload` | Upload and analyze CSV files |
+| POST | `/api/gemini/chat` | AI chat interaction |
+| GET | `/api/user/profile` | Get user profile data |
+| GET | `/api/cache/stats` | Cache performance statistics |
 
-For complete API documentation, visit: http://localhost:8000/docs
+### Error Handling
+```json
+{
+  "error": "INVALID_VIDEO_URL",
+  "message": "The provided YouTube URL is not valid",
+  "details": {
+    "url": "invalid-url",
+    "expected_format": "https://youtube.com/watch?v=VIDEO_ID"
+  }
+}
+```
+
+For complete API documentation with examples: http://localhost:8000/docs
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
 
 ### Development Workflow
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'feat: Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+1. **Fork** the repository to your GitHub account
+2. **Clone** your fork locally: `git clone https://github.com/your-username/CommsItumo.git`
+3. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+4. **Develop** your feature with tests and documentation
+5. **Commit** changes: `git commit -m 'feat: Add amazing feature'`
+6. **Push** to your branch: `git push origin feature/amazing-feature`
+7. **Submit** a Pull Request with detailed description
+
+### Code Standards
+- **Frontend**: ESLint + Prettier configuration
+- **Backend**: Black + isort for Python code formatting
+- **TypeScript**: Strict type checking enabled
+- **Testing**: Jest for frontend, pytest for backend
+- **Documentation**: JSDoc for functions and components
 
 ### Commit Convention
-We follow [Conventional Commits](https://conventionalcommits.org/):
-- `feat:` New features
-- `fix:` Bug fixes
+We follow [Conventional Commits](https://conventionalcommits.org/) specification:
+- `feat:` New features and enhancements
+- `fix:` Bug fixes and patches
 - `docs:` Documentation updates
-- `style:` Code formatting
-- `refactor:` Code refactoring
-- `test:` Test additions
-- `chore:` Maintenance tasks
+- `style:` Code formatting and style changes
+- `refactor:` Code refactoring without feature changes
+- `test:` Test additions and improvements
+- `chore:` Maintenance and build tasks
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
 ---
 
@@ -355,6 +474,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [🎯 Proje Hakkında](#-proje-hakkında)
 - [✨ Özellikler](#-özellikler)
+- [🎨 Modern UI Tasarımı](#-modern-ui-tasarımı)
 - [🛠️ Teknolojiler](#️-teknolojiler)
 - [📦 Kurulum](#-kurulum)
 - [🚀 Kullanım](#-kullanım)
@@ -504,7 +624,7 @@ Aşağıdakilerin kurulu olduğundan emin olun:
    ```bash
 git clone https://github.com/huseyineneserturk/CommsItumo.git
 cd CommsItumo
-   ```
+```
 
 #### 2️⃣ Arka Uç Kurulumu
    ```bash

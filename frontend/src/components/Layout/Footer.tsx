@@ -27,7 +27,7 @@ export function Footer() {
             </div>
             <p className="text-gray-300 leading-relaxed max-w-md">
               YouTube yorum analiz aracı ile içeriklerinizi daha iyi anlayın. 
-              Yapay zeka destekli sentiment analizi ile izleyici kitlenizi derinlemesine inceleyin.
+              Yapay zeka destekli duygu analizi ile izleyici kitlenizi derinlemesine inceleyin.
             </p>
             <div className="flex items-center space-x-2 text-sm text-gray-400">
               <Heart className="w-4 h-4 text-red-400" />

@@ -6,7 +6,7 @@ from collections import Counter
 import re
 import logging
 from typing import Dict, List, Any
-from services.sentiment_service import SentimentService
+from services.sentiment_service import sentiment_service
 
 # Loglama ayarları
 logging.basicConfig(level=logging.DEBUG)
@@ -26,7 +26,7 @@ except Exception as e:
 class CSVAnalyzer:
     def __init__(self):
         try:
-            self.sentiment_service = SentimentService()
+            self.sentiment_service = sentiment_service
             logger.info("CSVAnalyzer başarıyla başlatıldı")
         except Exception as e:
             logger.error(f"CSVAnalyzer başlatma hatası: {str(e)}")

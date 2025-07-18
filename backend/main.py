@@ -11,7 +11,7 @@ from firebase_admin import auth, credentials
 from google.auth.transport.requests import Request
 import json
 from pathlib import Path
-from services.sentiment_service import SentimentService
+from services.sentiment_service import sentiment_service
 from pydantic import BaseModel
 from app.routers import csv_router, gemini
 import asyncio
@@ -109,8 +109,7 @@ youtube_service = None
 youtube_credentials = None
 CREDENTIALS_FILE = Path('youtube_credentials.json')
 
-# SentimentService örneği oluştur
-sentiment_service = SentimentService()
+# Global SentimentService instance'ını kullan (modellerin tekrar yüklenmesini engeller)
 
 def save_credentials(credentials):
     """Kimlik bilgilerini dosyaya kaydeder."""

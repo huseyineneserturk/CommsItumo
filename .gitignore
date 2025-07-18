@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyo
 .Python
 env/
 build/
@@ -20,22 +21,38 @@ var/
 .installed.cfg
 *.egg
 
+# Python Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
 # Virtual Environment
 venv/
 ENV/
 .venv/
+.env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # Node
 node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
+
+# TypeScript
+*.tsbuildinfo
+.eslintcache
 
 # Environment variables
 .env
@@ -48,6 +65,9 @@ yarn-error.log
 # Firebase & Google Credentials
 **/serviceAccountKey.json
 **/client_secrets.json
+
+# AI Models (large files)
+models/
 **/client_secret.json
 **/firebase-credentials.json
 **/firebase_config.py
@@ -93,12 +113,26 @@ frontend/dist/
 backend/models/
 backend/exports/
 
-# AI Model files (too large for GitHub)
-backend/models/**/*.safetensors
-backend/models/**/*.bin
-backend/models/**/*.json
-backend/models/**/*.txt
-backend/models/**/*.vocab
+# AI Model files (too large for GitHub) - Comprehensive list
+models/**/*.safetensors
+models/**/*.bin
+models/**/*.json
+models/**/*.txt
+models/**/*.vocab
+models/**/merges.txt
+models/**/vocab.json
+models/**/vocab.txt
+models/**/tokenizer.json
+models/**/tokenizer_config.json
+models/**/special_tokens_map.json
+models/**/config.json
+models/**/*.h5
+models/**/*.pkl
+models/**/*.pickle
+models/**/*.pt
+models/**/*.pth
+models/**/*.ckpt
+models/**/*.pb
 
 # Database files
 *.db
@@ -109,6 +143,8 @@ backend/models/**/*.vocab
 *.tmp
 *.temp
 *.cache
+*.pid
+*.sock
 
 # OS generated files
 .DS_Store
@@ -128,4 +164,12 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Linux
-*~ 
+*~
+
+# Project specific files to exclude
+start.bat
+prd.md
+
+# Package lock files (can be regenerated)
+package-lock.json
+yarn.lock 
