@@ -464,7 +464,7 @@ We follow [Conventional Commits](https://conventionalcommits.org/) specification
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+This project is licensed under the [GNU General Public License v3.0](LICENSE) - see the LICENSE file for details.
 
 ---
 
@@ -789,7 +789,7 @@ Katkılarınızı memnuniyetle karşılıyoruz! Ayrıntılar için [Katkı Rehbe
 
 ## 📄 Lisans
 
-Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+Bu proje [GNU General Public License v3.0](LICENSE) altında lisanslanmıştır.
 
 ---
 
