@@ -20,7 +20,7 @@ from datetime import datetime
 
 load_dotenv()
 
-# Firebase Admin SDK'yı başlat
+# Firebase sdk başlatıyoruz.
 if not firebase_admin._apps:
     cred = credentials.Certificate('firebase-credentials.json')
     firebase_admin.initialize_app(cred)
@@ -60,10 +60,8 @@ class ConnectionManager:
                 print(f"⚠️ Progress gönderilemedi {user_id}: {e}")
                 self.disconnect(user_id)
 
-# Global connection manager
 manager = ConnectionManager()
 
-# Background task storage
 background_tasks_storage: Dict[str, Dict] = {}
 
 # User modeli
@@ -86,7 +84,7 @@ async def get_current_user(authorization: str = Header(None)) -> User:
         )
     
     try:
-        # Bearer token'dan token'ı ayıkla
+        # Token ayıklama.
         token = authorization.split("Bearer ")[1]
         
         # Firebase ile token'ı doğrula
@@ -141,7 +139,7 @@ def load_credentials():
         scopes=cred_dict['scopes']
     )
 
-# OAuth2 akışını başlat
+# OAuth2 akışı
 flow = Flow.from_client_secrets_file(
     'client_secrets.json',
     scopes=[
@@ -197,7 +195,7 @@ async def google_auth_callback(code: str):
         print(f"Access token: {credentials.token}")
         print(f"Refresh token: {credentials.refresh_token}")
         
-        # Kimlik bilgilerini kaydet
+        # Kimlik bilgilerini kaydediyoruz
         save_credentials(credentials)
         
         global youtube_service, youtube_credentials
@@ -218,7 +216,7 @@ async def get_channel_info():
     try:
         global youtube_service, youtube_credentials
         
-        # Eğer servis yoksa, kaydedilmiş kimlik bilgilerini yükle
+        # Eğer servis yoksa, kaydedilmiş kimlik bilgilerini yükler
         if not youtube_service or not youtube_credentials:
             credentials = load_credentials()
             if credentials:

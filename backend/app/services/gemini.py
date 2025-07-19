@@ -6,23 +6,23 @@ from ..models.comment import Comment
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Gemini API'yi başlat
+# Gemini API'yi başlatan kodumuz. API keyimizi .envden alıyoruz.
 load_dotenv()
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
-async def analyze_comments(comments: List[Comment]) -> Dict[str, Any]:
+async def analyze_comments(comments: List[Comment]) -> Dict[str, Any]: # Analiz özeti oluştururken kullanılacak metod.
     """Yorumları Gemini API ile analiz eder."""
     try:
-        # Gemini modelini başlat
+        # 2.0 modeli kullanıldı. Gerekirse model güncellemesi yapılacak.
         model = genai.GenerativeModel('gemini-2.0-flash')
         
-        # Yorumları metin formatına dönüştür
+        # Youtube apisinden çektiğimiz yorumları text formatına dönüştürüyoruz.
         comments_text = "\n".join([
             f"Yorum {i+1}: {comment.text} (Duygu: {json.dumps(comment.sentiment)})"
             for i, comment in enumerate(comments)
         ])
         
-        # Analiz için prompt oluştur
+        # Genel analiz promptumuz bu şekilde. Sohbet promptu için farklı bir prompt oluşturulacak.
         prompt = f"""
         Aşağıdaki YouTube yorumlarını analiz et ve şu konularda değerlendirme yap:
         1. Genel duygu durumu
@@ -36,7 +36,7 @@ async def analyze_comments(comments: List[Comment]) -> Dict[str, Any]:
         {comments_text}
         """
         
-        # Gemini API'ye istek gönder
+        # API'mize istek gönderiyoruz.
         response = model.generate_content(prompt)
         
         return {
@@ -47,13 +47,12 @@ async def analyze_comments(comments: List[Comment]) -> Dict[str, Any]:
         print(f"Gemini analiz hatası: {str(e)}")
         raise
 
-async def chat_with_ai(message: str, comments: Optional[List[Comment]] = None) -> Dict[str, Any]:
+async def chat_with_ai(message: str, comments: Optional[List[Comment]] = None) -> Dict[str, Any]: # AI ile sohbet ederken kullanılacak metodumuz.
     """AI ile normal sohbet eder."""
     try:
-        # Gemini modelini başlat
         model = genai.GenerativeModel('gemini-2.0-flash')
         
-        # Sohbet için sistem mesajı
+        # Genel sohbet promptumuz.
         system_prompt = """
         Sen CommsItumo platformunun AI asistanısın. YouTuber'lara ve içerik üreticilerine yardım eden samimi ve yardımsever bir asistansın.
         
@@ -77,7 +76,7 @@ async def chat_with_ai(message: str, comments: Optional[List[Comment]] = None) -
         # Kullanıcı mesajını işle
         full_prompt = f"{system_prompt}\n\nKullanıcı: {message}\n\nAsistan:"
         
-        # Gemini API'ye istek gönder
+        # API isteği.
         response = model.generate_content(full_prompt)
         
         return {

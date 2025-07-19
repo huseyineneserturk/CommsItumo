@@ -12,6 +12,12 @@
 [![GitHub Issues](https://img.shields.io/github/issues/huseyineneserturk/CommsItumo?style=for-the-badge)](https://github.com/huseyineneserturk/CommsItumo/issues)
 [![License](https://img.shields.io/github/license/huseyineneserturk/CommsItumo?style=for-the-badge)](LICENSE)
 
+## 🎬 **Promo Video | Tanıtım Videosu**
+
+[![CommsItumo Promotional Video](Resources/Screenshots/1.png)](Resources/Promotional%20Video.mp4)
+
+*Click the image above to watch our promotional video / Tanıtım videosunu izlemek için yukarıdaki resme tıklayın*
+
 [🇬🇧 English Version](#english-version) • [🇹🇷 Türkçe Versiyon](#türkçe-versiyon)
 
 </div>
@@ -31,6 +37,7 @@
 
 - [🎯 About the Project](#-about-the-project)
 - [✨ Features](#-features)
+- [📸 Screenshots](#-screenshots)
 - [🎨 Modern UI Design](#-modern-ui-design)
 - [🛠️ Technologies](#️-technologies)
 - [📦 Installation](#-installation)
@@ -46,6 +53,13 @@
 ## 🎯 About the Project
 
 CommsItumo is a cutting-edge web application that analyzes YouTube video comments using AI-powered sentiment analysis and theme detection, featuring a modern glassmorphism design system that provides an exceptional user experience for content creators and marketing specialists.
+
+<div align="center">
+
+![Dashboard Overview](Resources/Screenshots/2.png)
+*Modern Dashboard with Real-time Analytics*
+
+</div>
 
 ### 🎯 Target Audience
 - **Content Creators**: YouTube channel owners seeking deep audience insights
@@ -68,6 +82,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 ## ✨ Features
 
 ### 🎬 Advanced YouTube Analysis
+
+<div align="center">
+
+![YouTube Analysis Interface](Resources/Screenshots/3.png)
+*YouTube Video Analysis Interface with Real-time Progress*
+
+</div>
+
 - **One-Click Comment Extraction**: Seamless integration with YouTube Data API v3
 - **⚡ Real-time Processing**: Live progress updates via WebSocket connections
 - **📊 Intelligent Batching**: Optimized processing with smart comment grouping
@@ -77,6 +99,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **📱 Mobile-Optimized**: Responsive interface for all device sizes
 
 ### 🧠 AI-Powered Sentiment Analysis
+
+<div align="center">
+
+![Sentiment Analysis Results](Resources/Screenshots/4.png)
+*Detailed Sentiment Analysis with Interactive Charts*
+
+</div>
+
 - **Transformer Models**: State-of-the-art NLP with Hugging Face integration
 - **Multi-Dimensional Classification**: Positive, Negative, Neutral sentiment detection
 - **Confidence Metrics**: Reliability scoring for each analysis result
@@ -85,6 +115,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Real-time Inference**: Asynchronous model processing for optimal performance
 
 ### 🏷️ Smart Theme Detection
+
+<div align="center">
+
+![Theme Analysis](Resources/Screenshots/5.png)
+*Advanced Theme Detection and Word Cloud Visualization*
+
+</div>
+
 - **NLP-Powered Topics**: Automatic theme identification in comment sections
 - **Advanced Keyword Extraction**: Intelligent word frequency and relevance analysis
 - **Content Categorization**: Quality, style, and technical aspect classification
@@ -92,6 +130,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Word Cloud Generation**: Beautiful visualizations with @visx/wordcloud
 
 ### 📈 Modern Data Visualization
+
+<div align="center">
+
+![Data Visualization](Resources/Screenshots/6.png)
+*Interactive Charts and Statistics Dashboard*
+
+</div>
+
 - **Interactive Charts**: Dynamic visualizations powered by Recharts library
 - **Real-time Data Binding**: Live updates with React state management
 - **Responsive Design**: Mobile-first visualization approach
@@ -99,6 +145,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Smooth Animations**: Fluid transitions and engaging hover effects
 
 ### 📁 Flexible File Processing
+
+<div align="center">
+
+![CSV Upload Interface](Resources/Screenshots/7.png)
+*Drag & Drop CSV Upload with Smart Validation*
+
+</div>
+
 - **Drag & Drop Interface**: Intuitive file upload with visual feedback
 - **Smart Validation**: Automatic CSV structure detection and error handling
 - **Batch Processing**: Efficient handling of large comment datasets
@@ -106,6 +160,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Error Recovery**: Comprehensive validation with user-friendly feedback
 
 ### 💾 Advanced Caching System
+
+<div align="center">
+
+![Cache Management](Resources/Screenshots/8.png)
+*Intelligent Cache System with Performance Monitoring*
+
+</div>
+
 - **3-Tier Architecture**:
   - Analysis Cache: 1 hour TTL, 30MB capacity
   - Video Cache: 30 minutes TTL, 20MB capacity  
@@ -116,6 +178,14 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **High Efficiency**: 70-80% average hit rate
 
 ### 🌐 Real-time Communication
+
+<div align="center">
+
+![WebSocket Progress](Resources/Screenshots/9.png)
+*Real-time Progress Tracking with WebSocket Technology*
+
+</div>
+
 - **WebSocket Architecture**: Singleton connection manager for optimal performance
 - **Health Monitoring**: Advanced ping-pong heartbeat system
 - **Auto-Recovery**: Robust reconnection mechanisms with exponential backoff
@@ -123,11 +193,86 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Priority Queuing**: Intelligent task ordering and resource allocation
 
 ### 🤖 AI Chat Assistant
+
+<div align="center">
+
+![AI Chat Assistant](Resources/Screenshots/10.png)
+*Modern AI Chat Interface with Glassmorphism Design*
+
+</div>
+
 - **Google Gemini Integration**: Cutting-edge conversational AI capabilities
 - **Context-Aware Intelligence**: Analysis data-driven intelligent responses
 - **Natural Conversations**: Intuitive multi-turn dialogue management
 - **Actionable Insights**: Smart recommendations and strategy suggestions
 - **Modern Chat UI**: Glassmorphism design with smooth animations
+
+---
+
+## 📸 Screenshots
+
+### 🏠 Dashboard & Analytics
+
+<div align="center">
+
+![Dashboard](Resources/Screenshots/11.png)
+*Main Dashboard with Modern Glass Design*
+
+![Analytics Overview](Resources/Screenshots/12.png)
+*Comprehensive Analytics Overview*
+
+</div>
+
+### 📊 Analysis Results
+
+<div align="center">
+
+![Detailed Results](Resources/Screenshots/13.png)
+*Detailed Analysis Results with Interactive Elements*
+
+![Comment Analysis](Resources/Screenshots/14.png)
+*Individual Comment Analysis with Sentiment Scoring*
+
+</div>
+
+### 👤 User Profile & Management
+
+<div align="center">
+
+![User Profile](Resources/Screenshots/15.png)
+*User Profile with Channel Statistics*
+
+![My Comments](Resources/Screenshots/16.png)
+*Personal Comment History and Analysis*
+
+</div>
+
+### 🎨 Modern UI Elements
+
+<div align="center">
+
+![UI Components](Resources/Screenshots/17.png)
+*Beautiful UI Components with Glassmorphism*
+
+![Responsive Design](Resources/Screenshots/18.png)
+*Mobile-Responsive Interface Design*
+
+</div>
+
+### 📱 Mobile Experience
+
+<div align="center">
+
+![Mobile Interface](Resources/Screenshots/19.png)
+*Optimized Mobile Interface*
+
+![Mobile Analysis](Resources/Screenshots/20.png)
+*Mobile Analysis Experience*
+
+![Mobile Dashboard](Resources/Screenshots/21.png)
+*Mobile Dashboard View*
+
+</div>
 
 ---
 
@@ -474,6 +619,7 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE) - 
 
 - [🎯 Proje Hakkında](#-proje-hakkında)
 - [✨ Özellikler](#-özellikler)
+- [📸 Ekran Görüntüleri](#-ekran-görüntüleri)
 - [🎨 Modern UI Tasarımı](#-modern-ui-tasarımı)
 - [🛠️ Teknolojiler](#️-teknolojiler)
 - [📦 Kurulum](#-kurulum)
@@ -489,6 +635,13 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE) - 
 ## 🎯 Proje Hakkında
 
 CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tema tespiti ile çözümleyerek içerik üreticilerine ve pazarlama uzmanlarına değerli bulgular sunan modern bir web uygulamasıdır.
+
+<div align="center">
+
+![Dashboard Genel Bakış](Resources/Screenshots/2.png)
+*Gerçek Zamanlı Analitik ile Modern Dashboard*
+
+</div>
 
 ### 🎯 Hedef Kitle
 - **İçerik Üreticiler**: İzleyici öngörüleri arayan YouTube kanal sahipleri
@@ -511,6 +664,14 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 ## ✨ Özellikler
 
 ### 🎬 YouTube Video Analizi
+
+<div align="center">
+
+![YouTube Analiz Arayüzü](Resources/Screenshots/3.png)
+*Gerçek Zamanlı İlerleme ile YouTube Video Analiz Arayüzü*
+
+</div>
+
 - **Otomatik Yorum Toplama**: YouTube Data API v3 ile tek tıkla yorum toplama
 - **⚡ Eş Zamanlı Analiz**: WebSocket bağlantıları ile gerçek zamanlı ilerleme güncellemeleri
 - **📊 Toplu İşleme**: 20 yorumluk gruplar halinde verimli işleme
@@ -520,6 +681,14 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 - **📱 Duyarlı İlerleme**: Mobil optimize ilerleme takip arayüzü
 
 ### 📊 Gelişmiş Duygu Analizi
+
+<div align="center">
+
+![Duygu Analizi Sonuçları](Resources/Screenshots/4.png)
+*Etkileşimli Grafiklerle Detaylı Duygu Analizi*
+
+</div>
+
 - **Yapay Zeka Destekli Analiz**: Hugging Face entegrasyonu ile Transformer tabanlı modeller
 - **Çoklu Kategori Sınıflandırma**: Pozitif, negatif, nötr duygu tespiti
 - **Güven Puanlama**: Her analiz sonucu için güvenilirlik ölçütleri
@@ -528,49 +697,86 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 - **Gerçek Zamanlı İşleme**: Hızlı sonuçlar için eş zamanlı model çıkarımı
 
 ### 🏷️ Akıllı Tema Analizi
+
+<div align="center">
+
+![Tema Analizi](Resources/Screenshots/5.png)
+*Gelişmiş Tema Tespiti ve Kelime Bulutu Görselleştirmesi*
+
+</div>
+
 - **Otomatik Tema Tespiti**: Yorumlarda doğal dil işleme destekli konu tanımlama
 - **Anahtar Kelime Çıkarımı**: Gelişmiş kelime sıklığı ve önem analizi
 - **Kategori Sınıflandırma**: İçerik kalitesi, sunum tarzı, teknik yönler
 - **Trend Görselleştirme**: Zaman içinde tema evrimi takibi
 - **Kelime Bulutu Oluşturma**: @visx/wordcloud ile görsel gösterim
 
-### 📈 Modern Veri Görselleştirme
-- **Etkileşimli Grafikler**: Recharts destekli dinamik görselleştirmeler
-- **Gerçek Zamanlı Güncellemeler**: React durum yönetimi ile canlı veri bağlama
-- **Duyarlı Tasarım**: Mobil öncelikli görselleştirme yaklaşımı
-- **Dışa Aktarma Yetenekleri**: Raporlar için PNG/PDF dışa aktarma işlevi
-- **Özel Animasyonlar**: Pürüzsüz geçişler ve hover efektleri
+---
 
-### 📁 Esnek CSV Desteği
-- **Sürükle Bırak Yükleme**: Sezgisel dosya yükleme arayüzü
-- **Format Doğrulama**: Otomatik CSV yapı algılama ve doğrulama
-- **Toplu İşleme**: Binlerce yorumu verimli şekilde işleme
-- **Özel Ayırıcılar**: Çeşitli CSV formatları için destek
-- **Hata İşleme**: Kullanıcı geri bildirimi ile kapsamlı doğrulama
+## 📸 Ekran Görüntüleri
 
-### 💾 Akıllı Önbellekleme Sistemi
-- **3 Katmanlı Önbellek Mimarisi**:
-  - Analiz Önbelleği: 1 saat TTL, 30MB limit
-  - Video Önbelleği: 30 dakika TTL, 20MB limit
-  - Hızlı Önbellek: 5 dakika TTL, 10MB limit
-- **LRU Çıkarma Politikası**: Akıllı bellek yönetimi
-- **Önbellek İstatistikleri**: İsabet/kaçırma oranları ile performans izleme
-- **Otomatik Temizlik**: Otomatik bellek optimizasyonu
-- **%70-80 İsabet Oranı**: Performans için optimize edilmiş
+### 🏠 Ana Panel ve Analitik
 
-### 🌐 Gerçek Zamanlı WebSocket Sistemi
-- **Tekil Bağlantı Yöneticisi**: Verimli bağlantı havuzlama
-- **Kalp Atışı İzleme**: Ping-pong tabanlı bağlantı sağlık kontrolleri
-- **Otomatik Yeniden Bağlanma**: Sağlam hata kurtarma mekanizmaları
-- **Kullanıcı Tabanlı Oturumlar**: Kullanıcı başına izole ilerleme takibi
-- **Görev Kuyruğu Yönetimi**: Öncelik ile sıralı görev işleme
+<div align="center">
 
-### 🤖 Yapay Zeka Sohbet Asistanı
-- **Google Gemini Entegrasyonu**: Gelişmiş konuşma yapay zeka yetenekleri
-- **Bağlam Farkında Yanıtlar**: Analiz verisi temelli akıllı cevaplar
-- **Doğal Dil İşleme**: Sezgisel kullanıcı etkileşimi
-- **Öneri Motoru**: Eyleme dönüştürülebilir bulgular ve öneriler
-- **Çok Turlu Konuşmalar**: Bağlamsal diyalog yönetimi
+![Ana Panel](Resources/Screenshots/11.png)
+*Modern Cam Tasarımlı Ana Panel*
+
+![Analitik Genel Bakış](Resources/Screenshots/12.png)
+*Kapsamlı Analitik Genel Bakış*
+
+</div>
+
+### 📊 Analiz Sonuçları
+
+<div align="center">
+
+![Detaylı Sonuçlar](Resources/Screenshots/13.png)
+*Etkileşimli Elementlerle Detaylı Analiz Sonuçları*
+
+![Yorum Analizi](Resources/Screenshots/14.png)
+*Duygu Puanlama ile Bireysel Yorum Analizi*
+
+</div>
+
+### 👤 Kullanıcı Profili ve Yönetim
+
+<div align="center">
+
+![Kullanıcı Profili](Resources/Screenshots/15.png)
+*Kanal İstatistikleri ile Kullanıcı Profili*
+
+![Yorumlarım](Resources/Screenshots/16.png)
+*Kişisel Yorum Geçmişi ve Analizi*
+
+</div>
+
+### 🎨 Modern UI Elementleri
+
+<div align="center">
+
+![UI Bileşenleri](Resources/Screenshots/17.png)
+*Glassmorphism ile Güzel UI Bileşenleri*
+
+![Duyarlı Tasarım](Resources/Screenshots/18.png)
+*Mobil-Duyarlı Arayüz Tasarımı*
+
+</div>
+
+### 📱 Mobil Deneyim
+
+<div align="center">
+
+![Mobil Arayüz](Resources/Screenshots/19.png)
+*Optimize Edilmiş Mobil Arayüz*
+
+![Mobil Analiz](Resources/Screenshots/20.png)
+*Mobil Analiz Deneyimi*
+
+![Mobil Dashboard](Resources/Screenshots/21.png)
+*Mobil Dashboard Görünümü*
+
+</div>
 
 ---
 

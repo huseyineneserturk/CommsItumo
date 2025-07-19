@@ -8,11 +8,11 @@ import logging
 from typing import Dict, List, Any
 from services.sentiment_service import sentiment_service
 
-# Loglama ayarları
+# Loglama
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# NLTK gerekli verileri indir
+# NLTK verilerini indirme.
 try:
     nltk.download('punkt')
     nltk.download('stopwords')
@@ -77,7 +77,7 @@ class CSVAnalyzer:
             # Tema analizi
             theme_analysis = self.sentiment_service.get_theme_analysis(analyzed_comments)
             
-            # sentiment_stats'e tema verilerini de ekle (backward compatibility için)
+            # sentiment_stats'e tema verilerini de ekle
             sentiment_stats['themes'] = {}
             for theme_item in theme_analysis:
                 sentiment_stats['themes'][theme_item['theme']] = theme_item['count']

@@ -29,8 +29,6 @@ const SENTIMENT_COLORS = {
   negative: '#ff4d4f'
 };
 
-// WordCloudProps artık kullanılmıyor - EnhancedWordCloud ile değiştirildi
-
 // Video Seçimi Bileşeni
 const VideoSelection: React.FC<{
   onVideoSelect: (video: VideoInfo) => void;
