@@ -54,13 +54,6 @@
 
 CommsItumo is a cutting-edge web application that analyzes YouTube video comments using AI-powered sentiment analysis and theme detection, featuring a modern glassmorphism design system that provides an exceptional user experience for content creators and marketing specialists.
 
-<div align="center">
-
-![Dashboard Overview](Resources/Screenshots/2.png)
-*Modern Dashboard with Real-time Analytics*
-
-</div>
-
 ### 🎯 Target Audience
 - **Content Creators**: YouTube channel owners seeking deep audience insights
 - **Marketing Specialists**: Social media analysts tracking brand sentiment across platforms
@@ -83,13 +76,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ### 🎬 Advanced YouTube Analysis
 
-<div align="center">
-
-![YouTube Analysis Interface](Resources/Screenshots/3.png)
-*YouTube Video Analysis Interface with Real-time Progress*
-
-</div>
-
 - **One-Click Comment Extraction**: Seamless integration with YouTube Data API v3
 - **⚡ Real-time Processing**: Live progress updates via WebSocket connections
 - **📊 Intelligent Batching**: Optimized processing with smart comment grouping
@@ -100,13 +86,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ### 🧠 AI-Powered Sentiment Analysis
 
-<div align="center">
-
-![Sentiment Analysis Results](Resources/Screenshots/4.png)
-*Detailed Sentiment Analysis with Interactive Charts*
-
-</div>
-
 - **Transformer Models**: State-of-the-art NLP with Hugging Face integration
 - **Multi-Dimensional Classification**: Positive, Negative, Neutral sentiment detection
 - **Confidence Metrics**: Reliability scoring for each analysis result
@@ -116,13 +95,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ### 🏷️ Smart Theme Detection
 
-<div align="center">
-
-![Theme Analysis](Resources/Screenshots/5.png)
-*Advanced Theme Detection and Word Cloud Visualization*
-
-</div>
-
 - **NLP-Powered Topics**: Automatic theme identification in comment sections
 - **Advanced Keyword Extraction**: Intelligent word frequency and relevance analysis
 - **Content Categorization**: Quality, style, and technical aspect classification
@@ -130,13 +102,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Word Cloud Generation**: Beautiful visualizations with @visx/wordcloud
 
 ### 📈 Modern Data Visualization
-
-<div align="center">
-
-![Data Visualization](Resources/Screenshots/6.png)
-*Interactive Charts and Statistics Dashboard*
-
-</div>
 
 - **Interactive Charts**: Dynamic visualizations powered by Recharts library
 - **Real-time Data Binding**: Live updates with React state management
@@ -146,13 +111,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ### 📁 Flexible File Processing
 
-<div align="center">
-
-![CSV Upload Interface](Resources/Screenshots/7.png)
-*Drag & Drop CSV Upload with Smart Validation*
-
-</div>
-
 - **Drag & Drop Interface**: Intuitive file upload with visual feedback
 - **Smart Validation**: Automatic CSV structure detection and error handling
 - **Batch Processing**: Efficient handling of large comment datasets
@@ -160,13 +118,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Error Recovery**: Comprehensive validation with user-friendly feedback
 
 ### 💾 Advanced Caching System
-
-<div align="center">
-
-![Cache Management](Resources/Screenshots/8.png)
-*Intelligent Cache System with Performance Monitoring*
-
-</div>
 
 - **3-Tier Architecture**:
   - Analysis Cache: 1 hour TTL, 30MB capacity
@@ -179,13 +130,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ### 🌐 Real-time Communication
 
-<div align="center">
-
-![WebSocket Progress](Resources/Screenshots/9.png)
-*Real-time Progress Tracking with WebSocket Technology*
-
-</div>
-
 - **WebSocket Architecture**: Singleton connection manager for optimal performance
 - **Health Monitoring**: Advanced ping-pong heartbeat system
 - **Auto-Recovery**: Robust reconnection mechanisms with exponential backoff
@@ -193,13 +137,6 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 - **Priority Queuing**: Intelligent task ordering and resource allocation
 
 ### 🤖 AI Chat Assistant
-
-<div align="center">
-
-![AI Chat Assistant](Resources/Screenshots/10.png)
-*Modern AI Chat Interface with Glassmorphism Design*
-
-</div>
 
 - **Google Gemini Integration**: Cutting-edge conversational AI capabilities
 - **Context-Aware Intelligence**: Analysis data-driven intelligent responses
@@ -211,66 +148,43 @@ CommsItumo is a cutting-edge web application that analyzes YouTube video comment
 
 ## 📸 Screenshots
 
-### 🏠 Dashboard & Analytics
-
 <div align="center">
 
-![Dashboard](Resources/Screenshots/11.png)
-*Main Dashboard with Modern Glass Design*
-
-![Analytics Overview](Resources/Screenshots/12.png)
-*Comprehensive Analytics Overview*
-
-</div>
-
-### 📊 Analysis Results
-
-<div align="center">
-
-![Detailed Results](Resources/Screenshots/13.png)
-*Detailed Analysis Results with Interactive Elements*
-
-![Comment Analysis](Resources/Screenshots/14.png)
-*Individual Comment Analysis with Sentiment Scoring*
-
-</div>
-
-### 👤 User Profile & Management
-
-<div align="center">
-
-![User Profile](Resources/Screenshots/15.png)
-*User Profile with Channel Statistics*
-
-![My Comments](Resources/Screenshots/16.png)
-*Personal Comment History and Analysis*
-
-</div>
-
-### 🎨 Modern UI Elements
-
-<div align="center">
-
-![UI Components](Resources/Screenshots/17.png)
-*Beautiful UI Components with Glassmorphism*
-
-![Responsive Design](Resources/Screenshots/18.png)
-*Mobile-Responsive Interface Design*
-
-</div>
-
-### 📱 Mobile Experience
-
-<div align="center">
-
-![Mobile Interface](Resources/Screenshots/19.png)
-*Optimized Mobile Interface*
-
-![Mobile Analysis](Resources/Screenshots/20.png)
-*Mobile Analysis Experience*
-
-![Mobile Dashboard](Resources/Screenshots/21.png)
-*Mobile Dashboard View*
+<table>
+<tr>
+<td><a href="Resources/Screenshots/1.png"><img src="Resources/Screenshots/1.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/2.png"><img src="Resources/Screenshots/2.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/3.png"><img src="Resources/Screenshots/3.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/4.png"><img src="Resources/Screenshots/4.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/5.png"><img src="Resources/Screenshots/5.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/6.png"><img src="Resources/Screenshots/6.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/7.png"><img src="Resources/Screenshots/7.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/8.png"><img src="Resources/Screenshots/8.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/9.png"><img src="Resources/Screenshots/9.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/10.png"><img src="Resources/Screenshots/10.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/11.png"><img src="Resources/Screenshots/11.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/12.png"><img src="Resources/Screenshots/12.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/13.png"><img src="Resources/Screenshots/13.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/14.png"><img src="Resources/Screenshots/14.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/15.png"><img src="Resources/Screenshots/15.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/16.png"><img src="Resources/Screenshots/16.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/17.png"><img src="Resources/Screenshots/17.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/18.png"><img src="Resources/Screenshots/18.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/19.png"><img src="Resources/Screenshots/19.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/20.png"><img src="Resources/Screenshots/20.png" width="200"/></a></td>
+</tr>
+<tr>
+<td colspan="4" align="center"><a href="Resources/Screenshots/21.png"><img src="Resources/Screenshots/21.png" width="200"/></a></td>
+</tr>
+</table>
 
 </div>
 
@@ -636,13 +550,6 @@ This project is licensed under the [GNU General Public License v3.0](LICENSE) - 
 
 CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tema tespiti ile çözümleyerek içerik üreticilerine ve pazarlama uzmanlarına değerli bulgular sunan modern bir web uygulamasıdır.
 
-<div align="center">
-
-![Dashboard Genel Bakış](Resources/Screenshots/2.png)
-*Gerçek Zamanlı Analitik ile Modern Dashboard*
-
-</div>
-
 ### 🎯 Hedef Kitle
 - **İçerik Üreticiler**: İzleyici öngörüleri arayan YouTube kanal sahipleri
 - **Pazarlama Uzmanları**: Marka duygularını takip eden sosyal medya analistleri  
@@ -665,13 +572,6 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 
 ### 🎬 YouTube Video Analizi
 
-<div align="center">
-
-![YouTube Analiz Arayüzü](Resources/Screenshots/3.png)
-*Gerçek Zamanlı İlerleme ile YouTube Video Analiz Arayüzü*
-
-</div>
-
 - **Otomatik Yorum Toplama**: YouTube Data API v3 ile tek tıkla yorum toplama
 - **⚡ Eş Zamanlı Analiz**: WebSocket bağlantıları ile gerçek zamanlı ilerleme güncellemeleri
 - **📊 Toplu İşleme**: 20 yorumluk gruplar halinde verimli işleme
@@ -682,13 +582,6 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 
 ### 📊 Gelişmiş Duygu Analizi
 
-<div align="center">
-
-![Duygu Analizi Sonuçları](Resources/Screenshots/4.png)
-*Etkileşimli Grafiklerle Detaylı Duygu Analizi*
-
-</div>
-
 - **Yapay Zeka Destekli Analiz**: Hugging Face entegrasyonu ile Transformer tabanlı modeller
 - **Çoklu Kategori Sınıflandırma**: Pozitif, negatif, nötr duygu tespiti
 - **Güven Puanlama**: Her analiz sonucu için güvenilirlik ölçütleri
@@ -697,13 +590,6 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 - **Gerçek Zamanlı İşleme**: Hızlı sonuçlar için eş zamanlı model çıkarımı
 
 ### 🏷️ Akıllı Tema Analizi
-
-<div align="center">
-
-![Tema Analizi](Resources/Screenshots/5.png)
-*Gelişmiş Tema Tespiti ve Kelime Bulutu Görselleştirmesi*
-
-</div>
 
 - **Otomatik Tema Tespiti**: Yorumlarda doğal dil işleme destekli konu tanımlama
 - **Anahtar Kelime Çıkarımı**: Gelişmiş kelime sıklığı ve önem analizi
@@ -715,66 +601,43 @@ CommsItumo, YouTube video yorumlarını yapay zeka destekli duygu analizi ve tem
 
 ## 📸 Ekran Görüntüleri
 
-### 🏠 Ana Panel ve Analitik
-
 <div align="center">
 
-![Ana Panel](Resources/Screenshots/11.png)
-*Modern Cam Tasarımlı Ana Panel*
-
-![Analitik Genel Bakış](Resources/Screenshots/12.png)
-*Kapsamlı Analitik Genel Bakış*
-
-</div>
-
-### 📊 Analiz Sonuçları
-
-<div align="center">
-
-![Detaylı Sonuçlar](Resources/Screenshots/13.png)
-*Etkileşimli Elementlerle Detaylı Analiz Sonuçları*
-
-![Yorum Analizi](Resources/Screenshots/14.png)
-*Duygu Puanlama ile Bireysel Yorum Analizi*
-
-</div>
-
-### 👤 Kullanıcı Profili ve Yönetim
-
-<div align="center">
-
-![Kullanıcı Profili](Resources/Screenshots/15.png)
-*Kanal İstatistikleri ile Kullanıcı Profili*
-
-![Yorumlarım](Resources/Screenshots/16.png)
-*Kişisel Yorum Geçmişi ve Analizi*
-
-</div>
-
-### 🎨 Modern UI Elementleri
-
-<div align="center">
-
-![UI Bileşenleri](Resources/Screenshots/17.png)
-*Glassmorphism ile Güzel UI Bileşenleri*
-
-![Duyarlı Tasarım](Resources/Screenshots/18.png)
-*Mobil-Duyarlı Arayüz Tasarımı*
-
-</div>
-
-### 📱 Mobil Deneyim
-
-<div align="center">
-
-![Mobil Arayüz](Resources/Screenshots/19.png)
-*Optimize Edilmiş Mobil Arayüz*
-
-![Mobil Analiz](Resources/Screenshots/20.png)
-*Mobil Analiz Deneyimi*
-
-![Mobil Dashboard](Resources/Screenshots/21.png)
-*Mobil Dashboard Görünümü*
+<table>
+<tr>
+<td><a href="Resources/Screenshots/1.png"><img src="Resources/Screenshots/1.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/2.png"><img src="Resources/Screenshots/2.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/3.png"><img src="Resources/Screenshots/3.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/4.png"><img src="Resources/Screenshots/4.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/5.png"><img src="Resources/Screenshots/5.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/6.png"><img src="Resources/Screenshots/6.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/7.png"><img src="Resources/Screenshots/7.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/8.png"><img src="Resources/Screenshots/8.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/9.png"><img src="Resources/Screenshots/9.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/10.png"><img src="Resources/Screenshots/10.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/11.png"><img src="Resources/Screenshots/11.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/12.png"><img src="Resources/Screenshots/12.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/13.png"><img src="Resources/Screenshots/13.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/14.png"><img src="Resources/Screenshots/14.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/15.png"><img src="Resources/Screenshots/15.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/16.png"><img src="Resources/Screenshots/16.png" width="200"/></a></td>
+</tr>
+<tr>
+<td><a href="Resources/Screenshots/17.png"><img src="Resources/Screenshots/17.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/18.png"><img src="Resources/Screenshots/18.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/19.png"><img src="Resources/Screenshots/19.png" width="200"/></a></td>
+<td><a href="Resources/Screenshots/20.png"><img src="Resources/Screenshots/20.png" width="200"/></a></td>
+</tr>
+<tr>
+<td colspan="4" align="center"><a href="Resources/Screenshots/21.png"><img src="Resources/Screenshots/21.png" width="200"/></a></td>
+</tr>
+</table>
 
 </div>
 
